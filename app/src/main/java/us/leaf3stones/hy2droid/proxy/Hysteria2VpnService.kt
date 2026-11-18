@@ -98,7 +98,6 @@ class Hysteria2VpnService : VpnService() {
      */
     private var hysteriaConfigFile: File? = null
 
-
     /** Live, usable (non-VPN) transports; the value is a [NetworkSwitchPolicy] token. */
     private val networkTokenCache = ConcurrentHashMap<Network, String>()
 
@@ -309,7 +308,6 @@ class Hysteria2VpnService : VpnService() {
             SettingsStore.DEFAULT_DNS_SERVERS
         }
 
-
         val bypassLan = try {
             settings.bypassLan.first()
         } catch (_: Exception) {
@@ -379,7 +377,6 @@ class Hysteria2VpnService : VpnService() {
             fail(getString(R.string.error_tun2socks_config, e.message ?: ""))
             return
         }
-
 
         // A stop may have landed while we were reading settings; cancellation only
         // takes effect at suspension points, so check explicitly before creating

@@ -68,6 +68,9 @@ android {
     buildTypes {
         release {
             minifyEnabled true
+            // Also strip resources no reachable code references; without this the
+            // release APK keeps every string, drawable and layout in the table.
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             if (keystoreFile.exists()) {
                 signingConfig signingConfigs.release
