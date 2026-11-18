@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hy2droid — native Hysteria 2 for Android</title>
-<meta name="description" content="Hy2droid is a free, open-source Hysteria 2 client for Android. Paste a share link or scan a QR, connect a full-tunnel VpnService over IPv4 or IPv6, with no root and no Google Play Services.">
+<meta name="description" content="Hy2droid is a free, open-source Hysteria 2 client for Android. Paste a share link or scan a QR code and the phone's traffic goes out through your own server over IPv4 or IPv6, with no root and no Google Play Services.">
 <meta name="theme-color" content="#070907">
 <meta name="color-scheme" content="dark light">
 <link rel="canonical" href="https://noelbennettz.github.io/Hy2droid/">
@@ -77,11 +77,11 @@
       <p class="eyebrow"><span class="dot"></span>Hysteria 2 / Android 11+ / no root</p>
       <h1>Hysteria 2,<br><span class="grad">native Android.</span></h1>
       <p class="lede">
-        Hy2droid is an Android client for the Hysteria 2 proxy protocol. Add a
-        profile from a <code>hysteria2://</code> share link or a QR code, press
-        connect, and the phone reaches the network through your server over a
-        full-tunnel <code>VpnService</code>. No root, no Google Play Services,
-        no account.
+        Hy2droid connects an Android phone to a Hysteria 2 server you already
+        have. Paste the share link you were given (or scan its QR code), press
+        connect, and everything the phone sends goes to the internet through
+        that server instead of your mobile or Wi-Fi provider. It needs Android
+        11 or newer; no root, no Google account, no configuration file.
       </p>
       <div class="actions">
         <a class="btn btn-primary" href="https://github.com/noelbennettz/Hy2droid/releases/latest/download/app-arm64-v8a-release.apk" data-asset="arm64">
@@ -112,9 +112,9 @@
   <div class="container">
     <div class="section-head">
       <h2>What it does</h2>
-      <p>One profile is one share link. Everything else is the tunnel: the phone's
-        traffic goes through your Hysteria 2 server, and the app reports what it
-        can and cannot do.</p>
+      <p>Add a profile, press connect, and the phone's internet traffic leaves
+        through your server. The home screen shows whether the connection is up,
+        how much data has moved, and — when it fails — which step failed.</p>
     </div>
     <div class="grid">
       <article class="card">
@@ -122,12 +122,12 @@
         <p>Paste a <code>hysteria2://</code> link, scan a QR code with the camera (no network involved), or open a link in the browser and let it hand the profile to the app. Switching profiles while connected rebuilds the tunnel.</p>
       </article>
       <article class="card">
-        <h3>Full tunnel, both address families</h3>
-        <p>IPv4 and IPv6 are routed through the VPN. The server field takes a hostname, an IPv4 address or an IPv6 address, with the port in its own field.</p>
+        <h3>Both address families</h3>
+        <p>The connection carries IPv4 and IPv6 traffic alike. The server field takes a hostname or an address, and the port has its own field.</p>
       </article>
       <article class="card">
-        <h3>Split tunnelling</h3>
-        <p>Choose apps that bypass the VPN by package. On Android 13 and newer, local-network traffic can stay local, so printers, NAS boxes and casting keep working.</p>
+        <h3>Choose apps</h3>
+        <p>Pick apps that should not use the connection. On Android 13 and newer, local-network traffic can stay local, so printers, NAS boxes and casting keep working.</p>
       </article>
       <article class="card">
         <h3>Failures are named</h3>

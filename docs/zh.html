@@ -77,10 +77,10 @@
       <p class="eyebrow"><span class="dot"></span>Hysteria 2 / Android 11+ / 免 root</p>
       <h1>Hysteria 2，<br><span class="grad">Android 原生。</span></h1>
       <p class="lede">
-        Hy2droid 是 Hysteria 2 代理協定的 Android 客戶端。從
-        <code>hysteria2://</code> 分享連結或 QR 碼加入節點，按下連線，
-        整台手機就會經過你的伺服器走完整通道的 <code>VpnService</code>。
-        不需要 root、不需要 Google Play 服務，也不需要帳號。
+        Hy2droid 把 Android 手機接到你手上的 Hysteria 2 伺服器。貼上別人給你的分享連結
+        （或用相機掃 QR 碼）、按下連線，手機送出的流量就改由那台伺服器出去，
+        而不是你的行動網路或 Wi-Fi 供應商。需要 Android 11 以上；不用 root、
+        不用 Google 帳號，也沒有設定檔要改。
       </p>
       <div class="actions">
         <a class="btn btn-primary" href="https://github.com/noelbennettz/Hy2droid/releases/latest/download/app-arm64-v8a-release.apk" data-asset="arm64">
@@ -111,8 +111,8 @@
   <div class="container">
     <div class="section-head">
       <h2>它做什麼</h2>
-      <p>一個節點就是一條分享連結。其餘都是通道：手機的流量經過你的 Hysteria 2 伺服器，
-        App 也會說明它能做什麼、不能做什麼。</p>
+      <p>加入節點、按下連線，手機的上網流量就從你的伺服器出去。主畫面會顯示目前是否連上、
+        用了多少流量，連不上時也會指出是哪一步失敗。</p>
     </div>
     <div class="grid">
       <article class="card">
@@ -120,12 +120,12 @@
         <p>貼上 <code>hysteria2://</code> 連結、用相機掃 QR 碼（不經過網路），或在瀏覽器點連結交給 App。已連線時切換節點會重建通道。</p>
       </article>
       <article class="card">
-        <h3>完整通道，兩種位址族別</h3>
-        <p>IPv4 與 IPv6 都走 VPN。伺服器欄位接受網域名稱、IPv4 或 IPv6 位址，port 另外填。</p>
+        <h3>兩種位址都支援</h3>
+        <p>IPv4 與 IPv6 流量都走這條連線。伺服器欄位可以填網域名稱或位址，port 另外填。</p>
       </article>
       <article class="card">
-        <h3>分流</h3>
-        <p>以套件為單位把 App 排除在 VPN 外。Android 13 以上可讓本機網路流量留在本地，印表機、NAS 與投放才不會斷。</p>
+        <h3>挑選 App</h3>
+        <p>可以指定哪些 App 不經過這條連線。Android 13 以上還能讓本機網路流量留在本地，印表機、NAS 與投放才不會斷。</p>
       </article>
       <article class="card">
         <h3>錯誤會說原因</h3>
