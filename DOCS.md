@@ -492,6 +492,19 @@ change unless upstream changes the YAML schema.
 Restoring on a new phone is Android Auto Backup's job (see
 [Security notes](#security-notes)).
 
+### Uninstalling
+
+Uninstall the app like any other (`adb uninstall us.leaf3stones.hy2droid`, or
+long-press the icon → App info → Uninstall). That deletes the app's private
+storage: every saved profile including its password, the settings and the
+exported diagnostics. If Android's backup is on, a copy may still exist under
+Settings → Google → Backup; restore it on a new phone and the old profiles come
+back.
+
+Uninstalling also removes the VPN entry Android registered for the app. The
+Hysteria 2 server is untouched, and so is any `.conf` or QR code you exported.
+Nothing else on the device is written to.
+
 ## Security notes
 
 - **Where the secrets live**: `auth` and the obfs password are stored as-is in the
