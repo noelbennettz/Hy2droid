@@ -1,5 +1,8 @@
 # Hy2droid documentation
 
+> Applies to release `v1.0.0` and the `main` that followed it. An older release
+> keeps its documentation under `docs/versions/<tag>/`.
+
 Everything beyond the quick start: features in detail, every setting and profile
 field, the blocked-port rules, split tunnelling, how the tunnel is put together,
 the repository layout, the build and core scripts, the CI jobs, the security
@@ -303,8 +306,16 @@ error.
 `startTun2socks` / `stopTun2socks` / `getTun2socksStats`. Neither the class name
 nor those signatures may change without rebuilding the `.so`, and ProGuard/R8 is
 configured to keep them. The prebuilt `.so` files are committed, so building the
-app needs no NDK; `scripts/tun2socks.sh build` reproduces them from a pinned
-upstream tag when a patch changes.
+app needs no NDK.
+
+Unlike the Hysteria core — downloaded at build time and verified against the
+SHA-256 values in `core/core.properties` — these four binaries are checked into
+git and carry no published hash of their own. They are reproducible only
+approximately: `scripts/tun2socks.sh build` rebuilds them from the pinned
+upstream tag plus the two patches listed in
+[`native/tun2socks/README.md`](native/tun2socks/README.md), but the toolchain
+version is not pinned, so a rebuild is not byte-identical. Treat the committed
+files as the source of truth for a release and review the patches there.
 
 ## Repository layout
 

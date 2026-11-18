@@ -1,5 +1,8 @@
 # Hy2droid — a native Hysteria 2 client for Android
 
+> Applies to release `v1.0.0` and the `main` that followed it. Behaviour that
+> changes in a later release is documented under `docs/versions/<tag>/`.
+
 [![Release](https://img.shields.io/github/v/release/noelbennettz/Hy2droid?label=release&logo=github)](https://github.com/noelbennettz/Hy2droid/releases)
 [![Website](https://img.shields.io/badge/website-noelbennettz.github.io%2FHy2droid-5db2ff)](https://noelbennettz.github.io/Hy2droid/)
 [![Android](https://img.shields.io/badge/Android-11%2B-3DDC84?logo=android&logoColor=white)](#requirements)
@@ -79,6 +82,8 @@ see [DOCS.md](DOCS.md) for the core tooling, the signing secrets and the CI jobs
 
 Hy2droid is released under the **GNU Affero General Public License v3.0**
 (AGPL-3.0); the full text is in [LICENSE](LICENSE). The project notice and the
-third-party MIT notice are in [NOTICE](NOTICE). Because it is a network
-application, section 13 applies: a modified version offered to other users over a
-network must also offer them its source.
+third-party MIT notice are in [NOTICE](NOTICE). Hy2droid runs on the device, so
+section 13 (network use) does not apply to it; what applies is the distribution
+side of the licence: every APK is published together with this source tree, and
+if you modify the app and distribute the result, you must offer the source of
+your version too.
