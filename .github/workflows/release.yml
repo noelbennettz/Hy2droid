@@ -158,8 +158,8 @@ jobs:
           - ${core_line:-Hysteria core: see build log}
           - ABI splits: arm64-v8a, armeabi-v7a, x86_64, x86 (+ universal)
 
-          Install `app-arm64-v8a-release.apk` on most phones, or
-          `app-universal-release.apk` if you are unsure. Requires Android 11+
+          Install \`app-arm64-v8a-release.apk\` on most phones, or
+          \`app-universal-release.apk\` if you are unsure. Requires Android 11+
           (minSdk 30).
           NOTES
 
