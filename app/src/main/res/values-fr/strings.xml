@@ -1,0 +1,173 @@
+<resources>
+    <!-- Main -->
+    <string name="profiles_title">Profils</string>
+    <string name="empty_profiles">Aucun profil pour l\'instant. Touchez + pour en ajouter un.</string>
+    <string name="action_add_profile">Ajouter un profil</string>
+    <string name="action_more">Plus d\'options</string>
+    <string name="action_edit">Modifier</string>
+    <string name="action_share">Partager</string>
+    <string name="action_delete">Supprimer</string>
+    <string name="action_cancel">Annuler</string>
+    <string name="delete_profile_title">Supprimer le profil ?</string>
+    <string name="delete_profile_message">« %1$s » et son mot de passe seront supprimés. Cette action est irréversible.</string>
+    <string name="delete_profile_in_use_title">Profil en cours d’utilisation</string>
+    <string name="delete_profile_in_use_message">« %1$s » porte la connexion en ce moment. Déconnectez-vous d’abord, puis supprimez-le.</string>
+    <string name="profile_in_use">En cours</string>
+    <string name="action_disconnect">Déconnecter</string>
+    <string name="action_connect">Connecter</string>
+    <string name="action_scan_import">Scanner</string>
+    <string name="import_success">Profil importé</string>
+    <string name="import_invalid">Lien hysteria2 non valide</string>
+    <string name="scan_hint">Pointez la caméra vers un QR code de partage Hysteria</string>
+    <string name="scan_permission_needed">L\'autorisation caméra est nécessaire pour scanner un QR code.</string>
+
+    <!-- Connection status -->
+    <string name="core_hint_host">Le nom du serveur ne se résout pas ici. Vérifiez l\'adresse et le DNS du téléphone.</string>
+    <string name="core_hint_tls">La vérification TLS a échoué : vérifiez le SNI et le certificat ; n\'utilisez le mode insecure que si vous savez pourquoi.</string>
+    <string name="core_hint_auth">Le serveur a refusé le mot de passe.</string>
+    <string name="core_hint_timeout">Rien ne répond : mauvais port, UDP bloqué ou serveur arrêté.</string>
+    <string name="core_hint_refused">Quelque chose répond sur ce port, mais ce n\'est pas Hysteria.</string>
+    <string name="core_hint_obfs">Obfuscation différente : les deux côtés doivent utiliser le même mot de passe Salamander.</string>
+    <string name="status_idle">Déconnecté</string>
+    <string name="status_connecting">Connexion…</string>
+    <string name="status_connected">Connecté</string>
+    <string name="status_disconnecting">Déconnexion…</string>
+    <string name="status_error">Erreur de connexion</string>
+
+    <!-- Share -->
+    <string name="share_title">Partager le profil</string>
+    <string name="link_copied">Lien copié</string>
+    <string name="action_copy">Copier</string>
+    <string name="action_close">Fermer</string>
+
+    <!-- Editor -->
+    <string name="edit_title_add">Nouveau profil</string>
+    <string name="edit_title_edit">Modifier le profil</string>
+    <string name="action_save">Enregistrer</string>
+    <string name="action_back">Retour</string>
+    <string name="action_import">Importer</string>
+    <string name="field_import_link">Collez un lien hysteria2://</string>
+    <string name="field_name">Nom</string>
+    <string name="field_server">Serveur (hôte)</string>
+    <string name="field_port">Port</string>
+    <string name="field_port_invalid">Saisissez un port entre 1 et 65535</string>
+    <string name="field_auth">Authentification / mot de passe</string>
+    <string name="field_sni">SNI (facultatif)</string>
+    <string name="field_obfs">Mot de passe d\'obfuscation (facultatif)</string>
+    <string name="field_brutal">Contrôle de congestion Brutal</string>
+    <string name="field_tx">Débit montant (Mbps)</string>
+    <string name="field_rx">Débit descendant (Mbps)</string>
+    <string name="field_insecure">Autoriser un certificat non sécurisé</string>
+    <string name="field_fast_open">QUIC fast open</string>
+    <string name="field_fast_open_summary">Accepte chaque connexion sans attendre la confirmation du serveur : un aller-retour de moins par connexion, donc des pages plus rapides. Une destination injoignable est fermée au lieu d\'afficher une erreur.</string>
+    <string name="bandwidth_hint">Brutal émet exactement à ces débits : utilisez environ 80 pour cent de votre vitesse mesurée. Sur un réseau instable (données mobiles, Wi-Fi public), laissez-le désactivé : BBR s\'adapte tout seul.</string>
+
+    <!-- Notification -->
+    <string name="notification_channel_name">VPN</string>
+    <string name="notification_channel_description">État du tunnel Hysteria 2</string>
+    <string name="notification_title">Hy2droid actif</string>
+    <string name="notification_with_speed">%1$s · ↓%2$s ↑%3$s</string>
+
+    <string name="split_tunnel_title">Tunnel fractionné</string>
+    <string name="split_tunnel_hint">Activez une application pour la faire passer HORS du VPN (contournement).</string>
+    <string name="split_tunnel_visibility_hint">Seules les applications avec une icône dans le lanceur sont listées.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_dynamic_color">Couleurs dynamiques (Material You)</string>
+    <string name="settings_show_address">Afficher l\'adresse du serveur</string>
+    <string name="settings_show_address_summary">Afficher l\'hôte et le port sur les cartes de profil</string>
+    <string name="settings_show_traffic">Trafic en direct</string>
+    <string name="settings_show_traffic_summary">Affiche le débit sur la carte d\'état et dans la notification</string>
+    <string name="settings_fake_icmp">Répondre au ping localement</string>
+    <string name="settings_fake_icmp_summary">Hysteria ne transporte que TCP et UDP, donc ICMP ne passe pas. Activé, le tunnel répond lui-même au ping : les applis et jeux qui testent la connexion ne se trompent plus, mais le ping ne dit plus rien du chemin.</string>
+    <string name="settings_private_dns_hint">Le DNS privé du système est activé : les noms sont résolus hors du tunnel, donc ce réglage n\'a aucun effet.</string>
+    <string name="settings_dns_in_tunnel">Répondre au DNS dans le tunnel</string>
+    <string name="settings_dns_in_tunnel_summary">Le tunnel répond aux noms et transmet le nom, donc le serveur le résout : aucun aller-retour DNS. Exige un résolveur fonctionnel sur le serveur. Ignoré si un DNS personnalisé est défini.</string>
+    <string name="settings_custom_dns">Serveur DNS personnalisé</string>
+    <string name="settings_section_appearance">Apparence</string>
+    <string name="settings_section_network">Réseau</string>
+    <string name="split_tunnel_summary">Choisir les applications à exclure du VPN</string>
+    <string name="settings_custom_dns_summary">Par défaut %1$s, avec %2$s en secours, envoyés dans le tunnel ; choisissez votre primaire et un secondaire</string>
+    <string name="settings_dns_primary">DNS principal</string>
+    <string name="settings_dns_secondary">DNS secondaire (facultatif)</string>
+    <string name="settings_dns_invalid">Saisissez une adresse IPv4 ou IPv6 valide</string>
+    <string name="settings_bypass_lan">Contourner le réseau local</string>
+    <string name="settings_bypass_lan_summary">Garder les appareils du réseau local, la diffusion et les pages du routeur hors du VPN</string>
+    <string name="settings_requires_android_13">Nécessite Android 13 ou plus récent</string>
+    <string name="settings_disable_pmtud">Désactiver la découverte du MTU de chemin</string>
+    <string name="settings_disable_pmtud_summary">Contournement pour les réseaux qui suppriment les gros paquets QUIC (trous noirs de MTU) ; appliqué à la prochaine connexion</string>
+    <string name="settings_mtu">MTU du tunnel</string>
+    <string name="settings_mtu_summary">%1$d octets ; à réduire si les gros paquets bloquent</string>
+    <string name="settings_mtu_hint">1280 – 1500 ; appliqué à la prochaine connexion</string>
+    <string name="settings_tcp_buffer">Tampon TCP par connexion</string>
+    <string name="settings_tcp_buffer_summary">%1$d Ko par connexion. Absorbe les rafales quand une appli lit lentement ; ne fixe pas le débit du lien. Plus grand consomme plus de mémoire par connexion.</string>
+    <string name="settings_tcp_buffer_option">%1$d Ko</string>
+    <string name="settings_blocked_traffic">Trafic bloqué</string>
+    <string name="settings_blocked_traffic_summary">Refuser le trafic comme QUIC (UDP 443)</string>
+    <string name="settings_auto_test_latency">Tester la latence au démarrage</string>
+    <string name="settings_auto_test_latency_summary">Mesure à l\'ouverture les nœuds qui n\'ont pas encore de résultat et place le plus rapide en tête</string>
+    <string name="settings_section_diagnostics">Diagnostic</string>
+    <string name="test_tunnel_direct">Téléchargement direct (sans tunnel)</string>
+    <string name="settings_test_tunnel">Tester le tunnel</string>
+    <string name="settings_test_tunnel_summary">Mesure la résolution, la connexion et le téléchargement via le tunnel actif</string>
+    <string name="test_tunnel_name">Résolution + connexion</string>
+    <string name="test_tunnel_cold">Première connexion (à froid)</string>
+    <string name="test_tunnel_warm">Seconde connexion (à chaud)</string>
+    <string name="test_tunnel_ttfb">Premier octet (HTTPS)</string>
+    <string name="test_tunnel_speed">Téléchargement (5 Mo)</string>
+    <string name="test_tunnel_running">Mesure en cours…</string>
+    <string name="test_tunnel_run">Relancer</string>
+    <string name="test_tunnel_offline">Connectez le tunnel d\'abord.</string>
+    <string name="settings_export_logs">Exporter les journaux</string>
+    <string name="settings_export_logs_summary">Enregistre les journaux de l\'app et du cœur Hysteria dans un zip</string>
+    <string name="always_on_title">La VPN permanente est activée</string>
+    <string name="always_on_message">Android relance ce profil juste après la déconnexion. Pour l\'arrêter définitivement, désactivez la VPN permanente dans les réglages du système.</string>
+    <string name="action_test_latency">Tester la latence</string>
+    <string name="latency_testing">Test en cours…</string>
+    <string name="latency_ms">%1$d ms</string>
+    <string name="latency_failed">Échec</string>
+    <string name="export_success">Journaux exportés</string>
+    <string name="export_failed">Impossible d\'exporter les journaux</string>
+
+    <!-- Blocked traffic -->
+    <string name="block_title">Trafic bloqué</string>
+    <string name="block_hint">Le trafic correspondant est refusé avant de quitter le tunnel. Les navigateurs essaient d\'abord QUIC (UDP 443) et Hysteria 2 ne peut pas accélérer l\'UDP : en le bloquant, ils passent en TCP, bien plus rapide sur un réseau dégradé.</string>
+    <string name="block_empty">Rien n\'est bloqué.</string>
+    <string name="block_proto_tcp">TCP</string>
+    <string name="block_proto_udp">UDP</string>
+    <string name="block_proto_both">TCP + UDP</string>
+    <string name="block_add_rule">Ajouter une règle</string>
+    <string name="block_port_from">Port</string>
+    <string name="block_port_to">Jusqu\'à (facultatif)</string>
+    <string name="block_port_invalid">Saisissez un port (1–65535) ou une plage</string>
+    <string name="block_action_add">Ajouter</string>
+    <string name="block_preset_quic">Bloquer QUIC (UDP 443)</string>
+    <string name="block_applies_hint">Les modifications s\'appliquent à la prochaine connexion.</string>
+
+    <!-- About -->
+    <string name="settings_section_about">À propos</string>
+    <string name="about_title">À propos</string>
+    <string name="about_summary">Version, code source et licence</string>
+    <string name="about_tagline">Un client Hysteria 2 pour Android : collez un lien et ça marche.</string>
+    <string name="about_version">Version %1$s (%2$d)</string>
+    <string name="about_core_version">Cœur Hysteria %1$s</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_github_summary">Code source, versions et suivi des problèmes</string>
+    <string name="about_report_issue">Signaler un problème</string>
+    <string name="about_report_issue_summary">Un bug, ou un serveur qui refuse de se connecter ? Ouvrez un ticket avec les journaux</string>
+    <string name="about_license">Licence</string>
+    <string name="about_license_summary">GNU AGPL-3.0 — texte intégral dans le dépôt</string>
+    <string name="about_no_browser">Aucune application sur cet appareil ne peut ouvrir des liens.</string>
+    <string name="about_copyright">© 2026 les contributeurs de Hy2droid</string>
+    <string name="about_third_party">Inclut le cœur Hysteria 2 (MIT) et hev-socks5-tunnel (MIT) ; certaines parties dérivent du travail de lry127 sous licence MIT.</string>
+
+    <!-- Errors -->
+    <string name="error_no_config">Aucune configuration trouvée. Ouvrez l\'application et reconnectez-vous.</string>
+    <string name="error_tun2socks_config">Échec de l\'écriture de la configuration tun2socks : %1$s</string>
+    <string name="error_establish">Impossible de créer l\'interface VPN. L\'autorisation a peut-être été révoquée.</string>
+    <string name="error_core_launch">Impossible de lancer le cœur Hysteria.</string>
+    <string name="error_tun2socks_start">Impossible de démarrer tun2socks : %1$s</string>
+    <string name="error_tun2socks_failed">Impossible de démarrer le moteur du tunnel. Réessayez.</string>
+    <string name="error_core_exited">Le cœur Hysteria s\'est arrêté de façon inattendue (code %1$d).</string>
+</resources>

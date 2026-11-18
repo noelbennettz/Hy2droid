@@ -1,0 +1,108 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      core_tag:
+        description: 'Hysteria core tag (e.g. app/v2.13.0) or "latest"'
+        required: false
+        default: 'latest'
+
+# actions: write is for the run cleanup step at the end of the job.
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  debug-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # .editorconfig is not enforced by anything at build time; this is the
+      # gate that keeps whitespace and import order from drifting.
+      - name: Check code style
+        run: bash scripts/check-style.sh
+
+      - name: Install Hysteria core
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          tag="${{ github.event.inputs.core_tag || 'latest' }}"
+          if [ "$tag" = "latest" ]; then
+            tag="$(bash scripts/core.sh latest)"
+            echo "Resolved latest upstream core: $tag"
+          fi
+          bash scripts/core.sh upgrade "$tag"
+          {
+            echo "### Hysteria core"
+            echo '```'
+            bash scripts/core.sh version
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify bundled core
+        run: bash scripts/core.sh verify
+
+      - name: Verify tun2socks binaries
+        run: bash scripts/tun2socks.sh verify
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # Platform 37 can be newer than the runner image's SDK, so install it
+      # explicitly instead of depending on the image's revision.
+      - name: Install Android SDK platform 37
+        run: |
+          set -euo pipefail
+          sdkmgr="$(command -v sdkmanager || echo "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager")"
+          yes | "$sdkmgr" --licenses > /dev/null || true
+          "$sdkmgr" 'platforms;android-37.0'
+
+      - name: Build debug APK
+        run: |
+          set +e
+          ./gradlew testDebugUnitTest assembleDebug --no-daemon --stacktrace --console=plain 2>&1 | tee /tmp/build.log
+          rc=${PIPESTATUS[0]}
+          if [ "$rc" -ne 0 ]; then
+            echo "::error::Gradle build failed (exit $rc); surfacing compiler errors:"
+            grep -E '^e: |error:|What went wrong|Caused by|> Task .* FAILED' /tmp/build.log | tail -n 40 | while IFS= read -r line; do
+              echo "::error::$line"
+            done
+            exit "$rc"
+          fi
+
+      - name: Lint
+        run: |
+          set +e
+          ./gradlew lintDebug --no-daemon --console=plain 2>&1 | tee /tmp/lint.log
+          rc=${PIPESTATUS[0]}
+          if [ "$rc" -ne 0 ]; then
+            echo "::error::Lint reported errors (exit $rc):"
+            grep -E 'Error: |error: ' /tmp/lint.log | head -n 40 | while IFS= read -r line; do
+              echo "::error::$line"
+            done
+            exit "$rc"
+          fi
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: hy2droid-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      # Last on purpose: keep the Actions tab and the artifact quota small by
+      # deleting every run of this workflow older than the newest three.
+      - name: Prune old workflow runs
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/prune-runs.sh 3

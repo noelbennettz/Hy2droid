@@ -1,0 +1,173 @@
+<resources>
+    <!-- Main -->
+    <string name="profiles_title">الملفات الشخصية</string>
+    <string name="empty_profiles">لا توجد ملفات بعد. اضغط + لإضافة واحد.</string>
+    <string name="action_add_profile">إضافة ملف</string>
+    <string name="action_more">مزيد من الخيارات</string>
+    <string name="action_edit">تعديل</string>
+    <string name="action_share">مشاركة</string>
+    <string name="action_delete">حذف</string>
+    <string name="action_cancel">إلغاء</string>
+    <string name="delete_profile_title">حذف الملف؟</string>
+    <string name="delete_profile_message">سيتم حذف «%1$s» وكلمة مروره. لا يمكن التراجع عن ذلك.</string>
+    <string name="delete_profile_in_use_title">الملف قيد الاستخدام</string>
+    <string name="delete_profile_in_use_message">«%1$s» هو الذي يحمل الاتصال الآن. افصل الاتصال أولاً ثم احذفه.</string>
+    <string name="profile_in_use">قيد الاستخدام</string>
+    <string name="action_disconnect">قطع الاتصال</string>
+    <string name="action_connect">اتصال</string>
+    <string name="action_scan_import">مسح</string>
+    <string name="import_success">تم استيراد الملف</string>
+    <string name="import_invalid">رابط hysteria2 غير صالح</string>
+    <string name="scan_hint">وجّه الكاميرا نحو رمز QR الخاص بمشاركة Hysteria</string>
+    <string name="scan_permission_needed">يلزم إذن الكاميرا لمسح رمز QR.</string>
+
+    <!-- Connection status -->
+    <string name="core_hint_host">لا يمكن تحليل اسم الخادم هنا. تحقق من العنوان ومن DNS الهاتف.</string>
+    <string name="core_hint_tls">فشل تحقق TLS: تحقق من SNI ومن الشهادة؛ لا تستخدم insecure إلا إذا كنت تعرف السبب.</string>
+    <string name="core_hint_auth">رفض الخادم كلمة المرور.</string>
+    <string name="core_hint_timeout">لا يوجد رد: منفذ خاطئ أو UDP محجوب أو الخادم متوقف.</string>
+    <string name="core_hint_refused">هناك من يرد على هذا المنفذ لكنه ليس Hysteria.</string>
+    <string name="core_hint_obfs">عدم تطابق التمويه: يجب أن يستخدم الطرفان نفس كلمة مرور Salamander.</string>
+    <string name="status_idle">غير متصل</string>
+    <string name="status_connecting">جارٍ الاتصال…</string>
+    <string name="status_connected">متصل</string>
+    <string name="status_disconnecting">جارٍ قطع الاتصال…</string>
+    <string name="status_error">خطأ في الاتصال</string>
+
+    <!-- Share -->
+    <string name="share_title">مشاركة الملف</string>
+    <string name="link_copied">تم نسخ الرابط</string>
+    <string name="action_copy">نسخ</string>
+    <string name="action_close">إغلاق</string>
+
+    <!-- Editor -->
+    <string name="edit_title_add">ملف جديد</string>
+    <string name="edit_title_edit">تعديل الملف</string>
+    <string name="action_save">حفظ</string>
+    <string name="action_back">رجوع</string>
+    <string name="action_import">استيراد</string>
+    <string name="field_import_link">الصق رابط hysteria2://</string>
+    <string name="field_name">الاسم</string>
+    <string name="field_server">الخادم (المضيف)</string>
+    <string name="field_port">المنفذ</string>
+    <string name="field_port_invalid">أدخل منفذًا بين 1 و65535</string>
+    <string name="field_auth">المصادقة / كلمة المرور</string>
+    <string name="field_sni">SNI (اختياري)</string>
+    <string name="field_obfs">كلمة مرور التمويه (اختياري)</string>
+    <string name="field_brutal">تحكم الازدحام Brutal</string>
+    <string name="field_tx">الرفع (ميغابت/ث)</string>
+    <string name="field_rx">التنزيل (ميغابت/ث)</string>
+    <string name="field_insecure">السماح بشهادة غير آمنة</string>
+    <string name="field_fast_open">QUIC fast open</string>
+    <string name="field_fast_open_summary">يقبل الاتصال دون انتظار تأكيد الخادم للوجهة: رحلة ذهاب وعودة أقل لكل اتصال، فتفتح الصفحات أسرع. الوجهة غير المتاحة تُغلق بدل إظهار خطأ.</string>
+    <string name="bandwidth_hint">يرسل Brutal بهذه السرعات بالضبط، لذا استخدم نحو 80 بالمئة من السرعة المقاسة. في شبكة غير مستقرة (بيانات الجوال أو Wi-Fi عام) اتركه مغلقًا: يتكيّف BBR تلقائيًا.</string>
+
+    <!-- Notification -->
+    <string name="notification_channel_name">VPN</string>
+    <string name="notification_channel_description">حالة نفق Hysteria 2</string>
+    <string name="notification_title">Hy2droid يعمل</string>
+    <string name="notification_with_speed">%1$s · ↓%2$s ↑%3$s</string>
+
+    <string name="split_tunnel_title">النفق المنفصل</string>
+    <string name="split_tunnel_hint">فعّل تطبيقًا ليمر خارج VPN (تجاوز).</string>
+    <string name="split_tunnel_visibility_hint">تُعرض التطبيقات التي لها أيقونة في المشغّل فقط.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_dynamic_color">ألوان ديناميكية (Material You)</string>
+    <string name="settings_show_address">عرض عنوان الخادم</string>
+    <string name="settings_show_address_summary">إظهار المضيف والمنفذ على بطاقات الملفات الشخصية</string>
+    <string name="settings_show_traffic">حركة البيانات المباشرة</string>
+    <string name="settings_show_traffic_summary">إظهار معدل النقل في بطاقة الحالة وفي الإشعار</string>
+    <string name="settings_fake_icmp">الرد على ping محليًا</string>
+    <string name="settings_fake_icmp_summary">لا ينقل Hysteria سوى TCP وUDP، لذا لا يمر ICMP. عند التفعيل يرد النفق على ping بنفسه: تتوقف التطبيقات والألعاب التي تفحص الاتصال عن الشكوى، لكن ping لم يعد يخبرك بشيء عن المسار.</string>
+    <string name="settings_private_dns_hint">DNS الخاص في النظام مفعّل: تُحلَّل الأسماء خارج النفق، لذا لا أثر لهذا الخيار.</string>
+    <string name="settings_dns_in_tunnel">الرد على DNS داخل النفق</string>
+    <string name="settings_dns_in_tunnel_summary">يرد النفق على الأسماء ويمرر الاسم ليجري تحليله على الخادم: بلا رحلة DNS. يتطلب مُحلِّلًا يعمل على الخادم. يُتجاهل عند تعيين خادم DNS مخصص.</string>
+    <string name="settings_custom_dns">خادم DNS مخصص</string>
+    <string name="settings_section_appearance">المظهر</string>
+    <string name="settings_section_network">الشبكة</string>
+    <string name="split_tunnel_summary">اختر التطبيقات التي تتجاوز VPN</string>
+    <string name="settings_custom_dns_summary">الافتراضي %1$s والاحتياطي %2$s، ويُمرَّران عبر النفق؛ عيّن خادمك الأساسي والثانوي</string>
+    <string name="settings_dns_primary">DNS الأساسي</string>
+    <string name="settings_dns_secondary">DNS الثانوي (اختياري)</string>
+    <string name="settings_dns_invalid">أدخل عنوان IPv4 أو IPv6 صالحًا</string>
+    <string name="settings_bypass_lan">تجاوز الشبكة المحلية</string>
+    <string name="settings_bypass_lan_summary">إبقاء أجهزة الشبكة المحلية والبث وصفحات الموجّه خارج VPN</string>
+    <string name="settings_requires_android_13">يتطلب Android 13 أو أحدث</string>
+    <string name="settings_disable_pmtud">تعطيل اكتشاف MTU للمسار</string>
+    <string name="settings_disable_pmtud_summary">حل بديل للشبكات التي تُسقط حزم QUIC الكبيرة (ثقوب MTU السوداء)؛ يُطبَّق عند الاتصال التالي</string>
+    <string name="settings_mtu">MTU النفق</string>
+    <string name="settings_mtu_summary">%1$d بايت؛ اخفضها إذا تعطلت الحزم الكبيرة</string>
+    <string name="settings_mtu_hint">1280 – 1500 — تُطبَّق عند الاتصال التالي</string>
+    <string name="settings_tcp_buffer">مخزن TCP لكل اتصال</string>
+    <string name="settings_tcp_buffer_summary">%1$d كيلوبايت لكل اتصال. يمتص الدفعات عندما يقرأ التطبيق ببطء؛ ولا يحدد سرعة الرابط. الأكبر يستهلك ذاكرة أكبر لكل اتصال.</string>
+    <string name="settings_tcp_buffer_option">%1$d كيلوبايت</string>
+    <string name="settings_blocked_traffic">حركة المرور المحظورة</string>
+    <string name="settings_blocked_traffic_summary">رفض حركة مثل QUIC (UDP 443)</string>
+    <string name="settings_auto_test_latency">اختبار زمن الاستجابة عند التشغيل</string>
+    <string name="settings_auto_test_latency_summary">يقيس عند الفتح العقد التي ليس لها نتيجة بعد ويعرض الأسرع أولًا</string>
+    <string name="settings_section_diagnostics">التشخيص</string>
+    <string name="test_tunnel_direct">تنزيل مباشر (بدون نفق)</string>
+    <string name="settings_test_tunnel">اختبار النفق</string>
+    <string name="settings_test_tunnel_summary">يقيس تحليل الاسم والاتصال والتنزيل عبر النفق النشط</string>
+    <string name="test_tunnel_name">تحليل الاسم + الاتصال</string>
+    <string name="test_tunnel_cold">أول اتصال (بارد)</string>
+    <string name="test_tunnel_warm">الاتصال الثاني (دافئ)</string>
+    <string name="test_tunnel_ttfb">أول بايت (HTTPS)</string>
+    <string name="test_tunnel_speed">تنزيل (5 ميغابايت)</string>
+    <string name="test_tunnel_running">جارٍ القياس…</string>
+    <string name="test_tunnel_run">إعادة</string>
+    <string name="test_tunnel_offline">اتصل بالنفق أولًا.</string>
+    <string name="settings_export_logs">تصدير السجلات</string>
+    <string name="settings_export_logs_summary">حفظ سجلات التطبيق ونواة Hysteria في ملف zip</string>
+    <string name="always_on_title">VPN الدائم مفعّل</string>
+    <string name="always_on_message">سيعيد Android تشغيل هذا الملف فور قطع الاتصال. لإيقافه نهائيًا، أوقف VPN الدائم من إعدادات النظام.</string>
+    <string name="action_test_latency">اختبار زمن الاستجابة</string>
+    <string name="latency_testing">جارٍ الاختبار…</string>
+    <string name="latency_ms">%1$d مللي ثانية</string>
+    <string name="latency_failed">فشل</string>
+    <string name="export_success">تم تصدير السجلات</string>
+    <string name="export_failed">تعذر تصدير السجلات</string>
+
+    <!-- Blocked traffic -->
+    <string name="block_title">حركة المرور المحظورة</string>
+    <string name="block_hint">تُرفض حركة المرور المطابقة قبل مغادرتها النفق. تجرّب المتصفحات QUIC (UDP 443) أولاً، ولا يستطيع Hysteria 2 تسريع UDP، لذا فإن حجبها يجعلها تستخدم TCP وهو أسرع بكثير في الشبكات الضعيفة.</string>
+    <string name="block_empty">لا شيء محظور.</string>
+    <string name="block_proto_tcp">TCP</string>
+    <string name="block_proto_udp">UDP</string>
+    <string name="block_proto_both">TCP + UDP</string>
+    <string name="block_add_rule">إضافة قاعدة</string>
+    <string name="block_port_from">المنفذ</string>
+    <string name="block_port_to">إلى (اختياري)</string>
+    <string name="block_port_invalid">أدخل منفذًا (1–65535) أو نطاقًا</string>
+    <string name="block_action_add">إضافة</string>
+    <string name="block_preset_quic">حجب QUIC (UDP 443)</string>
+    <string name="block_applies_hint">تُطبَّق التغييرات في المرة التالية التي تتصل فيها.</string>
+
+    <!-- About -->
+    <string name="settings_section_about">حول</string>
+    <string name="about_title">حول</string>
+    <string name="about_summary">الإصدار والشيفرة المصدرية والترخيص</string>
+    <string name="about_tagline">عميل Hysteria 2 لأندرويد: الصق رابطًا واحدًا ويعمل.</string>
+    <string name="about_version">الإصدار %1$s (%2$d)</string>
+    <string name="about_core_version">نواة Hysteria %1$s</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_github_summary">الشيفرة المصدرية والإصدارات ومتتبّع المشكلات</string>
+    <string name="about_report_issue">الإبلاغ عن مشكلة</string>
+    <string name="about_report_issue_summary">ثمة خطأ أو خادم لا يتصل؟ افتح بلاغًا مرفقًا بالسجلات</string>
+    <string name="about_license">الترخيص</string>
+    <string name="about_license_summary">GNU AGPL-3.0 — النص الكامل في المستودع</string>
+    <string name="about_no_browser">لا يوجد تطبيق على هذا الجهاز يمكنه فتح الروابط.</string>
+    <string name="about_copyright">© 2026 مساهمو Hy2droid</string>
+    <string name="about_third_party">يتضمن نواة Hysteria 2 (MIT) وhev-socks5-tunnel (MIT)؛ أجزاء مشتقة من عمل lry127 المرخَّص بموجب MIT.</string>
+
+    <!-- Errors -->
+    <string name="error_no_config">لم يتم العثور على أي إعداد. افتح التطبيق واتصل مرة أخرى.</string>
+    <string name="error_tun2socks_config">تعذّر كتابة إعداد tun2socks: %1$s</string>
+    <string name="error_establish">تعذّر إنشاء واجهة VPN. ربما تم سحب الإذن.</string>
+    <string name="error_core_launch">تعذّر تشغيل نواة Hysteria.</string>
+    <string name="error_tun2socks_start">تعذّر بدء tun2socks: %1$s</string>
+    <string name="error_core_exited">توقفت نواة Hysteria بشكل غير متوقع (الرمز %1$d).</string>
+    <string name="error_tun2socks_failed">تعذّر بدء محرك النفق. حاول مرة أخرى.</string>
+</resources>

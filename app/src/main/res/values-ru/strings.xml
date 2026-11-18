@@ -1,0 +1,173 @@
+<resources>
+    <!-- Main -->
+    <string name="profiles_title">Профили</string>
+    <string name="empty_profiles">Профилей пока нет. Нажмите +, чтобы добавить.</string>
+    <string name="action_add_profile">Добавить профиль</string>
+    <string name="action_more">Ещё</string>
+    <string name="action_edit">Изменить</string>
+    <string name="action_share">Поделиться</string>
+    <string name="action_delete">Удалить</string>
+    <string name="action_cancel">Отмена</string>
+    <string name="delete_profile_title">Удалить профиль?</string>
+    <string name="delete_profile_message">«%1$s» и его пароль будут удалены. Это нельзя отменить.</string>
+    <string name="delete_profile_in_use_title">Профиль используется</string>
+    <string name="delete_profile_in_use_message">«%1$s» сейчас обеспечивает подключение. Сначала отключитесь, затем удалите его.</string>
+    <string name="profile_in_use">Используется</string>
+    <string name="action_disconnect">Отключить</string>
+    <string name="action_connect">Подключить</string>
+    <string name="action_scan_import">Сканировать</string>
+    <string name="import_success">Профиль импортирован</string>
+    <string name="import_invalid">Недопустимая ссылка hysteria2</string>
+    <string name="scan_hint">Наведите камеру на QR-код Hysteria</string>
+    <string name="scan_permission_needed">Для сканирования QR-кода нужен доступ к камере.</string>
+
+    <!-- Connection status -->
+    <string name="core_hint_host">Имя сервера не разрешается здесь. Проверьте адрес и DNS самого телефона.</string>
+    <string name="core_hint_tls">Ошибка проверки TLS: проверьте SNI и сертификат; insecure включайте только если понимаете зачем.</string>
+    <string name="core_hint_auth">Сервер отклонил пароль.</string>
+    <string name="core_hint_timeout">Ответа нет: неверный порт, UDP заблокирован или сервер выключен.</string>
+    <string name="core_hint_refused">На этом порту кто-то отвечает, но это не Hysteria.</string>
+    <string name="core_hint_obfs">Несовпадение обфускации: на обеих сторонах должен быть один пароль Salamander.</string>
+    <string name="status_idle">Отключено</string>
+    <string name="status_connecting">Подключение…</string>
+    <string name="status_connected">Подключено</string>
+    <string name="status_disconnecting">Отключение…</string>
+    <string name="status_error">Ошибка подключения</string>
+
+    <!-- Share -->
+    <string name="share_title">Поделиться профилем</string>
+    <string name="link_copied">Ссылка скопирована</string>
+    <string name="action_copy">Копировать</string>
+    <string name="action_close">Закрыть</string>
+
+    <!-- Editor -->
+    <string name="edit_title_add">Новый профиль</string>
+    <string name="edit_title_edit">Изменение профиля</string>
+    <string name="action_save">Сохранить</string>
+    <string name="action_back">Назад</string>
+    <string name="action_import">Импорт</string>
+    <string name="field_import_link">Вставьте ссылку hysteria2://</string>
+    <string name="field_name">Название</string>
+    <string name="field_server">Сервер (хост)</string>
+    <string name="field_port">Порт</string>
+    <string name="field_port_invalid">Укажите порт от 1 до 65535</string>
+    <string name="field_auth">Аутентификация / пароль</string>
+    <string name="field_sni">SNI (необязательно)</string>
+    <string name="field_obfs">Пароль обфускации (необязательно)</string>
+    <string name="field_brutal">Управление перегрузкой Brutal</string>
+    <string name="field_tx">Исходящая (Мбит/с)</string>
+    <string name="field_rx">Входящая (Мбит/с)</string>
+    <string name="field_insecure">Разрешить небезопасный сертификат</string>
+    <string name="field_fast_open">QUIC fast open</string>
+    <string name="field_fast_open_summary">Принимает соединение, не дожидаясь подтверждения от сервера: на один круговой обход меньше на соединение, поэтому страницы открываются быстрее. Недоступный адрес просто закрывается, без сообщения об ошибке.</string>
+    <string name="bandwidth_hint">Brutal отправляет ровно с этими скоростями, поэтому указывайте около 80 процентов измеренной. В нестабильной сети (мобильный интернет, публичный Wi-Fi) выключите: BBR подстраивается сам.</string>
+
+    <!-- Notification -->
+    <string name="notification_channel_name">VPN</string>
+    <string name="notification_channel_description">Состояние туннеля Hysteria 2</string>
+    <string name="notification_title">Hy2droid работает</string>
+    <string name="notification_with_speed">%1$s · ↓%2$s ↑%3$s</string>
+
+    <string name="split_tunnel_title">Раздельное туннелирование</string>
+    <string name="split_tunnel_hint">Включите приложение, чтобы оно работало ВНЕ VPN (в обход).</string>
+    <string name="split_tunnel_visibility_hint">Показываются только приложения со значком в лаунчере.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_dynamic_color">Динамические цвета (Material You)</string>
+    <string name="settings_show_address">Показывать адрес сервера</string>
+    <string name="settings_show_address_summary">Показывать хост и порт на карточках профилей</string>
+    <string name="settings_show_traffic">Трафик в реальном времени</string>
+    <string name="settings_show_traffic_summary">Показывать скорость на карточке состояния и в уведомлении</string>
+    <string name="settings_fake_icmp">Отвечать на ping локально</string>
+    <string name="settings_fake_icmp_summary">Hysteria передаёт только TCP и UDP, поэтому ICMP не проходит. Если включить, туннель отвечает на ping сам: приложения и игры, проверяющие связь, не ругаются, но ping больше ничего не говорит о пути.</string>
+    <string name="settings_private_dns_hint">Системный Private DNS включён: имена разрешаются вне туннеля, поэтому этот переключатель не действует.</string>
+    <string name="settings_dns_in_tunnel">Отвечать на DNS в туннеле</string>
+    <string name="settings_dns_in_tunnel_summary">Туннель сам отвечает на имена и передаёт имя, поэтому разрешает сервер: без DNS-раунда. Нужен рабочий резолвер на сервере. Не действует, если задан свой DNS.</string>
+    <string name="settings_custom_dns">Свой DNS-сервер</string>
+    <string name="settings_section_appearance">Оформление</string>
+    <string name="settings_section_network">Сеть</string>
+    <string name="split_tunnel_summary">Выберите приложения в обход VPN</string>
+    <string name="settings_custom_dns_summary">По умолчанию %1$s, резервный %2$s, запросы идут через туннель; укажите свой основной и дополнительный</string>
+    <string name="settings_dns_primary">Основной DNS</string>
+    <string name="settings_dns_secondary">Дополнительный DNS (необязательно)</string>
+    <string name="settings_dns_invalid">Введите корректный адрес IPv4 или IPv6</string>
+    <string name="settings_bypass_lan">Обход локальной сети</string>
+    <string name="settings_bypass_lan_summary">Устройства локальной сети, трансляция и страницы роутера вне VPN</string>
+    <string name="settings_requires_android_13">Требуется Android 13 или новее</string>
+    <string name="settings_disable_pmtud">Отключить обнаружение MTU пути</string>
+    <string name="settings_disable_pmtud_summary">Обход для сетей, отбрасывающих крупные QUIC-пакеты (чёрные дыры MTU); применяется при следующем подключении</string>
+    <string name="settings_mtu">MTU туннеля</string>
+    <string name="settings_mtu_summary">%1$d байт; уменьшите, если крупные пакеты застревают</string>
+    <string name="settings_mtu_hint">1280 – 1500; применится при следующем подключении</string>
+    <string name="settings_tcp_buffer">Буфер TCP на соединение</string>
+    <string name="settings_tcp_buffer_summary">%1$d КБ на соединение. Сглаживает всплески, когда приложение медленно читает; скорость канала не определяет. Больше — больше памяти на соединение.</string>
+    <string name="settings_tcp_buffer_option">%1$d КБ</string>
+    <string name="settings_blocked_traffic">Заблокированный трафик</string>
+    <string name="settings_blocked_traffic_summary">Отклонять трафик вроде QUIC (UDP 443)</string>
+    <string name="settings_auto_test_latency">Проверять задержку при запуске</string>
+    <string name="settings_auto_test_latency_summary">При запуске измеряются только узлы без результата, самый быстрый показывается первым</string>
+    <string name="settings_section_diagnostics">Диагностика</string>
+    <string name="test_tunnel_direct">Загрузка напрямую (без туннеля)</string>
+    <string name="settings_test_tunnel">Проверить туннель</string>
+    <string name="settings_test_tunnel_summary">Измеряет резолв, подключение и загрузку через активный туннель</string>
+    <string name="test_tunnel_name">Резолв + подключение</string>
+    <string name="test_tunnel_cold">Первое соединение (холодное)</string>
+    <string name="test_tunnel_warm">Второе соединение (тёплое)</string>
+    <string name="test_tunnel_ttfb">Первый байт (HTTPS)</string>
+    <string name="test_tunnel_speed">Загрузка (5 МБ)</string>
+    <string name="test_tunnel_running">Измерение…</string>
+    <string name="test_tunnel_run">Ещё раз</string>
+    <string name="test_tunnel_offline">Сначала подключите туннель.</string>
+    <string name="settings_export_logs">Экспорт журналов</string>
+    <string name="settings_export_logs_summary">Сохраняет журналы приложения и ядра Hysteria в zip-файл</string>
+    <string name="always_on_title">Включён постоянный VPN</string>
+    <string name="always_on_message">Android снова запустит этот профиль сразу после отключения. Чтобы остановить его насовсем, отключите постоянный VPN в настройках системы.</string>
+    <string name="action_test_latency">Проверить задержку</string>
+    <string name="latency_testing">Проверка…</string>
+    <string name="latency_ms">%1$d мс</string>
+    <string name="latency_failed">Ошибка</string>
+    <string name="export_success">Журналы экспортированы</string>
+    <string name="export_failed">Не удалось экспортировать журналы</string>
+
+    <!-- Blocked traffic -->
+    <string name="block_title">Заблокированный трафик</string>
+    <string name="block_hint">Совпадающий трафик отклоняется до выхода из туннеля. Браузеры сначала пробуют QUIC (UDP 443), а Hysteria 2 не ускоряет UDP, поэтому при блокировке они переходят на TCP — это заметно быстрее в плохих сетях.</string>
+    <string name="block_empty">Ничего не заблокировано.</string>
+    <string name="block_proto_tcp">TCP</string>
+    <string name="block_proto_udp">UDP</string>
+    <string name="block_proto_both">TCP + UDP</string>
+    <string name="block_add_rule">Добавить правило</string>
+    <string name="block_port_from">Порт</string>
+    <string name="block_port_to">До (необязательно)</string>
+    <string name="block_port_invalid">Введите порт (1–65535) или диапазон</string>
+    <string name="block_action_add">Добавить</string>
+    <string name="block_preset_quic">Заблокировать QUIC (UDP 443)</string>
+    <string name="block_applies_hint">Изменения применятся при следующем подключении.</string>
+
+    <!-- About -->
+    <string name="settings_section_about">О приложении</string>
+    <string name="about_title">О приложении</string>
+    <string name="about_summary">Версия, исходный код и лицензия</string>
+    <string name="about_tagline">Клиент Hysteria 2 для Android: вставьте одну ссылку — и всё работает.</string>
+    <string name="about_version">Версия %1$s (%2$d)</string>
+    <string name="about_core_version">Ядро Hysteria %1$s</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_github_summary">Исходный код, релизы и трекер задач</string>
+    <string name="about_report_issue">Сообщить о проблеме</string>
+    <string name="about_report_issue_summary">Нашли ошибку или сервер не подключается? Откройте задачу и приложите журналы</string>
+    <string name="about_license">Лицензия</string>
+    <string name="about_license_summary">GNU AGPL-3.0 — полный текст в репозитории</string>
+    <string name="about_no_browser">На этом устройстве нет приложения, открывающего ссылки.</string>
+    <string name="about_copyright">© 2026 участники Hy2droid</string>
+    <string name="about_third_party">Включает ядро Hysteria 2 (MIT) и hev-socks5-tunnel (MIT); часть кода происходит из работы lry127 под лицензией MIT.</string>
+
+    <!-- Errors -->
+    <string name="error_no_config">Конфигурация не найдена. Откройте приложение и подключитесь снова.</string>
+    <string name="error_tun2socks_config">Не удалось записать конфигурацию tun2socks: %1$s</string>
+    <string name="error_establish">Не удалось создать интерфейс VPN. Возможно, разрешение отозвано.</string>
+    <string name="error_core_launch">Не удалось запустить ядро Hysteria.</string>
+    <string name="error_tun2socks_start">Не удалось запустить tun2socks: %1$s</string>
+    <string name="error_tun2socks_failed">Не удалось запустить движок туннеля. Повторите попытку.</string>
+    <string name="error_core_exited">Ядро Hysteria неожиданно остановилось (код %1$d).</string>
+</resources>

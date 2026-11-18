@@ -1,0 +1,175 @@
+<resources>
+    <!-- Home -->
+    <string name="profiles_title">節點</string>
+    <string name="empty_profiles">還沒有節點，點 + 新增。</string>
+    <string name="action_add_profile">新增節點</string>
+    <string name="action_more">更多選項</string>
+    <string name="action_edit">編輯</string>
+    <string name="action_share">分享</string>
+    <string name="action_delete">刪除</string>
+    <string name="action_cancel">取消</string>
+    <string name="delete_profile_title">刪除節點？</string>
+    <string name="delete_profile_message">「%1$s」及其密碼將被刪除，且無法復原。</string>
+    <string name="delete_profile_in_use_title">節點正在使用</string>
+    <string name="delete_profile_in_use_message">「%1$s」正在承載目前連線，請先中斷連線再刪除。</string>
+    <string name="profile_in_use">使用中</string>
+    <string name="action_disconnect">中斷連線</string>
+    <string name="action_connect">連線</string>
+    <string name="action_scan_import">掃描</string>
+    <string name="import_success">已匯入節點</string>
+    <string name="import_invalid">不是有效的 hysteria2 連結</string>
+    <string name="scan_hint">將鏡頭對準 Hysteria 分享 QR 碼</string>
+    <string name="scan_permission_needed">掃描 QR 碼需要相機權限。</string>
+
+    <!-- Connection status -->
+    <string name="core_hint_host">網域解析不到：檢查位址，以及手機本身的 DNS。</string>
+    <string name="core_hint_tls">TLS 驗證失敗：檢查 SNI 與憑證；只有在你知道原因時才用 insecure。</string>
+    <string name="core_hint_auth">伺服器拒絕了密碼。</string>
+    <string name="core_hint_timeout">沒有任何回應：連接埠不對、UDP 被擋，或伺服器沒開。</string>
+    <string name="core_hint_refused">那個連接埠有人應答，但不是 Hysteria。</string>
+    <string name="core_hint_obfs">混淆密碼不一致：兩端必須用同一個 Salamander 密碼。</string>
+    <string name="status_idle">未連線</string>
+    <string name="status_connecting">連線中…</string>
+    <string name="status_connected">已連線</string>
+    <string name="status_disconnecting">中斷中…</string>
+    <string name="status_error">連線錯誤</string>
+
+    <!-- Share -->
+    <string name="share_title">分享節點</string>
+    <string name="link_copied">已複製連結</string>
+    <string name="action_copy">複製</string>
+    <string name="action_close">關閉</string>
+
+    <!-- Editor -->
+    <string name="edit_title_add">新增節點</string>
+    <string name="edit_title_edit">編輯節點</string>
+    <string name="action_save">儲存</string>
+    <string name="action_back">返回</string>
+    <string name="action_import">匯入</string>
+    <string name="field_import_link">貼上 hysteria2:// 連結</string>
+    <string name="field_name">名稱</string>
+    <string name="field_server">伺服器（主機）</string>
+    <string name="field_port">連接埠</string>
+    <string name="field_port_invalid">請輸入 1–65535 之間的連接埠</string>
+    <string name="field_auth">驗證／密碼</string>
+    <string name="field_sni">SNI（選填）</string>
+    <string name="field_obfs">混淆密碼（選填）</string>
+    <string name="field_brutal">Brutal 壅塞控制</string>
+    <string name="field_tx">上傳 Mbps</string>
+    <string name="field_rx">下載 Mbps</string>
+    <string name="field_insecure">允許不安全的憑證</string>
+    <string name="field_fast_open">QUIC fast open</string>
+    <string name="field_fast_open_summary">不等伺服器確認目的地就接受連線：每條連線少一個往返，開網頁更快。目的地不通時會直接關閉，而不是顯示錯誤。</string>
+    <string name="bandwidth_hint">Brutal 會嚴格照這個速率送封包，建議填約實測速度的八成。網路不穩時（行動數據、公共 Wi-Fi）請關掉：BBR 會自己適應。</string>
+
+    <!-- Notification -->
+    <string name="notification_channel_name">VPN</string>
+    <string name="notification_channel_description">Hysteria 2 通道狀態</string>
+    <string name="notification_title">Hy2droid 執行中</string>
+    <string name="notification_with_speed">%1$s · ↓%2$s ↑%3$s</string>
+
+    <string name="split_tunnel_title">分流</string>
+    <string name="split_tunnel_hint">開啟的應用程式會走 VPN 之外（繞過 VPN）。</string>
+    <string name="split_tunnel_visibility_hint">這裡只會列出有桌面圖示的應用程式。</string>
+
+    <!-- Settings -->
+    <string name="settings_title">設定</string>
+    <string name="settings_dynamic_color">動態色彩（Material You）</string>
+    <string name="settings_show_address">顯示伺服器位址</string>
+    <string name="settings_show_address_summary">在節點卡片上顯示主機與連接埠</string>
+    <string name="settings_show_traffic">即時流量</string>
+    <string name="settings_show_traffic_summary">在狀態卡片與通知中顯示傳輸速率</string>
+    <string name="settings_fake_icmp">本機回應 ping</string>
+    <string name="settings_fake_icmp_summary">Hysteria 只承載 TCP 與 UDP，ICMP 無法通過。開啟後隧道自行回應 ping：靠 ping 判斷連線的應用與遊戲不會誤判，但 ping 從此不能用來診斷鏈路。</string>
+    <string name="settings_private_dns_hint">系統的 Private DNS 已開啟：網域在隧道外解析，此開關不生效。</string>
+    <string name="settings_dns_in_tunnel">在隧道內應答 DNS</string>
+    <string name="settings_dns_in_tunnel_summary">隧道自行應答網域並轉送網域，由伺服器解析：沒有 DNS 往返。需要伺服器端 DNS 可用；設定自訂 DNS 時不生效。</string>
+    <string name="settings_custom_dns">自訂 DNS 伺服器</string>
+    <string name="settings_section_appearance">外觀</string>
+    <string name="settings_section_network">網路</string>
+    <string name="split_tunnel_summary">選擇要繞過 VPN 的應用程式</string>
+    <string name="settings_custom_dns_summary">預設 %1$s、備援 %2$s，查詢走通道；可自訂主要與次要 DNS</string>
+    <string name="settings_dns_primary">主要 DNS</string>
+    <string name="settings_dns_secondary">次要 DNS（選填）</string>
+    <string name="settings_dns_invalid">請輸入有效的 IPv4 或 IPv6 位址</string>
+    <string name="settings_bypass_lan">繞過區域網路</string>
+    <string name="settings_bypass_lan_summary">區域網路裝置、投放與路由器頁面不走 VPN</string>
+    <string name="settings_requires_android_13">需要 Android 13 或更新版本</string>
+    <string name="settings_disable_pmtud">關閉路徑 MTU 發現</string>
+    <string name="settings_disable_pmtud_summary">針對會丟棄大型 QUIC 封包的網路（MTU 黑洞）的變通做法；變更會在下次連線時生效</string>
+    <string name="settings_mtu">通道 MTU</string>
+    <string name="settings_mtu_summary">%1$d 位元組；大封包卡住時可以調低</string>
+    <string name="settings_mtu_hint">1280 – 1500，下次連線時生效</string>
+    <string name="settings_tcp_buffer">TCP 連線緩衝</string>
+    <string name="settings_tcp_buffer_summary">%1$d KB／每條連線。用途是在 app 讀得慢時吸收突發；它不決定鏈路速度。調大每條連線會多佔記憶體。</string>
+    <string name="settings_tcp_buffer_option">%1$d KB</string>
+    <string name="settings_blocked_traffic">封鎖流量</string>
+    <string name="settings_blocked_traffic_summary">拒絕 QUIC（UDP 443）等流量</string>
+    <string name="settings_auto_test_latency">啟動時測試延遲</string>
+    <string name="settings_auto_test_latency_summary">開啟 App 時只量測還沒有結果的節點，並把最快的排在最前面</string>
+    <string name="settings_section_diagnostics">診斷</string>
+    <string name="test_tunnel_direct">下載（直連，不經隧道）</string>
+    <string name="settings_test_tunnel">測試隧道</string>
+    <string name="settings_test_tunnel_summary">實測執行中隧道的網域解析、連線與下載速度</string>
+    <string name="test_tunnel_name">網域解析＋連線</string>
+    <string name="test_tunnel_cold">首次連線（冷啟動）</string>
+    <string name="test_tunnel_warm">再次連線（熱）</string>
+    <string name="test_tunnel_ttfb">首位元組（HTTPS）</string>
+    <string name="test_tunnel_speed">下載（5 MB）</string>
+    <string name="test_tunnel_running">量測中…</string>
+    <string name="test_tunnel_run">再測一次</string>
+    <string name="test_tunnel_offline">請先連線隧道。</string>
+    <string name="settings_export_logs">匯出記錄</string>
+    <string name="settings_export_logs_summary">將應用程式與 Hysteria 核心的記錄存成 zip 檔</string>
+    <string name="always_on_title">已開啟常駐 VPN</string>
+    <string name="always_on_message">你斷線後 Android 會立刻重新啟動這個節點。要徹底停止，請到系統設定關閉「常駐 VPN」。</string>
+
+    <!-- Latency -->
+    <string name="action_test_latency">測試延遲</string>
+    <string name="latency_testing">測試中…</string>
+    <string name="latency_ms">%1$d 毫秒</string>
+    <string name="latency_failed">失敗</string>
+    <string name="export_success">記錄已匯出</string>
+    <string name="export_failed">無法匯出記錄</string>
+
+    <!-- Blocked traffic -->
+    <string name="block_title">封鎖流量</string>
+    <string name="block_hint">符合規則的流量會在離開通道前被拒絕。瀏覽器會先嘗試 QUIC（UDP 443），而 Hysteria 2 無法加速 UDP，封鎖它可讓瀏覽器改用 TCP，在不良網路上快得多。</string>
+    <string name="block_empty">目前沒有封鎖任何流量。</string>
+    <string name="block_proto_tcp">TCP</string>
+    <string name="block_proto_udp">UDP</string>
+    <string name="block_proto_both">TCP + UDP</string>
+    <string name="block_add_rule">新增規則</string>
+    <string name="block_port_from">連接埠</string>
+    <string name="block_port_to">至（選填）</string>
+    <string name="block_port_invalid">請輸入連接埠（1–65535）或範圍</string>
+    <string name="block_action_add">新增</string>
+    <string name="block_preset_quic">封鎖 QUIC（UDP 443）</string>
+    <string name="block_applies_hint">變更會在下次連線時生效。</string>
+
+    <!-- About -->
+    <string name="settings_section_about">關於</string>
+    <string name="about_title">關於</string>
+    <string name="about_summary">版本、原始碼與授權</string>
+    <string name="about_tagline">Android 上的 Hysteria 2 客戶端，貼上一條連結就能用。</string>
+    <string name="about_version">版本 %1$s（%2$d）</string>
+    <string name="about_core_version">Hysteria 核心 %1$s</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_github_summary">原始碼、發行版與問題追蹤</string>
+    <string name="about_report_issue">回報問題</string>
+    <string name="about_report_issue_summary">遇到錯誤，或某台伺服器連不上？附上日誌開一個 issue</string>
+    <string name="about_license">授權</string>
+    <string name="about_license_summary">GNU AGPL-3.0，完整條文在倉庫裡</string>
+    <string name="about_no_browser">此裝置沒有可以開啟連結的應用程式。</string>
+    <string name="about_copyright">© 2026 Hy2droid 貢獻者</string>
+    <string name="about_third_party">內含 Hysteria 2 核心（MIT）與 hev-socks5-tunnel（MIT）；部分源自 lry127 以 MIT 授權的作品。</string>
+
+    <!-- Errors -->
+    <string name="error_no_config">找不到設定。請開啟應用程式後重新連線。</string>
+    <string name="error_tun2socks_config">無法寫入 tun2socks 設定：%1$s</string>
+    <string name="error_establish">無法建立 VPN 介面，權限可能已被撤銷。</string>
+    <string name="error_core_launch">無法啟動 Hysteria 核心。</string>
+    <string name="error_tun2socks_start">無法啟動 tun2socks：%1$s</string>
+    <string name="error_tun2socks_failed">無法啟動通道引擎，請再試一次。</string>
+    <string name="error_core_exited">Hysteria 核心意外停止（代碼 %1$d）。</string>
+</resources>
