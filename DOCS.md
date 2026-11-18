@@ -51,9 +51,10 @@ model, diagnostics and the FAQ. [README.md](README.md) is the short version and
   heartbeat.
 - **16 KB page size**: `libtun2socks.so` is 16 KB aligned on all four ABIs, and
   the bundled Hysteria core is 16 KB aligned on the 64-bit ones (its 32-bit
-  builds stay at 4 KB, which is what those devices expect). `scripts/core.sh
-  verify` and `scripts/tun2socks.sh verify` fail if either regresses, and
-  Android 15+ on a 16 KB-page device loads the 64-bit libraries without a
+  builds stay at 4 KB, which is what those devices expect).
+  `scripts/core.sh verify` fails if the core regresses on `arm64-v8a` or `x86_64`,
+  `scripts/tun2socks.sh verify` if `libtun2socks.so` regresses on any of the four,
+  and Android 15+ on a 16 KB-page device loads the 64-bit libraries without a
   compatibility warning.
 - **Failures are named**, not just reported: the status card translates the core's
   own log line into one sentence (name does not resolve, TLS failed, password
@@ -62,20 +63,27 @@ model, diagnostics and the FAQ. [README.md](README.md) is the short version and
 - **Answer ping locally** (Settings → Network, off by default): Hysteria carries
   TCP and UDP only, so ICMP cannot cross it; this makes the engine answer echo
   itself. It is off by default because a fake reply makes ping meaningless.
-- DNS, two modes (Settings → Network). **Answer DNS in the tunnel** (default) is
-  done by the tunnel engine (hev's `mapdns`): the VPN pushes one resolver
-  (`192.0.2.53`), the engine intercepts it, answers A queries instantly with an
-  address from `198.18.0.0/15`, and forwards the *name* over SOCKS5 so the server
-  resolves it. That removes a round trip per name, the largest DNS cost on a
-  high-latency tunnel. The trade-off is real: a mapped address is only meaningful
-  while the app is connected, so a client that resolves early and connects much
-  later can fail, and IPv6-only destinations do not resolve in this mode. With
-  the switch off, the tun gets real resolvers — Quad9 (`9.9.9.9`) with Cloudflare
-  (`1.1.1.1`) as the backup — because Android has no "no DNS means use the
-  tunnel" mode: with an empty DNS list it resolves through the underlying
-  network, i.e. the queries leave over Wi-Fi and never reach the server. A custom
-  primary/secondary overrides both modes. A local resolver on port 53 is not an
-  option: Android reserves privileged ports and `bind()` fails with `EACCES`.
+- DNS, three modes (`DnsMode` in
+  `app/src/main/java/us/leaf3stones/hy2droid/proxy/DnsMode.kt`), decided by two
+  controls in Settings → Network. **Answer DNS in the tunnel** is on by default
+  and is answered by the tunnel engine (hev's `mapdns`): the VPN pushes one
+  resolver (`192.0.2.53`), the engine intercepts queries sent to it, answers A
+  queries instantly with an address from `198.18.0.0/15`, and forwards the *name*
+  over SOCKS5 so the server resolves it. That removes a round trip per name, the
+  largest DNS cost on a high-latency tunnel. The trade-offs are real: a mapped
+  address only means something while the app is connected, so a client that
+  resolves early and connects much later can fail, and IPv6-only destinations do
+  not resolve in this mode. With the switch off, the tun gets real resolvers —
+  Quad9 (`9.9.9.9`) with Cloudflare (`1.1.1.1`) as the backup — because Android
+  has no "no DNS means use the tunnel" mode: with an empty DNS list it resolves
+  through the underlying network, so the queries leave over Wi-Fi and never reach
+  the server. **Custom DNS server** (off by default) overrides the switch: the
+  primary and the optional secondary replace that list, and a list that ends up
+  empty falls back to Quad9/Cloudflare. With the system Private DNS setting on,
+  names leave the tunnel past the in-tunnel cache and the switch has no effect;
+  Settings shows a hint under the switch in that case. A local resolver on port
+  53 is not an option: Android reserves privileged ports and `bind()` fails with
+  `EACCES`.
 - **Network handover**: switching Wi-Fi ↔ mobile restarts the Hysteria core, so
   the session is back within a second instead of waiting out the 30 s QUIC idle
   timeout. The TUN and the tunnel engine stay up; flows in flight during the
@@ -102,8 +110,8 @@ model, diagnostics and the FAQ. [README.md](README.md) is the short version and
   128): the engine's send buffer on the tun hop. That hop is local (sub-ms), so
   the buffer absorbs bursts and bounds what can queue for a slow reader; it is not
   a WAN window and does not set the ceiling of a fast link. Bigger costs memory
-  per open connection (buffer + 84 KB task stack), which is why the engine's
-  default is 64 KB.
+  per open connection (the buffer plus the engine's per-connection task stack),
+  which is why the engine's own default is 64 KB.
 - Deleting a profile asks first — the auth secret cannot be recovered; the profile
   carrying the live connection is refused until you disconnect.
 - Quick Settings tile to connect/disconnect, kept in sync with the tunnel state; a
@@ -131,9 +139,10 @@ model, diagnostics and the FAQ. [README.md](README.md) is the short version and
   and retry), and disconnecting while it is on explains that Android will start
   the tunnel again.
 - Optional **live traffic** (Settings → Appearance, off by default): throughput on
-  the status card and in the notification, refreshed every 5 s. Off by default
-  because on Android 14 the ongoing notification can be swiped away, and a
-  throughput update would immediately bring it back.
+  the status card, where the counters are polled once a second, and in the
+  notification, which is refreshed every fifth poll (5 s) so the shade does not
+  flicker. Off by default because on Android 14 the ongoing notification can be
+  swiped away, and a throughput update would immediately bring it back.
 - Dynamic colour (Material You) toggle, custom DNS and split tunnelling in
   Settings. Without it — Android 11, or the switch turned off — the theme falls
   back to plain monochrome: black on white in the light theme, white on near-black
@@ -148,26 +157,33 @@ model, diagnostics and the FAQ. [README.md](README.md) is the short version and
 
 | Section | What is there |
 | --- | --- |
-| Appearance | *Dynamic color (Material You)*, *Show server address*, *Live traffic* (throughput on the card and in the notification) |
-| Network | *Split tunneling*, *Blocked traffic*, *Bypass local network* (Android 13+), *Tunnel MTU*, *TCP buffer per connection*, *Disable path MTU discovery*, *Answer ping locally*, *Answer DNS in the tunnel*, *Custom DNS server*, *Test latency on launch* |
+| Appearance | *Dynamic color (Material You)* (on by default), *Show server address* (off), *Live traffic* (off; throughput on the status card once a second and in the notification every 5 s) |
+| Network | *Split tunneling*, *Blocked traffic*, *Bypass local network* (off, Android 13+), *Tunnel MTU* (default 1500, 1280–1500), *TCP buffer per connection* (64 / 128 / 256 KB, default 128), *Disable path MTU discovery* (off), *Answer ping locally* (off), *Answer DNS in the tunnel* (on), *Custom DNS server* (off; primary plus optional secondary), *Test latency on launch* (off) |
 | Diagnostics | *Test tunnel* (measures name lookup, connect and download through the running tunnel), *Export logs* (the zip described in [Troubleshooting](#troubleshooting-and-diagnostics)) |
-| About | App version, bundled core version, repository / issues / licence links |
+| About | Opens the About screen: app version, bundled core version read from the binary, repository / issues / licence links |
 
-Everything here is stored in the app's private DataStore and survives a restart;
-nothing is synced anywhere.
+Everything here is stored in the app's private DataStore and survives a restart; the
+app sends none of it anywhere. Android Auto Backup can include the DataStore in a
+device backup (see [Security notes](#security-notes)).
 
 ## Profile fields
 
-- **Server** — domain or IP, plus a separate **port** field (default `443`)
-- **Auth** — the Hysteria 2 password
-- **SNI** — TLS server name; blank means "derive from the server host". Needed
-  when the server is addressed by IP but the certificate is issued to a hostname
-- **Obfuscation password** — Salamander password; blank disables obfs
+- **Name** — the label on the profile card; a link without a fragment uses the
+  host as the name
+- **Server (host)** — domain or IP, plus a separate **Port** field (default `443`,
+  also used when a share link carries no port)
+- **Auth / password** — the Hysteria 2 password
+- **SNI (optional)** — TLS server name; blank means "derive from the server host".
+  Needed when the server is addressed by IP but the certificate is issued to a
+  hostname
+- **Obfuscation password (optional)** — Salamander password; blank disables obfs
 - **Brutal congestion control** — the switch above the two rate fields. Off keeps
   BBR, which adapts to whatever the path is doing; on, the core paces at exactly
-  **Upload / Download Mbps** and ignores loss, so use about 80 percent of your
-  measured speed and keep it off on unstable networks (see the
-  [official docs](https://v2.hysteria.network/docs/advanced/Full-Server-Config/))
+  **Upload Mbps** / **Download Mbps** and ignores loss, so use about 80 percent of
+  your measured speed and keep it off on unstable networks (see the
+  [official docs](https://v2.hysteria.network/docs/advanced/Full-Server-Config/)).
+  With both rates at 0 the `bandwidth` section is not emitted at all, so the core
+  stays on BBR even with the switch on
 - **Allow insecure certificate** — skips TLS verification; keep it off unless you
   know what you are doing
 - **QUIC fast open** — on by default; turn it off on a network that mishandles
@@ -181,31 +197,41 @@ TCP on lossy networks — a limitation of the protocol, not of this app. Refusin
 those flows makes browsers and apps fall back to TCP/TLS, which the core handles
 much better.
 
-`Settings → Blocked traffic` keeps a list of `protocol + port` rules (single ports
-or ranges, `TCP`, `UDP` or both). **QUIC (UDP 443) is in the list on a fresh
-install** — that is the point of the feature; you can delete it or add your own
-rules. Rules are rendered into the tunnelling config:
+`Settings → Blocked traffic` keeps a list of `protocol + port` rules (a single port
+or an inclusive range, `TCP`, `UDP` or both). **QUIC (UDP 443) is the whole list on
+a fresh install** (`DEFAULT_BLOCK_RULES` in
+`app/src/main/java/us/leaf3stones/hy2droid/data/BlockRule.kt`); you can delete it or
+add your own rules. The rules are rendered into the tun2socks config
+`filesDir/tun2socks.yaml`, whose `misc` section on a fresh install reads:
 
 ```yaml
 misc:
-  block-tcp: '25,465'
+  tcp-buffer-size: 131072
   block-udp: '443'
 ```
 
+A TCP rule adds a `block-tcp` line, for example `block-tcp: '25,465'` for two
+single ports; ports and ranges are comma separated and sorted by start port.
+
 The patched tunnel applies them before any session is created: a blocked TCP port
 is answered with a reset (so the client fails over immediately) and a blocked UDP
-port is dropped. Nothing of a blocked flow reaches the core, and there is no
-per-packet cost for everything else. Changes apply on the next connection. With no
-rules the config carries no `block-*` entry.
+port is dropped. Nothing of a blocked flow reaches the core; the check is a bit
+lookup on the destination port in the accept and receive hooks, not a filter list.
+Changes apply on the next connection. With no rules the `misc` section carries no
+`block-*` line. Port 53 is left out while DNS is answered in the tunnel: a UDP rule
+that covers it is split around it, so blocking `1-1024` still blocks everything
+except 53.
 
 ## Split tunnelling and local network
 
 - **Split tunnelling** (Settings → Network) takes a list of packages that bypass
   the VPN: their traffic is routed by Android outside the TUN and leaves over the
   underlying network, unproxied.
-- **Bypass local network** (Android 13+) keeps RFC1918, link-local, CGNAT and
-  multicast (mDNS/SSDP) destinations outside the VPN, so NAS boxes, printers,
-  router admin pages and casting keep working.
+- **Bypass local network** (Android 13+) keeps `10.0.0.0/8`, `172.16.0.0/12`,
+  `192.168.0.0/16`, `169.254.0.0/16`, `100.64.0.0/10` and `224.0.0.0/4`, plus
+  `fc00::/7`, `fe80::/10` and `ff00::/8` outside the VPN, so NAS boxes, printers,
+  router admin pages and casting discovery (mDNS/SSDP) keep working
+  (`app/src/main/java/us/leaf3stones/hy2droid/data/LanRanges.kt`).
 - On Android 17+ the app also declares `ACCESS_LOCAL_NETWORK`, asked once on the
   first connect, for nodes hosted on the home LAN (see
   [Security notes](#security-notes)).
@@ -216,22 +242,23 @@ The app is available in **seven languages**: English, Arabic, Spanish, French,
 Russian and Simplified Chinese — the six official languages of the United
 Nations — plus Traditional Chinese. Android's per-app language picker
 (`Settings → Apps → Hy2droid → Language`) is wired up through
-`res/xml/locales_config.xml`:
+`app/src/main/res/xml/locales_config.xml`:
 
 | Locale | Resource folder |
 | --- | --- |
-| English | `values/` (default) |
-| Arabic (RTL) | `values-ar/` |
-| Spanish | `values-es/` |
-| French | `values-fr/` |
-| Russian | `values-ru/` |
-| Chinese (Simplified) | `values-zh-rCN/` |
-| Chinese (Traditional) | `values-zh-rTW/` |
+| English | `app/src/main/res/values/` (default) |
+| Arabic (RTL) | `app/src/main/res/values-ar/` |
+| Spanish | `app/src/main/res/values-es/` |
+| French | `app/src/main/res/values-fr/` |
+| Russian | `app/src/main/res/values-ru/` |
+| Chinese (Simplified) | `app/src/main/res/values-zh-rCN/` |
+| Chinese (Traditional) | `app/src/main/res/values-zh-rTW/` |
 
-All user-visible text lives in `strings.xml`; adding a language means copying
-`values/strings.xml` into a new `values-<qualifier>/` folder and translating the
-values (keep the `%1$s` / `%1$d` placeholders intact, escape apostrophes as
-`\'`). `app_name` is deliberately not translated. The layouts only use
+All user-visible text lives in `app/src/main/res/values/strings.xml`; adding a
+language means copying that file into a new `values-<qualifier>/` folder under
+`app/src/main/res/` and translating the values (keep the `%1$s` / `%1$d`
+placeholders intact, escape apostrophes as
+`\'`). `app_name` is not translated (`translatable="false"`). The layouts only use
 direction-aware padding/alignment, so RTL (Arabic) mirrors correctly.
 
 ## How it works
@@ -244,7 +271,7 @@ UI (Compose / Material 3)
                         ├─ VpnService.Builder → TUN fd
                         │    IPv4 10.0.88.88/16, IPv6 fc00::1/64,
                         │    MTU from Settings (default 1500)
-                        ├─ exec libhysteria.so -c hysteria.yaml
+                        ├─ exec libhysteria.so -c filesDir/hysteria.yaml
                         │    → 127.0.0.1:1080 (SOCKS5) + :1081 (HTTP)
                         └─ libtun2socks.so (JNI): TUN fd → SOCKS5
 ```
@@ -283,9 +310,10 @@ upstream tag when a patch changes.
 
 | Path | Contents |
 | --- | --- |
-| `app/src/main/java/.../ui` | Compose UI (home, profile editor, settings, split tunnel, blocked traffic, QR scanner) |
-| `app/src/main/java/.../data` | `Profile`, `ProfileStore`, `SettingsStore`, `BlockRule`, `HysteriaConfigBuilder`, `HysteriaUri`, `ProfileOrdering`, `Redact`, `DiagnosticsExporter`, `ConfigFile` |
-| `app/src/main/java/.../proxy` | `Hysteria2VpnService`, `VpnTileService`, `TunnelStatus`, `Tun`, `Tun2socksConfig`, `LatencyProbe`, `CoreLog` |
+| `app/src/main/java/us/leaf3stones/hy2droid/ui` | Compose UI (home, profile editor, settings, split tunnel, blocked traffic, QR scanner) |
+| `app/src/main/java/us/leaf3stones/hy2droid/data` | `Profile`, `ProfileStore`, `SettingsStore`, `BlockRule`, `HysteriaConfigBuilder`, `HysteriaUri`, `ProfileOrdering`, `ProfileMerge`, `Redact`, `DiagnosticsExporter`, `ConfigFile`, `CoreVersion`, `LanRanges` |
+| `app/src/main/java/us/leaf3stones/hy2droid/proxy` | `Hysteria2VpnService`, `VpnTileService`, `TunnelStatus` (`TunnelState.kt`), `Tun`, `Tun2socksConfig`, `DnsMode`, `NetworkSwitch`, `LatencyProbe`, `TunnelProbe`, `CoreLog` |
+| `app/src/main/res` | `values/strings.xml` and the six translations, `xml/locales_config.xml`, the backup rules |
 | `app/src/main/jniLibs` | `libtun2socks.so` (committed, see `native/tun2socks/`); `libhysteria.so` is downloaded at build time |
 | `native/tun2socks` | Patches applied on top of hev-socks5-tunnel (blocked-port rules, JNI names) |
 | `core/core.properties` | Pinned Hysteria core version + per-ABI checksums |
@@ -336,14 +364,19 @@ reported truthfully.
 | `scripts/core.sh verify` | Verify the binaries against the manifest, including 16 KB LOAD alignment on the 64-bit ABIs (run in CI) |
 | `scripts/core.sh hashes` | Print the per-ABI checksums |
 
-CI installs **the newest upstream release on every build** and prints the resolved
-version in the run summary. Pin a build with the `core_tag` workflow input (e.g.
+The debug workflow (`build.yml`) installs the newest upstream release on every run
+(`core_tag` defaults to `latest`) and prints the resolved version in the run
+summary; the release workflow ships the pinned core on a tag push. Pin a build with
+the `core_tag` workflow input (e.g.
 `app/v2.12.3`) or locally:
 
 ```bash
-HY2_CORE_TAG=app/v2.12.3 ./gradlew assembleDebug   # one-off override
-scripts/core.sh upgrade app/v2.12.3                # move the committed pin
+HY2_CORE_TAG=app/v2.12.3 ./gradlew assembleDebug   # fetch that tag now
+scripts/core.sh upgrade app/v2.12.3                # same, then print the version
 ```
+
+Both end in the script's `install_tag`, which rewrites `core/core.properties` with
+the new tag and checksums — restore that file if the pin should not move.
 
 Where GitHub's release CDN is slow, point the asset download at a mirror (the
 checksums still come from upstream's `hashes.txt`):
@@ -371,38 +404,42 @@ binary with `-c <config>`; if a release changes the YAML schema,
 | Command | Description |
 | --- | --- |
 | `scripts/tun2socks.sh build [abi…]` | Clone the pinned hev-socks5-tunnel tag (`HEV_TAG` in the script), apply `native/tun2socks/*.patch`, run `ndk-build`, install into `app/src/main/jniLibs/` |
-| `scripts/tun2socks.sh verify` | Check the committed `.so` files, including 16 KB LOAD alignment on the 64-bit ABIs (run in CI) |
+| `scripts/tun2socks.sh verify` | Check the committed `.so` files, including 16 KB LOAD alignment on all four ABIs (run in CI) |
 | `scripts/tun2socks.sh source` | Prepare the patched tree only and print its path |
 | `scripts/tun2socks.sh info` | Pinned upstream version, patch list, and the alignment of whichever core is bundled |
 
-Environment: `ANDROID_NDK_HOME` selects the NDK (otherwise the first one found
-under the workspace tools directory or `$ANDROID_SDK_ROOT/ndk/*`),
-`TUN2SOCKS_ABIS` narrows the ABI list (default: all four), and `TUN2SOCKS_BUILD`
-keeps the patched tree at a given path instead of a temp directory.
+Environment: `ANDROID_NDK_HOME` selects the NDK; otherwise the script takes the
+first `android-ndk-*` with an `ndk-build` it finds under `<repo>/../../tools/`,
+`$ANDROID_SDK_ROOT/ndk/*` or `$ANDROID_HOME/ndk/*` (both defaulting to
+`$HOME/Android/Sdk`), `TUN2SOCKS_ABIS` narrows the ABI list (default: all four),
+and `TUN2SOCKS_BUILD` keeps the patched tree at a given path instead of a temp
+directory.
 
 ## Continuous integration and releases
 
 | Workflow | Trigger | Output |
 | --- | --- | --- |
-| `.github/workflows/build.yml` | push to `main`, or manual | debug APK as a workflow artifact (unit tests + `lintDebug` gate) |
+| `.github/workflows/build.yml` | push to `main`, or manual (`core_tag`) | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `testDebugUnitTest`, `lintDebug` |
 | `.github/workflows/release.yml` | pushing a `v*` tag, or manual with a version | signed release APKs, a signed AAB for Play, + a GitHub Release |
 | `.github/workflows/native.yml` | manual | rebuilt `libtun2socks.so` for all four ABIs, as an artifact |
 | `.github/workflows/pages.yml` | push to `main` touching `docs/**`, or manual | the landing page in `docs/`, deployed to GitHub Pages |
 
-Both app workflows verify the bundled core before building; the release workflow
-additionally runs the unit tests, and a tag build ships the core **pinned in
+Both app workflows install and verify the bundled core before building and run
+`testDebugUnitTest`; `build.yml` also runs `scripts/check-style.sh` and `lintDebug`,
+while a tag build in `release.yml` ships the core **pinned in
 `core/core.properties`** so rebuilding a tag yields the same binaries (only a
 manual run with an explicit `core_tag` moves it). The debug workflow follows the
 newest upstream core, which is the point of it. Signing uses a keystore from
 repository secrets, verified with `apksigner`; the release publishes
-`app-universal-release.apk` plus the four ABI splits, and keeps the signed
-`app-release.aab` as a workflow artifact for the Play Console.
+`app-universal-release.apk` plus the four ABI splits to the GitHub Release, and
+keeps the signed `app-release.aab` as a workflow artifact for the Play Console.
 
-Every workflow ends with `scripts/prune-runs.sh 3`: it deletes the runs of *that
-workflow* older than the three newest (logs and artifacts included, which keeps
+`build.yml`, `release.yml` and `native.yml` end with `scripts/prune-runs.sh 3`
+(`pages.yml` has no such step): it deletes the runs of *that workflow*
+older than the three newest (logs and artifacts included, which keeps
 the Actions tab and the artifact quota small). A deleted release run does not
-remove its GitHub Release. Each workflow grants `actions: write` for it, and the
-script stops after one pass if it cannot delete anything.
+remove its GitHub Release. Those three workflows grant `actions: write` for it,
+and the script stops after one pass if it cannot delete anything.
 
 ## Setting up signing
 
@@ -458,8 +495,10 @@ Restoring on a new phone is Android Auto Backup's job (see
 ## Security notes
 
 - **Where the secrets live**: `auth` and the obfs password are stored as-is in the
-  profiles DataStore under the app's private directory (`/data/data/...`, mode
-  `0700`, owned by the app UID). No other app can read them — that is enforced by
+  profiles DataStore under the app's private directory
+  (`/data/data/us.leaf3stones.hy2droid/files/datastore/hysteria_profiles.preferences_pb`,
+  inside a directory with mode `0700`, owned by the app UID; settings live next to
+  it in `settings.preferences_pb`). No other app can read them — that is enforced by
   the per-app UID, not by app code. The app writes nothing to shared storage,
   declares no `FileProvider`, and no exported component hands out data.
 - **Screens and clipboard**: the share dialog and the profile editor set
@@ -473,9 +512,10 @@ Restoring on a new phone is Android Auto Backup's job (see
   Android 9+). That is the price for a backup restore that keeps working on a new
   phone, and it is why there is no Keystore wrapper: the encryption bought little
   against those two paths and cost a restore that silently lost every password.
-- The YAML the core reads (`files/hysteria.yaml`) is written for the session and
-  deleted when the tunnel stops; it, the `.tmp` file an interrupted atomic write
-  would leave behind, and the core log are all excluded from backups.
+- The YAML the core reads (`filesDir/hysteria.yaml`, that is
+  `/data/data/us.leaf3stones.hy2droid/files/hysteria.yaml`) is written for the
+  session and deleted when the tunnel stops; it, the `.tmp` file an interrupted
+  atomic write would leave behind, and the core log are all excluded from backups.
 - Exported diagnostics mask `auth` / obfs `password` and drop core log lines that
   carry a share link. Nothing else in the app writes the secret anywhere (not the
   notification, not logcat, not files outside the private dir).
@@ -485,10 +525,11 @@ Restoring on a new phone is Android Auto Backup's job (see
   automatically: the user still has to press connect.
 - The app declares `INTERNET` for the tunnel and the latency test; other
   permissions are `ACCESS_NETWORK_STATE` (handover detection), `CAMERA` (the QR
-  scanner, only while it is open), the foreground-service / notification pair
-  Android requires for a VPN, and `ACCESS_LOCAL_NETWORK` on Android 17+ (asked once
-  on the first connect, for nodes hosted on the home LAN). No analytics, no crash
-  reporting, no ads, no update check.
+  scanner, only while it is open), `POST_NOTIFICATIONS`, `FOREGROUND_SERVICE` and
+  `FOREGROUND_SERVICE_SPECIAL_USE` (the foreground service a VPN has to be), and
+  `ACCESS_LOCAL_NETWORK` on Android 17+ (asked once on the first connect, for nodes
+  hosted on the home LAN). No analytics, no crash reporting, no ads, no update
+  check.
 
 ## Troubleshooting and diagnostics
 
@@ -552,13 +593,15 @@ feel fast (580 → 230 ms to open one on a ~150 ms node). The cost, per upstream
 that a dead destination is closed instead of returning an error. The per-profile
 switch turns it off; it does not weaken TLS.
 
-### Why does Android warn about the Hysteria core on Android 15+?
+### Does the app trigger the 16 KB page-size compatibility warning on Android 15+?
 
-Android 15 can run on devices with 16 KB memory pages, and a native library must be
-linked with 16 KB LOAD alignment. `libtun2socks.so` is; the bundled core is an
-upstream prebuilt that is still 4 KB aligned, so the system shows its compatibility
-warning for that one file. `scripts/tun2socks.sh info` prints the alignment of
-whatever core is bundled.
+No. Android 15 can run on devices with 16 KB memory pages, and a native library
+must be linked with 16 KB LOAD alignment to be mapped there. Both libraries are:
+`libtun2socks.so` on all four ABIs and the bundled core on `arm64-v8a` and
+`x86_64`. The core's `armeabi-v7a` and `x86` builds stay at 4 KB, which is what
+`scripts/core.sh verify` requires: only the 64-bit libraries are checked, because
+those are the ones a 16 KB-page kernel loads.
+`scripts/tun2socks.sh info` prints the alignment of whatever core is bundled.
 
 ### Connected, but pages do not load — where do I start?
 
