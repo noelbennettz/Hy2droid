@@ -1,8 +1,9 @@
 # Hy2droid — a native Hysteria 2 client for Android
 
 [![Release](https://img.shields.io/github/v/release/noelbennettz/Hy2droid?label=release&logo=github)](https://github.com/noelbennettz/Hy2droid/releases)
+[![Website](https://img.shields.io/badge/website-noelbennettz.github.io%2FHy2droid-5db2ff)](https://noelbennettz.github.io/Hy2droid/)
 [![Android](https://img.shields.io/badge/Android-11%2B-3DDC84?logo=android&logoColor=white)](#quick-start-install-and-connect)
-[![Hysteria core](https://img.shields.io/badge/Hysteria%20core-2.5.1-blue?logo=go&logoColor=white)](core/core.properties)
+[![Hysteria core](https://img.shields.io/badge/Hysteria%20core-2.14.0-blue?logo=go&logoColor=white)](core/core.properties)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
 
 **Hy2droid** is a native Android client for the [Hysteria 2](https://v2.hysteria.network/)
