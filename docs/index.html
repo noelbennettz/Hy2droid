@@ -77,9 +77,11 @@
       <p class="eyebrow"><span class="dot"></span>Hysteria 2 / Android 11+ / no root</p>
       <h1>Hysteria 2,<br><span class="grad">native Android.</span></h1>
       <p class="lede">
-        Paste a <code>hysteria2://</code> link or scan a QR code, tap Connect.
-        A full-tunnel <code>VpnService</code> with the official Go core and a
-        Material 3 interface. No root, no Google Play Services, no config file.
+        Hy2droid is an Android client for the Hysteria 2 proxy protocol. Add a
+        profile from a <code>hysteria2://</code> share link or a QR code, press
+        connect, and the phone reaches the network through your server over a
+        full-tunnel <code>VpnService</code>. No root, no Google Play Services,
+        no account.
       </p>
       <div class="actions">
         <a class="btn btn-primary" href="https://github.com/noelbennettz/Hy2droid/releases/latest/download/app-arm64-v8a-release.apk" data-asset="arm64">
@@ -88,9 +90,9 @@
         <a class="btn" href="https://github.com/noelbennettz/Hy2droid">Source ↗</a>
       </div>
       <div class="pills">
+        <span class="pill">Android 11+</span>
         <span class="pill">IPv4 + IPv6</span>
-        <span class="pill">fastOpen</span>
-        <span class="pill">7 languages</span>
+        <span class="pill">No root</span>
         <span class="pill">AGPL-3.0</span>
         <span class="pill"><span id="release-version">latest</span> · <span id="release-date">releases</span></span>
       </div>
@@ -104,52 +106,40 @@
       </div>
     </div>
   </div>
-  <div class="container metrics">
-    <div class="metric"><b>580 → 230 ms</b><span>connection open · ~150 ms node</span></div>
-    <div class="metric"><b>1.27 → 0.76 s</b><span>time to first byte</span></div>
-    <div class="metric"><b>20 s</b><span>QUIC heartbeat</span></div>
-    <div class="metric"><b>IPv4 + IPv6</b><span>full-tunnel routes</span></div>
-  </div>
 </section>
 
 <section id="features">
   <div class="container">
     <div class="section-head">
-      <h2>Fast where it shows</h2>
-      <p>QUIC fastOpen is on by default, a 20-second heartbeat keeps the session warm, and connection failures are named instead of dumped as a log line.</p>
+      <h2>What it does</h2>
+      <p>One profile is one share link. Everything else is the tunnel: the phone's
+        traffic goes through your Hysteria 2 server, and the app reports what it
+        can and cannot do.</p>
     </div>
     <div class="grid">
       <article class="card">
-        <h3>Import and go</h3>
-        <p>Paste a <code>hysteria2://</code> link, scan a QR code offline, or open a link from the browser. Switching profiles while connected rebuilds the tunnel for you.</p>
+        <h3>Add a profile</h3>
+        <p>Paste a <code>hysteria2://</code> link, scan a QR code with the camera (no network involved), or open a link in the browser and let it hand the profile to the app. Switching profiles while connected rebuilds the tunnel.</p>
       </article>
       <article class="card">
-        <h3>Dual-stack by default</h3>
-        <p>Full-tunnel routes for IPv4 and IPv6. Literal addresses, bracketed IPv6 literals and hostnames all work, including nodes that publish only an A or only an AAAA record.</p>
+        <h3>Full tunnel, both address families</h3>
+        <p>IPv4 and IPv6 are routed through the VPN. The server field takes a hostname, an IPv4 address or an IPv6 address, with the port in its own field.</p>
       </article>
       <article class="card">
-        <h3>Survives handovers</h3>
-        <p>Wi-Fi to mobile and back restarts the core in about a second instead of waiting out the 30-second QUIC idle timeout. The TUN and tunnel engine stay up.</p>
-      </article>
-      <article class="card">
-        <h3>Split tunneling</h3>
-        <p>Send apps outside the VPN by package. Optionally keep RFC1918, link-local, CGNAT and multicast traffic local, so printers, NAS boxes and casting keep working.</p>
-      </article>
-      <article class="card">
-        <h3>Blocked traffic</h3>
-        <p>Refuse flows by protocol and port. QUIC on UDP/443 is blocked by default because Hysteria cannot accelerate it; a blocked TCP port gets an immediate reset.</p>
+        <h3>Split tunnelling</h3>
+        <p>Choose apps that bypass the VPN by package. On Android 13 and newer, local-network traffic can stay local, so printers, NAS boxes and casting keep working.</p>
       </article>
       <article class="card">
         <h3>Failures are named</h3>
-        <p>The status card says the name does not resolve, TLS failed, the password was rejected, or nothing came back. The raw core line stays in the diagnostic export.</p>
+        <p>When a connection fails, the status card says what failed: the name did not resolve, TLS failed, the password was rejected, or nothing came back. Diagnostics can add a test and a redacted log export.</p>
       </article>
       <article class="card">
-        <h3>Brutal, explicitly</h3>
-        <p>Salamander obfuscation, a custom SNI and an insecure-certificate switch. Brutal is opt-in because a fixed pacing rate does not back off on loss; BBR adapts by itself.</p>
+        <h3>Nothing leaves the device</h3>
+        <p>Profiles live in the app's private storage. There is no account, no analytics, no crash reporting and no update check.</p>
       </article>
       <article class="card">
-        <h3>Secrets stay local</h3>
-        <p>Profiles live in the app's private DataStore. No account, no analytics, no crash SDK. Auth and obfuscation passwords are masked in backups and exported logs.</p>
+        <h3>Known limits</h3>
+        <p>Hysteria 2 only, with no subscription-URL importer and no in-app updater. IPv6-only destinations need “Answer DNS in the tunnel” turned off. QUIC on UDP/443 is blocked by default. On a 16 KB-page device, Android 15+ warns about the bundled core, which upstream still ships 4 KB aligned.</p>
       </article>
     </div>
   </div>
@@ -158,26 +148,27 @@
 <section id="ipv6">
   <div class="container">
     <div class="section-head">
-      <h2>Server addresses, both families</h2>
-      <p>IPv4 and IPv6 literals, A-only and AAAA-only names; the config always gets an unambiguous host:port.</p>
+      <h2>Server addresses</h2>
+      <p>A server field that takes a hostname, an IPv4 address or an IPv6 address,
+        next to a separate port field (default 443).</p>
     </div>
     <div class="callout">
       <div>
         <div class="bracket">
-          <code>[2001:db8::1]:8443</code>
-          <span>what the Hysteria config receives</span>
+          <code>2001:db8::1</code>
+          <span>an IPv6 literal is a valid server address</span>
         </div>
         <p class="note">
-          <strong>Brackets are not cosmetic.</strong> Without them the port is read as part of the
-          address, and a non-443 node fails before the handshake. Bare IPv6 input and share links
-          are normalised to this form.
+          <strong>Brackets are not needed in the app.</strong> The server and the port are two
+          fields, so a bare IPv6 address is unambiguous. A share link that carries a bracketed
+          address is read the same way.
         </p>
       </div>
       <ul class="checks">
-        <li><strong>Literals and names.</strong> An IPv4 address, a bracketed IPv6 address, or a hostname all become a single <code>host:port</code> authority.</li>
+        <li><strong>Literals and names.</strong> A hostname is resolved with the system resolver; an IPv4 or IPv6 literal is used as given.</li>
         <li><strong>A and AAAA both work.</strong> A node that publishes only AAAA is reachable over IPv6; one that publishes only A is reached over IPv4.</li>
-        <li><strong>Dual-stack names prefer IPv4.</strong> The Hysteria core picks an A record first and does not fall back to IPv6. If IPv4 is the broken path, use an AAAA-only name or the IPv6 literal.</li>
-        <li><strong>The network must reach that family.</strong> An IPv6-only node needs IPv6 on the phone's current network; an IPv4-only network has no NAT46. Use the diagnostic export when a family silently fails.</li>
+        <li><strong>Dual-stack names prefer IPv4.</strong> The Hysteria core picks the A record and does not fall back, so use an AAAA-only name or the IPv6 literal when IPv4 is the broken side.</li>
+        <li><strong>The network must reach that family.</strong> An IPv6-only node needs IPv6 on the phone's current network; an IPv4-only network has no NAT46. If a family silently fails, the diagnostic export is the place to look.</li>
       </ul>
     </div>
   </div>
@@ -204,11 +195,11 @@
     <div class="steps">
       <div class="step">
         <h3>Download</h3>
-        <p>Use arm64-v8a on a modern phone. The universal APK is larger but works on every supported ABI.</p>
+        <p>Use arm64-v8a on a modern phone. The universal APK is larger but runs on every supported ABI; arm32 and x86 splits are on the release page.</p>
       </div>
       <div class="step">
         <h3>Allow the install</h3>
-        <p>Android asks once whether the browser or file manager may install unknown apps. If the file was truncated, download it again.</p>
+        <p>Android asks once whether the browser or file manager may install unknown apps. That permission can be revoked afterwards.</p>
       </div>
       <div class="step">
         <h3>Add a profile</h3>
@@ -216,7 +207,7 @@
       </div>
       <div class="step">
         <h3>Connect</h3>
-        <p>Accept the VPN prompt. Android 17 also asks for local-network access once; refusing still lets public nodes work.</p>
+        <p>Accept the VPN prompt, which appears once per app. Android 17 also asks for local-network access once; refusing still lets public nodes work.</p>
       </div>
     </div>
     <p class="note">
@@ -252,7 +243,7 @@
   <div class="container">
     <div class="section-head">
       <h2>Questions</h2>
-      <p>Short answers, with the caveats that actually matter.</p>
+      <p>Requirements, downloads and known limitations.</p>
     </div>
     <div class="faq">
       <details>
@@ -261,7 +252,7 @@
       </details>
       <details>
         <summary>Does it work with IPv6-only and IPv4-only nodes?</summary>
-        <p>Yes, as long as the phone's current network can reach that family. IPv6 literals become <code>[addr]:port</code> internally, and AAAA-only names work. For a dual-stack name the Hysteria core prefers IPv4 and does not fall back, so use an AAAA-only name or the IPv6 literal when IPv4 is the broken side.</p>
+        <p>Yes, as long as the phone's current network can reach that family. An IPv6 literal goes in the server field as it is, and AAAA-only names work. For a dual-stack name the Hysteria core prefers IPv4 and does not fall back, so use an AAAA-only name or the IPv6 literal when IPv4 is the broken side.</p>
       </details>
       <details>
         <summary>Which APK should I take?</summary>

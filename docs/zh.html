@@ -77,9 +77,10 @@
       <p class="eyebrow"><span class="dot"></span>Hysteria 2 / Android 11+ / 免 root</p>
       <h1>Hysteria 2，<br><span class="grad">Android 原生。</span></h1>
       <p class="lede">
-        貼上 <code>hysteria2://</code> 或掃 QR，按連線就好。完整通道的
-        <code>VpnService</code>、官方 Go core、Material 3 介面；不需要 root、
-        不需要 Google Play 服務，也沒有設定檔要編輯。
+        Hy2droid 是 Hysteria 2 代理協定的 Android 客戶端。從
+        <code>hysteria2://</code> 分享連結或 QR 碼加入節點，按下連線，
+        整台手機就會經過你的伺服器走完整通道的 <code>VpnService</code>。
+        不需要 root、不需要 Google Play 服務，也不需要帳號。
       </p>
       <div class="actions">
         <a class="btn btn-primary" href="https://github.com/noelbennettz/Hy2droid/releases/latest/download/app-arm64-v8a-release.apk" data-asset="arm64">
@@ -88,9 +89,9 @@
         <a class="btn" href="https://github.com/noelbennettz/Hy2droid">原始碼 ↗</a>
       </div>
       <div class="pills">
+        <span class="pill">Android 11+</span>
         <span class="pill">IPv4 + IPv6</span>
-        <span class="pill">fastOpen</span>
-        <span class="pill">七種語言</span>
+        <span class="pill">免 root</span>
         <span class="pill">AGPL-3.0</span>
         <span class="pill"><span id="release-version">latest</span> · <span id="release-date">releases</span></span>
       </div>
@@ -104,52 +105,39 @@
       </div>
     </div>
   </div>
-  <div class="container metrics">
-    <div class="metric"><b>580 → 230 ms</b><span>建立連線 · 約 150 ms 節點</span></div>
-    <div class="metric"><b>1.27 → 0.76 s</b><span>首字節時間</span></div>
-    <div class="metric"><b>20 s</b><span>QUIC 心跳</span></div>
-    <div class="metric"><b>IPv4 + IPv6</b><span>完整通道路由</span></div>
-  </div>
 </section>
 
 <section id="features">
   <div class="container">
     <div class="section-head">
-      <h2>快在看得見的地方</h2>
-      <p>QUIC fastOpen 預設開啟、20 秒心跳維持工作階段；連不上時直接說原因，而不是丟一串 core 日誌。</p>
+      <h2>它做什麼</h2>
+      <p>一個節點就是一條分享連結。其餘都是通道：手機的流量經過你的 Hysteria 2 伺服器，
+        App 也會說明它能做什麼、不能做什麼。</p>
     </div>
     <div class="grid">
       <article class="card">
-        <h3>匯入就能用</h3>
-        <p>貼上 <code>hysteria2://</code>、離線掃 QR，或從瀏覽器點連結。已連線時切換節點會自動重建通道。</p>
+        <h3>加入節點</h3>
+        <p>貼上 <code>hysteria2://</code> 連結、用相機掃 QR 碼（不經過網路），或在瀏覽器點連結交給 App。已連線時切換節點會重建通道。</p>
       </article>
       <article class="card">
-        <h3>預設雙棧</h3>
-        <p>IPv4 與 IPv6 都有完整路由。字面位址、加括號的 IPv6 與網域名稱都能用，包含只有 A 或只有 AAAA 記錄的節點。</p>
-      </article>
-      <article class="card">
-        <h3>換網不卡住</h3>
-        <p>Wi-Fi 與行動網路互換時約一秒重啟 core，不用等 30 秒 QUIC 閒置逾時；TUN 與通道引擎保持運作。</p>
+        <h3>完整通道，兩種位址族別</h3>
+        <p>IPv4 與 IPv6 都走 VPN。伺服器欄位接受網域名稱、IPv4 或 IPv6 位址，port 另外填。</p>
       </article>
       <article class="card">
         <h3>分流</h3>
-        <p>以套件為單位把 App 排除在 VPN 外；也可讓 RFC1918、link-local、CGNAT 與 multicast 留在本地，印表機、NAS 與投放才不會斷。</p>
+        <p>以套件為單位把 App 排除在 VPN 外。Android 13 以上可讓本機網路流量留在本地，印表機、NAS 與投放才不會斷。</p>
       </article>
       <article class="card">
-        <h3>封鎖特定流量</h3>
-        <p>在通道內按協定與 port 拒絕流量。QUIC（UDP/443）預設封鎖，因為 Hysteria 無法加速它；被封鎖的 TCP port 會立刻收到 RST。</p>
+        <h3>錯誤會說原因</h3>
+        <p>連不上時狀態卡會說哪一步失敗：名稱解析不到、TLS 失敗、密碼被拒絕，或完全沒有回應。診斷頁可以再跑測試、匯出遮蔽後的日誌。</p>
       </article>
       <article class="card">
-        <h3>錯誤會說人話</h3>
-        <p>狀態卡會說名稱解析失敗、TLS 失敗、密碼被拒，或完全沒有回應。原始 core 日誌仍保留在診斷匯出裡。</p>
+        <h3>資料不離開裝置</h3>
+        <p>節點存在 App 的私有儲存空間。沒有帳號、沒有分析、沒有 crash 回報，也沒有更新檢查。</p>
       </article>
       <article class="card">
-        <h3>Brutal 是明確選項</h3>
-        <p>Salamander 混淆、自訂 SNI、允許不安全憑證。Brutal 預設關閉：固定速率不會因丟包退讓，BBR 會自己適應。</p>
-      </article>
-      <article class="card">
-        <h3>機密留在本機</h3>
-        <p>節點存在 App 私有 DataStore。沒有帳號、沒有分析、沒有 crash SDK；備份與匯出日誌都會遮蔽 auth 與混淆密碼。</p>
+        <h3>已知限制</h3>
+        <p>只支援 Hysteria 2，沒有訂閱 URL 匯入，也沒有 App 內更新。IPv6-only 目的地位址需要關掉「在通道內回答 DNS」。QUIC（UDP/443）預設封鎖。在 16 KB 分頁的裝置上，Android 15 以上會對內建 core 顯示警告——上游目前仍是 4 KB 對齊。</p>
       </article>
     </div>
   </div>
@@ -158,24 +146,24 @@
 <section id="ipv6">
   <div class="container">
     <div class="section-head">
-      <h2>伺服器位址，兩種族別</h2>
-      <p>IPv4、IPv6 字面量、只有 A 或只有 AAAA 的域名；設定檔永遠拿到不會誤解的 host:port。</p>
+      <h2>伺服器位址</h2>
+      <p>伺服器欄位接受網域名稱、IPv4 或 IPv6 位址，port 另外填（預設 443）。</p>
     </div>
     <div class="callout">
       <div>
         <div class="bracket">
-          <code>[2001:db8::1]:8443</code>
-          <span>Hysteria 設定實際收到的值</span>
+          <code>2001:db8::1</code>
+          <span>IPv6 字面量可以直接當伺服器位址</span>
         </div>
         <p class="note">
-          <strong>括號不是裝飾。</strong>少了括號，port 會被當成位址的一部分，非 443 的節點在 handshake 前就失敗。
-          手動輸入的裸 IPv6 與分享連結都會先正規化成這個形式。
+          <strong>App 裡不需要加括號。</strong>伺服器與 port 是兩個欄位，裸 IPv6 位址不會有歧義；
+          分享連結裡帶括號的位址也照同樣方式讀取。
         </p>
       </div>
       <ul class="checks">
-        <li><strong>字面量與域名都行。</strong>IPv4、加括號的 IPv6、或網域名稱，最後都會組成單一 <code>host:port</code>。</li>
+        <li><strong>字面量與域名。</strong>網域名稱交給系統解析器；IPv4 或 IPv6 字面量照輸入使用。</li>
         <li><strong>A 與 AAAA 都能用。</strong>只發佈 AAAA 的節點走 IPv6；只發佈 A 的節點走 IPv4。</li>
-        <li><strong>雙棧域名優先 IPv4。</strong>Hysteria core 會先挑 A 記錄，而且不會 fallback 到 IPv6；如果壞的是 IPv4，請用只有 AAAA 的域名或 IPv6 字面量。</li>
+        <li><strong>雙棧域名優先 IPv4。</strong>Hysteria core 會先挑 A 記錄且不 fallback，所以 IPv4 壞掉時請用只有 AAAA 的域名或 IPv6 字面量。</li>
         <li><strong>網路必須到得了那個族別。</strong>IPv6-only 節點需要手機當下網路有 IPv6；IPv4-only 網路沒有 NAT46。族別靜默失敗時請看診斷匯出。</li>
       </ul>
     </div>
@@ -203,11 +191,11 @@
     <div class="steps">
       <div class="step">
         <h3>下載</h3>
-        <p>現代手機用 arm64-v8a；不確定架構就用通用版，檔案大一點但一定能跑。</p>
+        <p>現代手機用 arm64-v8a。不確定架構就用通用版，檔案大一點但每個 ABI 都能跑；arm32 與 x86 的分割檔在 release 頁面。</p>
       </div>
       <div class="step">
         <h3>允許安裝</h3>
-        <p>Android 會問一次是否允許瀏覽器或檔案管理器安裝未知來源 App。檔案不完整就重新下載。</p>
+        <p>Android 只會問一次是否允許瀏覽器或檔案管理器安裝未知來源 App；這個權限之後可以收回。</p>
       </div>
       <div class="step">
         <h3>加入節點</h3>
@@ -215,7 +203,7 @@
       </div>
       <div class="step">
         <h3>連線</h3>
-        <p>同意 VPN 提示。Android 17 會再問一次本機網路權限，拒絕也不影響連公網節點。</p>
+        <p>同意 VPN 提示，每個 App 只問一次。Android 17 會再問一次本機網路權限，拒絕也不影響連公網節點。</p>
       </div>
     </div>
     <p class="note">
@@ -251,7 +239,7 @@
   <div class="container">
     <div class="section-head">
       <h2>常見問題</h2>
-      <p>簡短回答，加上真正會影響使用的但書。</p>
+      <p>系統需求、下載與已知限制。</p>
     </div>
     <div class="faq">
       <details>
@@ -260,7 +248,7 @@
       </details>
       <details>
         <summary>支援 IPv6-only 與 IPv4-only 節點嗎？</summary>
-        <p>支援，前提是手機當下的網路到得了那個位址族別。IPv6 字面量在內部會變成 <code>[addr]:port</code>，只有 AAAA 的域名也能用。雙棧域名 core 會優先 IPv4 且不 fallback，所以 IPv4 壞掉時請改用 AAAA-only 域名或 IPv6 字面量。</p>
+        <p>支援，前提是手機當下的網路到得了那個位址族別。IPv6 字面量直接填在伺服器欄位即可，只有 AAAA 的域名也能用。雙棧域名 core 會優先 IPv4 且不 fallback，所以 IPv4 壞掉時請改用 AAAA-only 域名或 IPv6 字面量。</p>
       </details>
       <details>
         <summary>該下載哪個 APK？</summary>
