@@ -49,6 +49,50 @@ data class Profile(
      */
     val usesBrutal: Boolean get() = brutal && hasBandwidth
 
-    /** `host:port` authority, tolerant of a [server] that already embeds a port. */
-    val authority: String get() = if (server.contains(':')) server else "$server:$port"
+    /**
+     * `host:port` authority, tolerant of a [server] that already embeds a port.
+     *
+     * IPv6 literals are the reason this is not a `contains(':')` test: a bare
+     * literal contains colons but no port, so it has to be bracketed
+     * (`[2001:db8::1]:8443`) before Hysteria — or a SOCKS/URL parser — can read
+     * the port. A bracketed literal may already carry its port and is left alone.
+     */
+    val authority: String
+        get() {
+            val host = server.trim()
+            if (host.isEmpty()) return host
+            if (host.startsWith("[")) {
+                // Bracketed literal, with or without a trailing `:port`.
+                val close = host.indexOf(']')
+                val hasPort = close >= 0 && host.getOrNull(close + 1) == ':'
+                return if (hasPort) host else "$host:$port"
+            }
+            return when (host.count { it == ':' }) {
+                // More than one colon can only be an unbracketed IPv6 literal.
+                in 2..Int.MAX_VALUE -> "[$host]:$port"
+                // Exactly one colon is `host:port`, already complete.
+                1 -> host
+                else -> "$host:$port"
+            }
+        }
+
+    companion object {
+        /**
+         * Canonical form of a [server] value: trimmed, and brackets around a
+         * *bare* IPv6 literal are dropped (`[2001:db8::1]` → `2001:db8::1`).
+         *
+         * Brackets belong to the `host:port` rendering ([authority]) and to share
+         * links, not to the stored host. Links are parsed through this so a
+         * pasted IPv6 node is stored the same way one typed by hand is.
+         * `[addr]:port` is kept verbatim: that is a complete authority, and
+         * guessing which half is the host would silently move the port.
+         */
+        fun normalizeServer(raw: String): String {
+            val trimmed = raw.trim()
+            if (!trimmed.startsWith("[")) return trimmed
+            val close = trimmed.indexOf(']')
+            if (close < 0 || close == trimmed.lastIndex) return trimmed.removeSurrounding("[", "]")
+            return if (trimmed.getOrNull(close + 1) == ':') trimmed else trimmed.removeSurrounding("[", "]")
+        }
+    }
 }

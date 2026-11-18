@@ -28,7 +28,9 @@ object HysteriaUri {
             return null
         }
         if (uri.scheme == null || uri.scheme.lowercase() !in SCHEMES) return null
-        val host = uri.host ?: return null
+        // `URI.host` keeps the brackets of an IPv6 literal; the stored server is
+        // the bare address, and `Profile.authority` adds the brackets back.
+        val host = Profile.normalizeServer(uri.host ?: return null)
         val port = if (uri.port > 0) uri.port else DEFAULT_PORT
         val auth = decode(uri.userInfo ?: "")
 

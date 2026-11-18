@@ -98,6 +98,39 @@ class HysteriaUriTest {
     }
 
     @Test
+    fun `parses an IPv6 literal link and keeps the port in the authority`() {
+        val withPort = HysteriaUri.parse("hysteria2://pass@[2001:db8::1]:8443/?sni=s#V6")
+        val defaultPort = HysteriaUri.parse("hysteria2://pass@[2001:db8::1]/?sni=s")
+
+        requireNotNull(withPort)
+        requireNotNull(defaultPort)
+        // Stored bare: the brackets belong to the `host:port` rendering.
+        assertEquals("2001:db8::1", withPort.server)
+        assertEquals(8443, withPort.port)
+        assertEquals("[2001:db8::1]:8443", withPort.authority)
+        assertEquals("V6", withPort.name)
+
+        assertEquals("2001:db8::1", defaultPort.server)
+        assertEquals(443, defaultPort.port)
+        assertEquals("[2001:db8::1]:443", defaultPort.authority)
+    }
+
+    @Test
+    fun `builds an IPv6 share link that round-trips`() {
+        val profile = HysteriaUri.parse("hysteria2://pass@[2001:db8::1]:8443/#V6")
+        requireNotNull(profile)
+
+        val link = HysteriaUri.build(profile)
+
+        assertTrue(link.contains("@[2001:db8::1]:8443"))
+        val reparsed = HysteriaUri.parse(link)
+        requireNotNull(reparsed)
+        assertEquals(profile.server, reparsed.server)
+        assertEquals(profile.port, reparsed.port)
+        assertEquals(profile.auth, reparsed.auth)
+    }
+
+    @Test
     fun `builds a share link that round-trips`() {
         val profile = Profile(
             id = "1",

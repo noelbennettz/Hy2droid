@@ -247,8 +247,8 @@ fun EditProfileScreen(
                     onSave(
                         Profile(
                             id = profileId,
-                            name = name.ifBlank { server },
-                            server = server.trim(),
+                            name = name.ifBlank { Profile.normalizeServer(server) },
+                            server = Profile.normalizeServer(server),
                             port = portValue ?: 443,
                             auth = auth,
                             sni = sni.trim(),

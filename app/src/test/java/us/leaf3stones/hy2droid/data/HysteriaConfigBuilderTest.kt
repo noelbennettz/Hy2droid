@@ -117,6 +117,22 @@ class HysteriaConfigBuilderTest {
     }
 
     @Test
+    fun `an IPv6 literal server is bracketed in the core config`() {
+        val profile = Profile(
+            id = "6",
+            name = "v6",
+            server = "2001:db8::1",
+            port = 8443,
+            auth = "a",
+        )
+
+        val yaml = HysteriaConfigBuilder.build(profile)
+
+        // Hysteria parses `server` as host:port, so a bare literal is not enough.
+        assertTrue(yaml.contains("server: \"[2001:db8::1]:8443\""))
+    }
+
+    @Test
     fun `escapes special characters so values cannot break the document`() {
         val quoted = HysteriaConfigBuilder.quote("a\"b\\c:d#e")
 

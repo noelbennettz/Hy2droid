@@ -14,7 +14,8 @@ object ProfileMerge {
     /** True when both profiles point at the same server and port. */
     fun sameNode(existing: Profile, incoming: Profile): Boolean =
         existing.port == incoming.port &&
-            existing.server.trim().equals(incoming.server.trim(), ignoreCase = true)
+            Profile.normalizeServer(existing.server)
+                .equals(Profile.normalizeServer(incoming.server), ignoreCase = true)
 
     /**
      * Fold [incoming] into [existing]: the id (and therefore the position and the
