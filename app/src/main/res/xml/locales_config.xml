@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Languages offered in Android's per-app language picker (Settings > Apps >
-     Hy2droid > Language): the six official UN languages plus Traditional Chinese. -->
+     Hy2droid > Language): seven in total - the six official languages of the
+     United Nations (Arabic, Simplified Chinese, English, French, Russian,
+     Spanish) plus Traditional Chinese. -->
 <locale-config xmlns:android="http://schemas.android.com/apk/res/android">
     <locale android:name="en" />
     <locale android:name="ar" />

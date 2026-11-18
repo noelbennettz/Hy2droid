@@ -212,8 +212,9 @@ rules the config carries no `block-*` entry.
 
 ## Languages
 
-The UI is translated into the six official languages of the United Nations plus
-Traditional Chinese, and Android's per-app language picker
+The app is available in **seven languages**: English, Arabic, Spanish, French,
+Russian and Simplified Chinese — the six official languages of the United
+Nations — plus Traditional Chinese. Android's per-app language picker
 (`Settings → Apps → Hy2droid → Language`) is wired up through
 `res/xml/locales_config.xml`:
 
