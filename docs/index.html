@@ -77,11 +77,12 @@
       <p class="eyebrow"><span class="dot"></span>Hysteria 2 / Android 11+ / no root</p>
       <h1>Hysteria 2,<br><span class="grad">native Android.</span></h1>
       <p class="lede">
-        Hy2droid connects an Android phone to a Hysteria 2 server you already
-        have. Paste the share link you were given (or scan its QR code), press
-        connect, and everything the phone sends goes to the internet through
-        that server instead of your mobile or Wi-Fi provider. It needs Android
-        11 or newer; no root, no Google account, no configuration file.
+        Hy2droid is an Android app that connects the phone to a server running
+        Hysteria 2, a proxy protocol used to get around blocked or throttled
+        networks. It is the client half: the server address — a share link or a
+        QR code — comes from whoever runs that server. Once connected, the
+        traffic of your apps leaves through it. Needs Android 11 or newer; no
+        root, no Google account, no configuration file.
       </p>
       <div class="actions">
         <a class="btn btn-primary" href="https://github.com/noelbennettz/Hy2droid/releases/latest/download/app-arm64-v8a-release.apk" data-asset="arm64">
@@ -139,7 +140,7 @@
       </article>
       <article class="card">
         <h3>Known limits</h3>
-        <p>Hysteria 2 only, with no subscription-URL importer and no in-app updater. IPv6-only destinations need “Answer DNS in the tunnel” turned off. QUIC on UDP/443 is blocked by default. On a 16 KB-page device, Android 15+ warns about the bundled core, which upstream still ships 4 KB aligned.</p>
+        <p>Hysteria 2 only: one profile is one share link, with no subscription-URL importer and no in-app updater — new versions come from Releases. The built-in DNS mode answers IPv4 lookups only, so IPv6-only destinations need “Answer DNS in the tunnel” turned off. QUIC on UDP/443 is blocked by default; the Blocked traffic screen changes that.</p>
       </article>
     </div>
   </div>
@@ -272,7 +273,7 @@
       </details>
       <details>
         <summary>Is it on Google Play?</summary>
-        <p>Not yet. Signed APKs are published on GitHub Releases, and a signed AAB is produced by the release workflow for a future Play listing.</p>
+        <p>No. Every release is a signed APK on GitHub Releases; installing one needs the one-time “install unknown apps” permission for the browser or file manager you download it with.</p>
       </details>
       <details>
         <summary>Hysteria 1 or other protocols?</summary>

@@ -77,10 +77,11 @@
       <p class="eyebrow"><span class="dot"></span>Hysteria 2 / Android 11+ / 免 root</p>
       <h1>Hysteria 2，<br><span class="grad">Android 原生。</span></h1>
       <p class="lede">
-        Hy2droid 把 Android 手機接到你手上的 Hysteria 2 伺服器。貼上別人給你的分享連結
-        （或用相機掃 QR 碼）、按下連線，手機送出的流量就改由那台伺服器出去，
-        而不是你的行動網路或 Wi-Fi 供應商。需要 Android 11 以上；不用 root、
-        不用 Google 帳號，也沒有設定檔要改。
+        Hy2droid 是一個 Android App，把手機連到跑 Hysteria 2 的伺服器
+        ——Hysteria 2 是一種代理協定，用來繞過被封鎖或限速的網路。
+        它只負責用戶端那一半：伺服器位址由架站的人以分享連結或 QR 碼提供。
+        連上之後，手機上各 App 的流量就改由那台伺服器出去。
+        需要 Android 11 以上；不用 root、不用 Google 帳號，也沒有設定檔要改。
       </p>
       <div class="actions">
         <a class="btn btn-primary" href="https://github.com/noelbennettz/Hy2droid/releases/latest/download/app-arm64-v8a-release.apk" data-asset="arm64">
@@ -137,7 +138,7 @@
       </article>
       <article class="card">
         <h3>已知限制</h3>
-        <p>只支援 Hysteria 2，沒有訂閱 URL 匯入，也沒有 App 內更新。IPv6-only 目的地位址需要關掉「在通道內回答 DNS」。QUIC（UDP/443）預設封鎖。在 16 KB 分頁的裝置上，Android 15 以上會對內建 core 顯示警告——上游目前仍是 4 KB 對齊。</p>
+        <p>只支援 Hysteria 2：一個節點就是一條分享連結，沒有訂閱 URL 匯入，也沒有 App 內更新——新版本從 Releases 下載。內建的 DNS 模式只回答 IPv4 查詢，所以連 IPv6-only 的目的地時要關掉「在通道內回答 DNS」。QUIC（UDP/443）預設封鎖，可在「被封鎖的流量」調整。</p>
       </article>
     </div>
   </div>
@@ -268,7 +269,7 @@
       </details>
       <details>
         <summary>上 Google Play 了嗎？</summary>
-        <p>還沒有。簽章 APK 發在 GitHub Releases，release workflow 也會產生簽章 AAB 供未來上架。</p>
+        <p>沒有。每個版本都是放在 GitHub Releases 的簽章 APK；安裝時要對下載它的瀏覽器或檔案管理器開一次「安裝未知來源應用程式」權限。</p>
       </details>
       <details>
         <summary>支援 Hysteria 1 或其他協定嗎？</summary>

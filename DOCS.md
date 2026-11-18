@@ -49,11 +49,12 @@ model, diagnostics and the FAQ. [README.md](README.md) is the short version and
   *first* connection — upstream: "the client will not connect until the first
   call to TCP() or UDP()"; after that the session is held open), with a 20 s QUIC
   heartbeat.
-- **16 KB page size**: `libtun2socks.so` is linked with 16 KB LOAD alignment and
-  `scripts/tun2socks.sh verify` fails if that regresses. The bundled Hysteria core
-  is an upstream prebuilt that is still 4 KB aligned, so Android 15+ on a 16
-  KB-page device shows its compatibility warning for that file;
-  `scripts/tun2socks.sh info` prints the alignment of whichever core is bundled.
+- **16 KB page size**: `libtun2socks.so` is 16 KB aligned on all four ABIs, and
+  the bundled Hysteria core is 16 KB aligned on the 64-bit ones (its 32-bit
+  builds stay at 4 KB, which is what those devices expect). `scripts/core.sh
+  verify` and `scripts/tun2socks.sh verify` fail if either regresses, and
+  Android 15+ on a 16 KB-page device loads the 64-bit libraries without a
+  compatibility warning.
 - **Failures are named**, not just reported: the status card translates the core's
   own log line into one sentence (name does not resolve, TLS failed, password
   rejected, nothing came back, something else answered, obfuscation mismatch)
