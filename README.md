@@ -73,7 +73,7 @@ see [DOCS.md](DOCS.md) for the core tooling, the signing secrets and the CI jobs
 | --- | --- |
 | [DOCS.md](DOCS.md) | Features in detail, every setting and profile field, blocked-port rules, split tunnelling, internals, repository layout, build and core scripts, CI and signing, security notes, troubleshooting, FAQ |
 | [native/tun2socks/README.md](native/tun2socks/README.md) | The patches applied to hev-socks5-tunnel, and how to rebuild `libtun2socks.so` |
-| [docs/index.html](docs/index.html), [docs/zh.html](docs/zh.html) | The landing page published by `.github/workflows/pages.yml`, in English and Traditional Chinese |
+| [`docs/`](docs/) | Project site in English and Traditional Chinese, published at <https://noelbennettz.github.io/Hy2droid/> |
 
 ## Licence
 
