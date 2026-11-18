@@ -6,11 +6,40 @@
 <title>Hy2droid — native Hysteria 2 for Android</title>
 <meta name="description" content="Hy2droid is a free, open-source Hysteria 2 client for Android. Paste a share link or scan a QR, connect a full-tunnel VpnService over IPv4 or IPv6, with no root and no Google Play Services.">
 <meta name="theme-color" content="#070907">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="dark light">
 <link rel="canonical" href="https://noelbennettz.github.io/Hy2droid/">
 <link rel="alternate" hreflang="zh-Hant" href="zh.html">
 <link rel="icon" href="assets/icon.png" type="image/png">
 <link rel="apple-touch-icon" href="assets/icon.png">
+<script>
+(function () {
+  var root = document.documentElement;
+  var zh = root.lang.indexOf("zh") === 0;
+  try {
+    var saved = localStorage.getItem("theme");
+    root.dataset.theme = saved ||
+      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  } catch (e) { root.dataset.theme = "dark"; }
+  document.addEventListener("DOMContentLoaded", function () {
+    var btn = document.querySelector(".theme-toggle");
+    if (!btn) return;
+    function render() {
+      var dark = root.dataset.theme === "dark";
+      btn.textContent = dark ? (zh ? "日間" : "Light") : (zh ? "夜間" : "Dark");
+      btn.setAttribute("aria-label",
+        dark ? (zh ? "切換日間模式" : "Switch to light mode")
+             : (zh ? "切換夜間模式" : "Switch to dark mode"));
+      btn.setAttribute("aria-pressed", dark ? "true" : "false");
+    }
+    btn.addEventListener("click", function () {
+      root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+      try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {}
+      render();
+    });
+    render();
+  });
+})();
+</script>
 <link rel="stylesheet" href="style.css">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Hy2droid — native Hysteria 2 for Android">
@@ -32,8 +61,9 @@
     <nav class="nav" aria-label="Main">
       <a class="hide-sm" href="#features">Features</a>
       <a class="hide-sm" href="#ipv6">Addresses</a>
-      <a href="#install">Install</a>
+      <a class="nav-install" href="#install">Install</a>
       <a class="hide-sm" href="https://github.com/noelbennettz/Hy2droid">GitHub</a>
+      <button class="theme-toggle" type="button" aria-pressed="false">Dark</button>
       <a class="lang" href="zh.html" hreflang="zh-Hant" lang="zh-Hant">繁中</a>
     </nav>
   </div>
