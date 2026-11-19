@@ -39,6 +39,9 @@ Run the same gates CI runs:
 whitespace, missing or doubled final newline); import order and line width it
 only reports. Also run `./gradlew licenseeRelease` if you add or bump a
 dependency, and `./gradlew assembleRelease` if you touch R8 or the JNI bindings.
+If a change touches a screen or anything that needs an Android runtime, run
+`./gradlew connectedDebugAndroidTest` with a device or emulator attached (API 30+)
+— CI runs it on every pull request, but a failure there costs a round trip.
 
 Keep a change small and explained: what it changes, why, and what you tested. If
 it changes behaviour a user can see, update `DOCS.md` and both language versions
