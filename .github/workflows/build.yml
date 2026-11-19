@@ -88,6 +88,9 @@ jobs:
             exit "$rc"
           fi
 
+      - name: Build release APK (unsigned)
+        run: ./gradlew assembleRelease --no-daemon --console=plain
+
       - name: Lint
         run: |
           set +e
