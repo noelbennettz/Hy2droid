@@ -1,6 +1,15 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    id 'app.cash.licensee' version '1.14.1'
+}
+
+licensee {
+    allow('Apache-2.0')
+    allow('MIT')
+    allow('BSD-2-Clause')
+    allow('BSD-3-Clause')
+    allow('ISC')
 }
 
 // Release builds override these from CI (-P flags or env); defaults keep local
@@ -31,6 +40,14 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        // The tunnel engine's upstream tag, taken from the script that rebuilds
+        // libtun2socks.so so the licences screen cannot drift from the binary
+        // that is committed. Unknown only breaks the label, never the build.
+        def hevTagLine = rootProject.file('scripts/tun2socks.sh').readLines()
+                .find { it.startsWith('HEV_TAG=') }
+        def hevTag = hevTagLine?.replaceAll(/^HEV_TAG="?/, '')?.replaceAll(/"$/, '') ?: 'unknown'
+        buildConfigField "String", "TUN2SOCKS_VERSION", "\"$hevTag\""
     }
 
     splits {
@@ -115,6 +132,33 @@ tasks.register('fetchCore', Exec) {
 }
 
 tasks.named('preBuild').configure { dependsOn 'fetchCore' }
+
+// Licensee's report is JSON produced on the build machine; the app reads a
+// tab-separated copy so parsing at runtime needs no JSON library.
+def licenseeReport = layout.buildDirectory.file('reports/licensee/androidRelease/artifacts.json')
+def licenseeAssetsDir = layout.buildDirectory.dir('generated/licenseeAssets')
+android.sourceSets.main.assets.srcDir(new File(licenseeAssetsDir.get().asFile.path))
+
+tasks.register('licenseeAssets') {
+    group = 'build setup'
+    description = 'Copy the Licensee report into the app assets as plain text'
+    dependsOn 'licenseeAndroidRelease'
+    inputs.file(licenseeReport)
+    outputs.dir(licenseeAssetsDir)
+    doLast {
+        def report = new groovy.json.JsonSlurper().parse(licenseeReport.get().asFile)
+        def rows = report.collect { dependency ->
+            def id = dependency.spdxLicenses ? dependency.spdxLicenses*.identifier.join(', ') : 'unknown'
+            "${dependency.groupId}:${dependency.artifactId}\t${dependency.version}\t${id}"
+        }.unique().sort()
+        def out = licenseeAssetsDir.get().dir('licenses').asFile
+        out.mkdirs()
+        new File(out, 'android-dependencies.txt').text = rows.join('\n') + '\n'
+    }
+}
+
+tasks.named('preBuild').configure { dependsOn 'licenseeAssets' }
+
 
 dependencies {
     implementation libs.androidx.datastore.preferences

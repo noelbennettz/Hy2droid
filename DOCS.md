@@ -163,7 +163,7 @@ model, diagnostics and the FAQ. [README.md](README.md) is the short version and
 | Appearance | *Dynamic color (Material You)* (on by default), *Show server address* (off), *Live traffic* (off; throughput on the status card once a second and in the notification every 5 s) |
 | Network | *Split tunneling*, *Blocked traffic*, *Bypass local network* (off, Android 13+), *Tunnel MTU* (default 1500, 1280–1500), *TCP buffer per connection* (64 / 128 / 256 KB, default 128), *Disable path MTU discovery* (off), *Answer ping locally* (off), *Answer DNS in the tunnel* (on), *Custom DNS server* (off; primary plus optional secondary), *Test latency on launch* (off) |
 | Diagnostics | *Test tunnel* (measures name lookup, connect and download through the running tunnel), *Export logs* (the zip described in [Troubleshooting](#troubleshooting-and-diagnostics)) |
-| About | Opens the About screen: app version, bundled core version read from the binary, repository / issues / licence links |
+| About | Opens the About screen: app version, bundled core version read from the binary, repository / issues / licence links. *Open source licenses* (next to it) lists every dependency the APK contains with its version and licence, generated at build time by Licensee, plus the Hysteria core and `libtun2socks.so` with their full licence texts. Nothing on that screen is loaded from the network |
 
 Everything here is stored in the app's private DataStore and survives a restart; the
 app sends none of it anywhere. Android Auto Backup can include the DataStore in a
@@ -444,6 +444,11 @@ newest upstream core, which is the point of it. Signing uses a keystore from
 repository secrets, verified with `apksigner`; the release publishes
 `app-universal-release.apk` plus the four ABI splits to the GitHub Release, and
 keeps the signed `app-release.aab` as a workflow artifact for the Play Console.
+
+`build.yml` also runs `./gradlew licenseeRelease`, which fails the build when a
+dependency is not under one of the licences allowed in `app/build.gradle`
+(Apache-2.0, MIT, BSD-2-Clause, BSD-3-Clause, ISC); the same task writes the
+report the in-app licences screen shows.
 
 A signed release also runs `scripts/release-verify.sh`, which writes
 `SHA256SUMS.txt` (in `sha256sum` format) next to the APKs and reads the signing

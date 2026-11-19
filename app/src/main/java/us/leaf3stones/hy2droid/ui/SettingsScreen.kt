@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lan
@@ -96,6 +97,7 @@ fun SettingsScreen(
     onOpenSplitTunnel: () -> Unit,
     onOpenBlockRules: () -> Unit,
     onOpenAbout: () -> Unit,
+    onOpenLicenses: () -> Unit,
 ) {
     val dynamicColor by viewModel.dynamicColor.collectAsState()
     val showServerAddress by viewModel.showServerAddress.collectAsState()
@@ -394,6 +396,13 @@ fun SettingsScreen(
                 onClick = onOpenAbout,
             )
             HorizontalDivider()
+            ClickRow(
+                icon = Icons.Filled.Description,
+                title = stringResource(R.string.settings_licenses),
+                subtitle = stringResource(R.string.settings_licenses_summary),
+                onClick = onOpenLicenses,
+            )
+            HorizontalDivider()
         }
     }
 
@@ -478,7 +487,7 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun SectionHeader(title: String) {
+internal fun SectionHeader(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleSmall,

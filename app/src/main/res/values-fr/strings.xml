@@ -170,4 +170,12 @@
     <string name="error_tun2socks_start">Impossible de démarrer tun2socks : %1$s</string>
     <string name="error_tun2socks_failed">Impossible de démarrer le moteur du tunnel. Réessayez.</string>
     <string name="error_core_exited">Le cœur Hysteria s\'est arrêté de façon inattendue (code %1$d).</string>
+    <string name="settings_licenses">Licences open source</string>
+    <string name="settings_licenses_summary">Toutes les bibliothèques et composants natifs de l\'application</string>
+    <string name="licenses_title">Licences open source</string>
+    <string name="licenses_section_native">Composants natifs embarqués</string>
+    <string name="licenses_section_native_summary">Inclus dans l\'APK ; touchez-en un pour lire le texte complet de la licence.</string>
+    <string name="licenses_section_libraries">Bibliothèques</string>
+    <string name="licenses_section_libraries_summary">%1$d dépendances Maven, issues du rapport de licences de la compilation.</string>
+    <string name="licenses_native_note">Les mêmes textes figurent dans NOTICE, dans le dépôt du code. Rien sur cet écran n\'est chargé depuis le réseau.</string>
 </resources>
