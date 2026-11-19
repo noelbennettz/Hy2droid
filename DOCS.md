@@ -22,6 +22,7 @@ repository.
 - [How it works](#how-it-works)
 - [Repository layout](#repository-layout)
 - [Building and tooling](#building-and-tooling)
+- [Instrumentation tests](#instrumentation-tests)
 - [Bundled core](#bundled-core)
 - [Scripts](#scripts)
 - [Continuous integration and releases](#continuous-integration-and-releases)
@@ -342,7 +343,8 @@ files as the source of truth for a release and review the patches there.
 | `scripts/core.sh` | Fetch / verify / upgrade the core |
 | `scripts/tun2socks.sh` | Rebuild `libtun2socks.so` from the pinned upstream tag + patches |
 | `scripts/prune-runs.sh` | Delete all but the newest three runs of the workflow calling it |
-| `.github/workflows` | `build.yml` (debug), `release.yml` (signed release), `native.yml` (rebuild `libtun2socks.so`) |
+| `.github/workflows` | `build.yml` (debug + unit tests + lint), `connected.yml` (instrumentation tests on an emulator), `release.yml` (signed release), `native.yml` (rebuild `libtun2socks.so`) |
+| `app/src/androidTest` | Instrumentation tests: settings screen, licences data, share-link parsing |
 
 ## Building and tooling
 
@@ -364,6 +366,30 @@ scripts/check-style.sh         # .editorconfig rules (LF, final newline, width,
                                # import order, no tabs/trailing spaces)
 scripts/check-style.sh --fix   # rewrite the mechanical ones
 ```
+
+## Instrumentation tests
+
+`app/src/androidTest` holds the tests that need an Android runtime instead of a
+JVM: the settings screen (the Advanced group starts collapsed, opens and closes
+on a tap, and the dynamic-colour switch has to reach the DataStore), the licences
+screen's packaged data, and share-link parsing through the device's own
+`java.net` implementation.
+
+```bash
+./gradlew connectedDebugAndroidTest   # needs a device or an emulator (API 30+)
+```
+
+CI runs them in `.github/workflows/connected.yml` on API 30 for every pull
+request and on API 30 + API 37 on `main` (see
+[Continuous integration and releases](#continuous-integration-and-releases)).
+
+**Real VPN testing stays a physical-device job.** These tests render screens and
+write settings; none of them establish a tunnel, because that needs a reachable
+Hysteria 2 server, the system VPN consent dialog and real packet forwarding.
+Before a release, check by hand on a device: connect and disconnect, switch
+between two profiles while connected, the Quick Settings tile, the split-tunnel
+and blocked-traffic screens against a live tunnel, and *Settings → Diagnostics →
+Test tunnel*. The emulator jobs do not cover any of that.
 
 ## Bundled core
 
@@ -441,7 +467,8 @@ directory.
 
 | Workflow | Trigger | Output |
 | --- | --- | --- |
-| `.github/workflows/build.yml` | push to `main`, or manual (`core_tag`) | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `testDebugUnitTest`, `lintDebug` |
+| `.github/workflows/build.yml` | push to `main`, pull request, or manual (`core_tag`) | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `testDebugUnitTest`, `lintDebug` |
+| `.github/workflows/connected.yml` | pull request (API 30), push to `main` / manual (API 30 and 37) | instrumentation-test report; gate: `connectedDebugAndroidTest` on an emulator |
 | `.github/workflows/release.yml` | pushing a `v*` tag, or manual with a version | signed release APKs, a signed AAB for Play, + a GitHub Release |
 | `.github/workflows/native.yml` | manual | rebuilt `libtun2socks.so` for all four ABIs, as an artifact |
 
@@ -468,7 +495,8 @@ its certificate digest becomes the last line of the release notes, so a download
 can be checked without trusting the release page: see
 [README > Verify your download](README.md#verify-your-download).
 
-`build.yml`, `release.yml` and `native.yml` end with `scripts/prune-runs.sh 3`:
+`build.yml`, `connected.yml`, `release.yml` and `native.yml` end with
+`scripts/prune-runs.sh 3`:
 each deletes the runs of *that workflow* older than the number given (logs and
 artifacts included, which keeps the Actions tab and the artifact quota small).
 A deleted release run does not remove its GitHub Release. Those three workflows

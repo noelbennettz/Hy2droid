@@ -68,6 +68,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -213,6 +214,7 @@ fun SettingsScreen(
                 title = stringResource(R.string.settings_dynamic_color),
                 subtitle = null,
                 checked = dynamicColor,
+                testTag = "settings-row-dynamic-color",
                 onCheckedChange = viewModel::setDynamicColor,
             )
             HorizontalDivider()
@@ -285,6 +287,7 @@ fun SettingsScreen(
                 title = stringResource(R.string.settings_advanced),
                 subtitle = stringResource(R.string.settings_advanced_summary),
                 expanded = advancedSection.isExpanded,
+                testTag = "settings-row-advanced",
                 onClick = { advancedSection = advancedSection.toggled() },
             )
             if (advancedSection.isExpanded) {
@@ -518,12 +521,15 @@ internal fun ExpandableSectionHeader(
     title: String,
     subtitle: String,
     expanded: Boolean,
+    /** Set where an instrumentation test has to find this row without its text. */
+    testTag: String? = null,
     onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 72.dp)
+            .then(if (testTag != null) Modifier.testTag(testTag) else Modifier)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -668,6 +674,8 @@ private fun SwitchRow(
     subtitle: String?,
     checked: Boolean,
     enabled: Boolean = true,
+    /** Set where an instrumentation test has to find the switch without its text. */
+    testTag: String? = null,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
@@ -693,7 +701,14 @@ private fun SwitchRow(
                 )
             }
         }
-        Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            enabled = enabled,
+            // The switch itself carries the tag: tapping the row's text does
+            // nothing, so a test has to reach the toggleable node.
+            modifier = if (testTag != null) Modifier.testTag(testTag) else Modifier,
+        )
     }
 }
 

@@ -98,10 +98,12 @@ echo "sdk.dir=$ANDROID_HOME" > local.properties  # gitignored; points at the SDK
 Both of the first two lines are needed on a fresh clone: the wrapper refuses to
 start without a JDK 17, and it cannot find the SDK without `local.properties`.
 Also available: `./gradlew testDebugUnitTest`, `./gradlew lintDebug` (errors fail
-the build), `./gradlew assembleRelease` (signed when a keystore is present) and
-`scripts/check-style.sh` (`--fix` rewrites the mechanical violations). The first
-build downloads the pinned core into `app/src/main/jniLibs/<abi>/libhysteria.so`;
-see [DOCS.md](DOCS.md) for the core tooling, the signing secrets and the CI jobs.
+the build), `./gradlew connectedDebugAndroidTest` (instrumentation tests; needs a
+device or emulator on API 30+), `./gradlew assembleRelease` (signed when a keystore
+is present) and `scripts/check-style.sh` (`--fix` rewrites the mechanical
+violations). The first build downloads the pinned core into
+`app/src/main/jniLibs/<abi>/libhysteria.so`; see [DOCS.md](DOCS.md) for the core
+tooling, the instrumentation tests, the signing secrets and the CI jobs.
 
 ## Documentation
 

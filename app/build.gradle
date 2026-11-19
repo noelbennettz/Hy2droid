@@ -37,6 +37,11 @@ android {
         versionCode appVersionCode
         versionName appVersionName
 
+        // Instrumentation tests (app/src/androidTest) render real screens on an
+        // emulator; see .github/workflows/connected.yml. JVM unit tests stay in
+        // app/src/test and need no device.
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
         vectorDrawables {
             useSupportLibrary true
         }
@@ -182,4 +187,15 @@ dependencies {
     testImplementation libs.junit
     // Only previews need the tooling artefact, and only in debug builds.
     debugImplementation libs.androidx.ui.tooling
+
+    // Instrumentation tests: Compose UI on a device/emulator plus the AndroidX
+    // test runner. ui-test-manifest supplies the empty ComponentActivity that
+    // createComposeRule() hosts the content in, so it is debug-only.
+    androidTestImplementation libs.junit
+    androidTestImplementation platform(libs.androidx.compose.bom)
+    androidTestImplementation libs.androidx.test.ext.junit
+    androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.androidx.test.core
+    androidTestImplementation libs.androidx.ui.test.junit4
+    debugImplementation libs.androidx.ui.test.manifest
 }
