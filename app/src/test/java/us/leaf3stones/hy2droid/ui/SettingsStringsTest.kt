@@ -33,6 +33,17 @@ class SettingsStringsTest {
     )
 
     @Test
+    fun `the advanced group is named in every locale`() {
+        val advancedKeys = listOf("settings_advanced", "settings_advanced_summary")
+        locales.forEach { locale ->
+            val text = File("src/main/res/$locale/strings.xml").readText()
+            advancedKeys.forEach { key ->
+                assertTrue("$locale is missing $key", text.contains("name=\"$key\""))
+            }
+        }
+    }
+
+    @Test
     fun `the licence screen is named in every locale`() {
         locales.forEach { locale ->
             val text = File("src/main/res/$locale/strings.xml").readText()

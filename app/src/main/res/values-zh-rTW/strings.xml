@@ -180,4 +180,6 @@
     <string name="licenses_section_libraries">函式庫</string>
     <string name="licenses_section_libraries_summary">共 %1$d 個 Maven 相依套件，來自建置時的授權報告。</string>
     <string name="licenses_native_note">同樣的條文也在原始碼倉庫的 NOTICE 裡。這個畫面不會從網路載入任何東西。</string>
+    <string name="settings_advanced">進階</string>
+    <string name="settings_advanced_summary">緩衝區、路徑 MTU、DNS 等平常很少需要改動的設定</string>
 </resources>

@@ -178,4 +178,6 @@
     <string name="licenses_section_libraries">库</string>
     <string name="licenses_section_libraries_summary">共 %1$d 个 Maven 依赖，来自构建时的许可证报告。</string>
     <string name="licenses_native_note">同样的文本也在源代码仓库的 NOTICE 里。这个画面不会从网络加载任何内容。</string>
+    <string name="settings_advanced">高级</string>
+    <string name="settings_advanced_summary">缓冲区、路径 MTU、DNS 等平时很少需要改动的设置</string>
 </resources>

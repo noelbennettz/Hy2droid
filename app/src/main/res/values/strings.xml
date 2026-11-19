@@ -186,4 +186,6 @@
     <string name="licenses_section_libraries">Libraries</string>
     <string name="licenses_section_libraries_summary">%1$d Maven dependencies, from the build\'s licence report.</string>
     <string name="licenses_native_note">The same texts are in NOTICE in the source repository. Nothing on this screen is loaded from the network.</string>
+    <string name="settings_advanced">Advanced</string>
+    <string name="settings_advanced_summary">Buffers, path MTU, DNS and other settings that rarely need changing</string>
 </resources>

@@ -178,4 +178,6 @@
     <string name="licenses_section_libraries">Библиотеки</string>
     <string name="licenses_section_libraries_summary">Зависимостей Maven: %1$d — по отчёту лицензий из сборки.</string>
     <string name="licenses_native_note">Те же тексты есть в NOTICE в репозитории исходного кода. Ничего на этом экране не загружается из сети.</string>
+    <string name="settings_advanced">Дополнительно</string>
+    <string name="settings_advanced_summary">Буферы, MTU пути, DNS и другие настройки, которые меняют редко</string>
 </resources>

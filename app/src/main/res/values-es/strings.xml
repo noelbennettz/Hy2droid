@@ -178,4 +178,6 @@
     <string name="licenses_section_libraries">Bibliotecas</string>
     <string name="licenses_section_libraries_summary">%1$d dependencias de Maven, tomadas del informe de licencias de la compilación.</string>
     <string name="licenses_native_note">Los mismos textos están en NOTICE en el repositorio del código. Nada de esta pantalla se carga desde la red.</string>
+    <string name="settings_advanced">Avanzado</string>
+    <string name="settings_advanced_summary">Búferes, MTU de ruta, DNS y otros ajustes que rara vez hay que tocar</string>
 </resources>

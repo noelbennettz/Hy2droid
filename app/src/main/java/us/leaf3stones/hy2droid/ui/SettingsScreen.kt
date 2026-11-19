@@ -27,6 +27,8 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Dns
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lan
 import androidx.compose.material.icons.filled.NetworkCheck
@@ -59,6 +61,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -117,6 +120,11 @@ fun SettingsScreen(
     var mtuDialogOpen by remember { mutableStateOf(false) }
     var tcpBufferDialogOpen by remember { mutableStateOf(false) }
     var tunnelTestOpen by remember { mutableStateOf(false) }
+    // Collapsed by default and remembered only for this screen: the
+    // expanded flag is not a preference, so it is never written to the store.
+    var advancedSection by rememberSaveable(stateSaver = AdvancedSectionState.Saver) {
+        mutableStateOf(AdvancedSectionState.collapsed)
+    }
 
     // SAF: the user picks where the zip goes, so there is no storage permission
     // to ask for and no FileProvider to declare.
@@ -273,98 +281,106 @@ fun SettingsScreen(
                 onClick = { mtuDialogOpen = true },
             )
             HorizontalDivider()
-            ClickRow(
-                icon = Icons.Filled.SwapVert,
-                title = stringResource(R.string.settings_tcp_buffer),
-                subtitle = stringResource(R.string.settings_tcp_buffer_summary, tcpBufferKb),
-                onClick = { tcpBufferDialogOpen = true },
+            ExpandableSectionHeader(
+                title = stringResource(R.string.settings_advanced),
+                subtitle = stringResource(R.string.settings_advanced_summary),
+                expanded = advancedSection.isExpanded,
+                onClick = { advancedSection = advancedSection.toggled() },
             )
-            HorizontalDivider()
-            SwitchRow(
-                icon = Icons.Filled.SettingsEthernet,
-                title = stringResource(R.string.settings_disable_pmtud),
-                subtitle = stringResource(R.string.settings_disable_pmtud_summary),
-                checked = disablePmtud,
-                onCheckedChange = viewModel::setDisablePathMtuDiscovery,
-            )
-            HorizontalDivider()
-            SwitchRow(
-                icon = Icons.Filled.Public,
-                title = stringResource(R.string.settings_fake_icmp),
-                subtitle = stringResource(R.string.settings_fake_icmp_summary),
-                checked = fakeIcmp,
-                onCheckedChange = viewModel::setFakeIcmp,
-            )
-            HorizontalDivider()
-            SwitchRow(
-                icon = Icons.Filled.Dns,
-                title = stringResource(R.string.settings_dns_in_tunnel),
-                subtitle = stringResource(R.string.settings_dns_in_tunnel_summary),
-                checked = localDns,
-                // A custom resolver wins over the mode switch, so the switch is
-                // shown disabled rather than pretending it still applies.
-                enabled = !dnsEnabled,
-                onCheckedChange = viewModel::setLocalDnsEnabled,
-            )
-            if (localDns && privateDnsOn) {
-                Text(
-                    text = stringResource(R.string.settings_private_dns_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 72.dp, end = 16.dp, bottom = 12.dp),
+            if (advancedSection.isExpanded) {
+                ClickRow(
+                    icon = Icons.Filled.SwapVert,
+                    title = stringResource(R.string.settings_tcp_buffer),
+                    subtitle = stringResource(R.string.settings_tcp_buffer_summary, tcpBufferKb),
+                    onClick = { tcpBufferDialogOpen = true },
                 )
-            }
-            HorizontalDivider()
-            SwitchRow(
-                icon = Icons.Filled.Dns,
-                title = stringResource(R.string.settings_custom_dns),
-                subtitle = stringResource(
-                    R.string.settings_custom_dns_summary,
-                    SettingsStore.DEFAULT_DNS_PRIMARY,
-                    SettingsStore.DEFAULT_DNS_SECONDARY,
-                ),
-                checked = dnsEnabled,
-                onCheckedChange = viewModel::setCustomDnsEnabled,
-            )
-            if (dnsEnabled) {
-                Column(Modifier.padding(horizontal = 16.dp)) {
-                    DnsServerField(
-                        value = dns1Text,
-                        onValueChange = { dns1Text = it.trim() },
-                        labelRes = R.string.settings_dns_primary,
-                        valid = dns1Valid,
+                HorizontalDivider()
+                SwitchRow(
+                    icon = Icons.Filled.SettingsEthernet,
+                    title = stringResource(R.string.settings_disable_pmtud),
+                    subtitle = stringResource(R.string.settings_disable_pmtud_summary),
+                    checked = disablePmtud,
+                    onCheckedChange = viewModel::setDisablePathMtuDiscovery,
+                )
+                HorizontalDivider()
+                SwitchRow(
+                    icon = Icons.Filled.Public,
+                    title = stringResource(R.string.settings_fake_icmp),
+                    subtitle = stringResource(R.string.settings_fake_icmp_summary),
+                    checked = fakeIcmp,
+                    onCheckedChange = viewModel::setFakeIcmp,
+                )
+                HorizontalDivider()
+                SwitchRow(
+                    icon = Icons.Filled.Dns,
+                    title = stringResource(R.string.settings_dns_in_tunnel),
+                    subtitle = stringResource(R.string.settings_dns_in_tunnel_summary),
+                    checked = localDns,
+                    // A custom resolver wins over the mode switch, so the switch is
+                    // shown disabled rather than pretending it still applies.
+                    enabled = !dnsEnabled,
+                    onCheckedChange = viewModel::setLocalDnsEnabled,
+                )
+                if (localDns && privateDnsOn) {
+                    Text(
+                        text = stringResource(R.string.settings_private_dns_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 72.dp, end = 16.dp, bottom = 12.dp),
                     )
-                    Spacer(Modifier.height(8.dp))
-                    DnsServerField(
-                        value = dns2Text,
-                        onValueChange = { dns2Text = it.trim() },
-                        labelRes = R.string.settings_dns_secondary,
-                        valid = dns2Valid,
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Button(
-                        onClick = {
-                            viewModel.setCustomDnsServer(dns1Text)
-                            viewModel.setCustomDnsServer2(dns2Text)
-                            viewModel.setCustomDnsEnabled(true)
-                        },
-                        enabled = dnsSavable,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(stringResource(R.string.action_save))
-                    }
-                    Spacer(Modifier.height(8.dp))
                 }
+                HorizontalDivider()
+                SwitchRow(
+                    icon = Icons.Filled.Dns,
+                    title = stringResource(R.string.settings_custom_dns),
+                    subtitle = stringResource(
+                        R.string.settings_custom_dns_summary,
+                        SettingsStore.DEFAULT_DNS_PRIMARY,
+                        SettingsStore.DEFAULT_DNS_SECONDARY,
+                    ),
+                    checked = dnsEnabled,
+                    onCheckedChange = viewModel::setCustomDnsEnabled,
+                )
+                if (dnsEnabled) {
+                    Column(Modifier.padding(horizontal = 16.dp)) {
+                        DnsServerField(
+                            value = dns1Text,
+                            onValueChange = { dns1Text = it.trim() },
+                            labelRes = R.string.settings_dns_primary,
+                            valid = dns1Valid,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        DnsServerField(
+                            value = dns2Text,
+                            onValueChange = { dns2Text = it.trim() },
+                            labelRes = R.string.settings_dns_secondary,
+                            valid = dns2Valid,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Button(
+                            onClick = {
+                                viewModel.setCustomDnsServer(dns1Text)
+                                viewModel.setCustomDnsServer2(dns2Text)
+                                viewModel.setCustomDnsEnabled(true)
+                            },
+                            enabled = dnsSavable,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(stringResource(R.string.action_save))
+                        }
+                        Spacer(Modifier.height(8.dp))
+                    }
+                }
+                HorizontalDivider()
+                SwitchRow(
+                    icon = Icons.Filled.Timer,
+                    title = stringResource(R.string.settings_auto_test_latency),
+                    subtitle = stringResource(R.string.settings_auto_test_latency_summary),
+                    checked = autoTestLatency,
+                    onCheckedChange = viewModel::setAutoTestLatency,
+                )
+                HorizontalDivider()
             }
-            HorizontalDivider()
-            SwitchRow(
-                icon = Icons.Filled.Timer,
-                title = stringResource(R.string.settings_auto_test_latency),
-                subtitle = stringResource(R.string.settings_auto_test_latency_summary),
-                checked = autoTestLatency,
-                onCheckedChange = viewModel::setAutoTestLatency,
-            )
-            HorizontalDivider()
             SectionHeader(stringResource(R.string.settings_section_diagnostics))
             ClickRow(
                 icon = Icons.Filled.NetworkCheck,
@@ -494,6 +510,38 @@ internal fun SectionHeader(title: String) {
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
     )
+}
+
+/** Header of a group that starts collapsed; tapping it is the only way in. */
+@Composable
+internal fun ExpandableSectionHeader(
+    title: String,
+    subtitle: String,
+    expanded: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 72.dp)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge)
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Icon(
+            imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
 }
 
 /**
