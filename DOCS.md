@@ -1,6 +1,6 @@
 # Hy2droid documentation
 
-> Applies to release `v1.0.0` and the `main` that followed it. An older release
+> Applies to release `v0.9.0` and the `main` that followed it. An older release
 > keeps its documentation on the project site under `versions/<tag>/`.
 
 Everything beyond the quick start: features in detail, every setting and profile
