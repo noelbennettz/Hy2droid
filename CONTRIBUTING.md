@@ -32,6 +32,7 @@ Run the same gates CI runs:
 
 ```bash
 ./scripts/check-style.sh                 # whitespace, import order, line width
+./scripts/check-version-consistency.sh   # README/DOCS vs the newest pushed tag
 ./gradlew testDebugUnitTest lintDebug    # lint errors fail the build
 ```
 
@@ -42,6 +43,10 @@ dependency, and `./gradlew assembleRelease` if you touch R8 or the JNI bindings.
 If a change touches a screen or anything that needs an Android runtime, run
 `./gradlew connectedDebugAndroidTest` with a device or emulator attached (API 30+)
 — CI runs it on every pull request, but a failure there costs a round trip.
+Bumping the app version is not a Gradle change: `scripts/version.sh` derives it
+from the git tag (see DOCS > Release procedure), and
+`scripts/check-version-consistency.sh` fails a pull request whose documentation
+still names an older release.
 
 Keep a change small and explained: what it changes, why, and what you tested. If
 it changes behaviour a user can see, update `DOCS.md` and both language versions

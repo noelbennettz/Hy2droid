@@ -42,9 +42,13 @@ jobs:
             name="${{ inputs.version_name }}"
           fi
           [ -n "$name" ] || { echo "::error::could not resolve a version name"; exit 1; }
+          # versionCode is a pure function of the version name (scripts/version.sh),
+          # so a rebuild of the same tag keeps the same, upgradeable code. The
+          # workflow run number is deliberately not used: it changes on every run.
+          code="$(bash scripts/version.sh code "$name")"
           echo "name=$name" >> "$GITHUB_OUTPUT"
-          echo "code=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
-          echo "Building Hy2droid $name (versionCode ${{ github.run_number }})"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "Building Hy2droid $name (versionCode $code)"
 
       - name: Install Hysteria core
         env:

@@ -12,14 +12,27 @@ licensee {
     allow('ISC')
 }
 
-// Release builds override these from CI (-P flags or env); defaults keep local
-// debug builds working.
+// Version numbers come from scripts/version.sh, the single source both locally
+// and in CI: the name is the git tag (nearest tag + `-dev.<n>+g<sha>` when HEAD
+// is not tagged, `0.0.0-dev` without git), and the code is a pure function of
+// that name (major*1_000_000 + minor*1_000 + patch), so rebuilding the same
+// commit cannot produce a different, non-upgradeable versionCode. An explicit
+// -P flag or HY2_VERSION_NAME/HY2_VERSION_CODE still wins; a workflow_dispatch
+// release needs that, because there is no tag to read.
+def versionScript = rootProject.file('scripts/version.sh')
+def scriptOutput = { List<String> args ->
+    providers.exec {
+        commandLine(['bash', versionScript.absolutePath] + args)
+        workingDir rootProject.projectDir
+    }.standardOutput.asText.get().trim()
+}
+
 def appVersionName = (project.findProperty('versionName')
         ?: System.getenv('HY2_VERSION_NAME')
-        ?: '1.0.0').toString()
+        ?: scriptOutput(['name'])).toString()
 def appVersionCode = (project.findProperty('versionCode')
         ?: System.getenv('HY2_VERSION_CODE')
-        ?: '1').toString().toInteger()
+        ?: scriptOutput(['code', appVersionName])).toString().toInteger()
 
 // Keystore location: CI restores the signing key to signing/production.jks
 // (gitignored), an explicit path can be given through HY2_KEYSTORE_FILE.

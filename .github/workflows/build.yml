@@ -30,6 +30,12 @@ jobs:
       - name: Check code style
         run: bash scripts/check-style.sh
 
+      # README/DOCS say which release they describe, and the core badge says
+      # which core is pinned. This keeps a release note, a tag and the docs from
+      # drifting apart; it needs no Gradle, so it fails fast.
+      - name: Check docs and version consistency
+        run: bash scripts/check-version-consistency.sh
+
       # Licensee fails the build when a dependency is under a licence that is
       # not allowed in app/build.gradle. The same task produces the report the
       # in-app licences screen shows, so this also guards that screen's data.
