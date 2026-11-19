@@ -78,6 +78,18 @@ see [DOCS.md](DOCS.md) for the core tooling, the signing secrets and the CI jobs
 | [native/tun2socks/README.md](native/tun2socks/README.md) | The patches applied to hev-socks5-tunnel, and how to rebuild `libtun2socks.so` |
 | [`docs/`](docs/) | Project site in English and Traditional Chinese, published at <https://noelbennettz.github.io/Hy2droid/> |
 
+## Security
+
+Report a vulnerability through GitHub's **Security → Report a vulnerability** form
+on this repository, never in a public issue; if that form is unavailable, open an
+issue titled `Security contact request` with no technical detail. There is no
+security email address and no promised response time. [SECURITY.md](SECURITY.md)
+lists what is in scope (the app, the `VpnService` and TUN handling, share-link
+parsing, the certificate policy behind `insecure=1`, and the signing and release
+chain) and what is not (upstream Hysteria core bugs, settings you chose on
+purpose, the server side). [DOCS.md](DOCS.md#security-notes) describes where the
+secrets actually live and which threats the app does not defend against.
+
 ## Licence
 
 Hy2droid is released under the **GNU Affero General Public License v3.0**
