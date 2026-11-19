@@ -1,7 +1,9 @@
 # Hy2droid — a native Hysteria 2 client for Android
 
 > Applies to release `v0.9.0` and the `main` that followed it. Behaviour that
-> changes in a later release is documented under `docs/versions/<tag>/`.
+> changes in a later release is documented on the project site under
+> `versions/<tag>/`, for example
+> [`versions/v0.9.0/settings.md`](https://noelbennettz.github.io/Hy2droid/versions/v0.9.0/settings.md).
 
 [![Release](https://img.shields.io/github/v/release/noelbennettz/Hy2droid?label=release&logo=github)](https://github.com/noelbennettz/Hy2droid/releases)
 [![Website](https://img.shields.io/badge/website-noelbennettz.github.io%2FHy2droid-5db2ff)](https://noelbennettz.github.io/Hy2droid/)
@@ -108,7 +110,7 @@ see [DOCS.md](DOCS.md) for the core tooling, the signing secrets and the CI jobs
 | [DOCS.md](DOCS.md) | Features in detail, every setting and profile field, blocked-port rules, split tunnelling, internals, repository layout, build and core scripts, CI and signing, security notes, troubleshooting, FAQ |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Development setup, the checks to run before opening a pull request, the DCO sign-off every commit needs, and what the project will not accept |
 | [native/tun2socks/README.md](native/tun2socks/README.md) | The patches applied to hev-socks5-tunnel, and how to rebuild `libtun2socks.so` |
-| [`docs/`](docs/) | Project site in English and Traditional Chinese, published at <https://noelbennettz.github.io/Hy2droid/> |
+| [Project site](https://noelbennettz.github.io/Hy2droid/) | English and Traditional Chinese pages, hosted in the [`noelbennettz.github.io`](https://github.com/noelbennettz/noelbennettz.github.io) repository under `docs/Hy2droid/` |
 
 ## Security
 

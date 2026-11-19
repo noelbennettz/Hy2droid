@@ -42,9 +42,12 @@ dependency, and `./gradlew assembleRelease` if you touch R8 or the JNI bindings.
 
 Keep a change small and explained: what it changes, why, and what you tested. If
 it changes behaviour a user can see, update `DOCS.md` and both language versions
-of the site in `docs/` (`index.html` and `zh.html`). A change that affects an
-existing release's behaviour is documented under `docs/versions/<tag>/`, as the
-README says.
+of the site — they live in the
+[`noelbennettz.github.io`](https://github.com/noelbennettz/noelbennettz.github.io)
+repository under `docs/Hy2droid/` (`index.html` and `zh.html`), so a site change
+is a pull request against that repository, not this one. A change that affects an
+existing release's behaviour is documented under `versions/<tag>/` on the project
+site, as the README says.
 
 ## Commit sign-off (DCO)
 
