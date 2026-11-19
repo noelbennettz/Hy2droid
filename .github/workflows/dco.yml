@@ -1,0 +1,27 @@
+name: dco
+
+# Every commit in a pull request has to carry a `Signed-off-by:` trailer whose
+# address matches its author, per CONTRIBUTING.md. Plain `git` and a shell
+# script do the work: no GitHub App, nothing to install, nothing to trust.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  sign-off:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # The whole range must be present for `git rev-list base..head`.
+          fetch-depth: 0
+
+      - name: Check Signed-off-by on every commit
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: bash scripts/check-dco.sh "$BASE_SHA" "$HEAD_SHA"
