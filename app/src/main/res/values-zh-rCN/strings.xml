@@ -170,4 +170,12 @@
     <string name="error_tun2socks_start">无法启动 tun2socks：%1$s</string>
     <string name="error_tun2socks_failed">无法启动隧道引擎，请重试。</string>
     <string name="error_core_exited">Hysteria 核心意外停止（代码 %1$d）。</string>
+    <string name="settings_licenses">开放源代码许可证</string>
+    <string name="settings_licenses_summary">应用中用到的每个库与原生组件</string>
+    <string name="licenses_title">开放源代码许可证</string>
+    <string name="licenses_section_native">随 APK 打包的原生组件</string>
+    <string name="licenses_section_native_summary">这些组件在 APK 里面；点一下可看完整许可证文本。</string>
+    <string name="licenses_section_libraries">库</string>
+    <string name="licenses_section_libraries_summary">共 %1$d 个 Maven 依赖，来自构建时的许可证报告。</string>
+    <string name="licenses_native_note">同样的文本也在源代码仓库的 NOTICE 里。这个画面不会从网络加载任何内容。</string>
 </resources>

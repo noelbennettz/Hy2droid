@@ -170,4 +170,12 @@
     <string name="error_tun2socks_start">No se pudo iniciar tun2socks: %1$s</string>
     <string name="error_tun2socks_failed">No se pudo iniciar el motor del túnel. Inténtalo de nuevo.</string>
     <string name="error_core_exited">El núcleo Hysteria se detuvo inesperadamente (código %1$d).</string>
+    <string name="settings_licenses">Licencias de código abierto</string>
+    <string name="settings_licenses_summary">Todas las bibliotecas y componentes nativos de la app</string>
+    <string name="licenses_title">Licencias de código abierto</string>
+    <string name="licenses_section_native">Componentes nativos incluidos</string>
+    <string name="licenses_section_native_summary">Van dentro del APK; toca uno para ver el texto completo de la licencia.</string>
+    <string name="licenses_section_libraries">Bibliotecas</string>
+    <string name="licenses_section_libraries_summary">%1$d dependencias de Maven, tomadas del informe de licencias de la compilación.</string>
+    <string name="licenses_native_note">Los mismos textos están en NOTICE en el repositorio del código. Nada de esta pantalla se carga desde la red.</string>
 </resources>

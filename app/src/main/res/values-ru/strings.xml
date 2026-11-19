@@ -170,4 +170,12 @@
     <string name="error_tun2socks_start">Не удалось запустить tun2socks: %1$s</string>
     <string name="error_tun2socks_failed">Не удалось запустить движок туннеля. Повторите попытку.</string>
     <string name="error_core_exited">Ядро Hysteria неожиданно остановилось (код %1$d).</string>
+    <string name="settings_licenses">Открытые лицензии</string>
+    <string name="settings_licenses_summary">Все библиотеки и нативные компоненты в приложении</string>
+    <string name="licenses_title">Открытые лицензии</string>
+    <string name="licenses_section_native">Встроенные нативные компоненты</string>
+    <string name="licenses_section_native_summary">Входят в APK; нажмите на компонент, чтобы открыть полный текст лицензии.</string>
+    <string name="licenses_section_libraries">Библиотеки</string>
+    <string name="licenses_section_libraries_summary">Зависимостей Maven: %1$d — по отчёту лицензий из сборки.</string>
+    <string name="licenses_native_note">Те же тексты есть в NOTICE в репозитории исходного кода. Ничего на этом экране не загружается из сети.</string>
 </resources>

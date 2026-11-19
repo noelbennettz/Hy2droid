@@ -178,4 +178,12 @@
     <string name="error_tun2socks_start">Failed to start tun2socks: %1$s</string>
     <string name="error_tun2socks_failed">Could not start the tunnel engine. Please try again.</string>
     <string name="error_core_exited">The Hysteria core stopped unexpectedly (code %1$d).</string>
+    <string name="settings_licenses">Open source licenses</string>
+    <string name="settings_licenses_summary">Every library and native component inside the app</string>
+    <string name="licenses_title">Open source licenses</string>
+    <string name="licenses_section_native">Bundled native components</string>
+    <string name="licenses_section_native_summary">Shipped inside the APK; tap one for the full licence text.</string>
+    <string name="licenses_section_libraries">Libraries</string>
+    <string name="licenses_section_libraries_summary">%1$d Maven dependencies, from the build\'s licence report.</string>
+    <string name="licenses_native_note">The same texts are in NOTICE in the source repository. Nothing on this screen is loaded from the network.</string>
 </resources>

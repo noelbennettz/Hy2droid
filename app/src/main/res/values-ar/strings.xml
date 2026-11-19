@@ -170,4 +170,12 @@
     <string name="error_tun2socks_start">تعذّر بدء tun2socks: %1$s</string>
     <string name="error_core_exited">توقفت نواة Hysteria بشكل غير متوقع (الرمز %1$d).</string>
     <string name="error_tun2socks_failed">تعذّر بدء محرك النفق. حاول مرة أخرى.</string>
+    <string name="settings_licenses">تراخيص المصادر المفتوحة</string>
+    <string name="settings_licenses_summary">كل مكتبة ومكوّن أصلي داخل التطبيق</string>
+    <string name="licenses_title">تراخيص المصادر المفتوحة</string>
+    <string name="licenses_section_native">مكوّنات أصلية مضمّنة</string>
+    <string name="licenses_section_native_summary">مضمّنة داخل ملف APK؛ اضغط على أحدها لعرض نص الترخيص كاملًا.</string>
+    <string name="licenses_section_libraries">المكتبات</string>
+    <string name="licenses_section_libraries_summary">‏%1$d من اعتماديات Maven، مأخوذة من تقرير الترخيص وقت البناء.</string>
+    <string name="licenses_native_note">النصوص نفسها موجودة في NOTICE داخل مستودع المصدر. لا يُحمّل أي شيء في هذه الشاشة من الشبكة.</string>
 </resources>

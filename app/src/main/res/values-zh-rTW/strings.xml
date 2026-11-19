@@ -172,4 +172,12 @@
     <string name="error_tun2socks_start">無法啟動 tun2socks：%1$s</string>
     <string name="error_tun2socks_failed">無法啟動通道引擎，請再試一次。</string>
     <string name="error_core_exited">Hysteria 核心意外停止（代碼 %1$d）。</string>
+    <string name="settings_licenses">開放原始碼授權</string>
+    <string name="settings_licenses_summary">App 裡用到的每個函式庫與原生元件</string>
+    <string name="licenses_title">開放原始碼授權</string>
+    <string name="licenses_section_native">隨 APK 打包的原生元件</string>
+    <string name="licenses_section_native_summary">這些元件在 APK 裡面；點一下可看完整授權條文。</string>
+    <string name="licenses_section_libraries">函式庫</string>
+    <string name="licenses_section_libraries_summary">共 %1$d 個 Maven 相依套件，來自建置時的授權報告。</string>
+    <string name="licenses_native_note">同樣的條文也在原始碼倉庫的 NOTICE 裡。這個畫面不會從網路載入任何東西。</string>
 </resources>

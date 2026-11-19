@@ -126,7 +126,11 @@ secrets actually live and which threats the app does not defend against.
 
 Hy2droid is released under the **GNU Affero General Public License v3.0**
 (AGPL-3.0); the full text is in [LICENSE](LICENSE). The project notice and the
-third-party MIT notice are in [NOTICE](NOTICE). Hy2droid runs on the device, so
+third-party MIT notice are in [NOTICE](NOTICE). Everything the APK ships — every
+Maven dependency and the two native components — is also listed in the app under
+*Settings → About → Open source licenses*, with the licence it is under and, for
+the native parts, the full licence text. That list is generated at build time,
+not fetched, so it reads the same offline. Hy2droid runs on the device, so
 section 13 (network use) does not apply to it; what applies is the distribution
 side of the licence: every APK is published together with this source tree, and
 if you modify the app and distribute the result, you must offer the source of

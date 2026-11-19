@@ -158,6 +158,7 @@ private fun AppRoot(
         var blockRulesOpen by rememberSaveable { mutableStateOf(false) }
         var settingsOpen by rememberSaveable { mutableStateOf(false) }
         var aboutOpen by rememberSaveable { mutableStateOf(false) }
+        var licensesOpen by rememberSaveable { mutableStateOf(false) }
         var scannerOpen by rememberSaveable { mutableStateOf(false) }
 
         // The editor works on the stored profile: the ViewModel survives a
@@ -186,6 +187,7 @@ private fun AppRoot(
             blockRulesOpen = false
             settingsOpen = false
             aboutOpen = false
+            licensesOpen = false
             scannerOpen = false
         }
 
@@ -193,7 +195,7 @@ private fun AppRoot(
         // activity. Without this every sub-screen was a dead end: pressing back on
         // Settings left the app entirely.
         val inSubScreen = scannerOpen || editorOpen || splitTunnelOpen || blockRulesOpen ||
-            aboutOpen || settingsOpen
+            aboutOpen || licensesOpen || settingsOpen
         BackHandler(enabled = inSubScreen) {
             when {
                 scannerOpen -> scannerOpen = false
@@ -203,6 +205,7 @@ private fun AppRoot(
                 }
                 splitTunnelOpen -> splitTunnelOpen = false
                 blockRulesOpen -> blockRulesOpen = false
+                licensesOpen -> licensesOpen = false
                 aboutOpen -> aboutOpen = false
                 settingsOpen -> settingsOpen = false
             }
@@ -287,6 +290,7 @@ private fun AppRoot(
                 viewModel = vm,
                 onBack = { blockRulesOpen = false },
             )
+            licensesOpen -> LicensesScreen(onBack = { licensesOpen = false })
             aboutOpen -> AboutScreen(onBack = { aboutOpen = false })
             settingsOpen -> SettingsScreen(
                 viewModel = vm,
@@ -294,6 +298,7 @@ private fun AppRoot(
                 onOpenSplitTunnel = { splitTunnelOpen = true },
                 onOpenBlockRules = { blockRulesOpen = true },
                 onOpenAbout = { aboutOpen = true },
+                onOpenLicenses = { licensesOpen = true },
             )
             else -> HomeScreen(
                 viewModel = vm,
