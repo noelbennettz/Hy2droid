@@ -63,12 +63,12 @@ model, diagnostics and the FAQ. [README.md](README.md) is the short version and
   own log line into one sentence (name does not resolve, TLS failed, password
   rejected, nothing came back, something else answered, obfuscation mismatch)
   while the raw line stays in logcat and the diagnostics export.
-- **Answer ping locally** (Settings → Network, off by default): Hysteria carries
+- **Answer ping locally** (Settings → Network → Advanced, off by default): Hysteria carries
   TCP and UDP only, so ICMP cannot cross it; this makes the engine answer echo
   itself. It is off by default because a fake reply makes ping meaningless.
 - DNS, three modes (`DnsMode` in
   `app/src/main/java/us/leaf3stones/hy2droid/proxy/DnsMode.kt`), decided by two
-  controls in Settings → Network. **Answer DNS in the tunnel** is on by default
+  controls in Settings → Network → Advanced. **Answer DNS in the tunnel** is on by default
   and is answered by the tunnel engine (hev's `mapdns`): the VPN pushes one
   resolver (`192.0.2.53`), the engine intercepts queries sent to it, answers A
   queries instantly with an address from `198.18.0.0/15`, and forwards the *name*
@@ -99,7 +99,7 @@ model, diagnostics and the FAQ. [README.md](README.md) is the short version and
 - Optional **Bypass local network** (Android 13+): local-network traffic —
   RFC1918, link-local, CGNAT and multicast (mDNS/SSDP) — stays outside the VPN, so
   NAS boxes, printers, router admin pages and casting keep working.
-- **Disable path MTU discovery** (Settings → Network, off by default): emits
+- **Disable path MTU discovery** (Settings → Network → Advanced, off by default): emits
   `quic.disablePathMTUDiscovery: true`, the standard workaround for networks that
   silently drop large QUIC packets (MTU black holes), where connections otherwise
   stall.
@@ -109,7 +109,7 @@ model, diagnostics and the FAQ. [README.md](README.md) is the short version and
   tunnel engine — the payload leaves as the core's own QUIC, which does its own
   path MTU discovery — so there is no outer header to reserve room for. Lower it
   only on networks that stall on full-size packets.
-- **TCP buffer per connection** (Settings → Network, 64 / 128 / 256 KB, default
+- **TCP buffer per connection** (Settings → Network → Advanced, 64 / 128 / 256 KB, default
   128): the engine's send buffer on the tun hop. That hop is local (sub-ms), so
   the buffer absorbs bursts and bounds what can queue for a slow reader; it is not
   a WAN window and does not set the ceiling of a fast link. Bigger costs memory
@@ -123,10 +123,10 @@ model, diagnostics and the FAQ. [README.md](README.md) is the short version and
 - **Latency test** per node from the profile menu, measured by a real request
   through a throwaway core instance (a Hysteria 2 server only answers UDP, so a
   TCP ping would be meaningless). Optional *Test latency on launch* (Settings →
-  Network, off by default) measures the nodes that have no result yet and then
-  lists the fastest one first — it never switches the node for you, and the
-  numbers survive a restart (they expire after 24 h, so the list is never sorted
-  by yesterday's numbers).
+  Network → Advanced, off by default) measures the nodes that have no result yet
+  and then lists the fastest one first — it never switches the node for you, and
+  the numbers survive a restart (they expire after 24 h, so the list is never
+  sorted by yesterday's numbers).
 
 - **Share-link deep link**: tapping a `hysteria2://` (or `hy2://`) link in a
   browser opens the app and adds the profile straight away — no pasting, no
@@ -161,13 +161,22 @@ model, diagnostics and the FAQ. [README.md](README.md) is the short version and
 | Section | What is there |
 | --- | --- |
 | Appearance | *Dynamic color (Material You)* (on by default), *Show server address* (off), *Live traffic* (off; throughput on the status card once a second and in the notification every 5 s) |
-| Network | *Split tunneling*, *Blocked traffic*, *Bypass local network* (off, Android 13+), *Tunnel MTU* (default 1500, 1280–1500), *TCP buffer per connection* (64 / 128 / 256 KB, default 128), *Disable path MTU discovery* (off), *Answer ping locally* (off), *Answer DNS in the tunnel* (on), *Custom DNS server* (off; primary plus optional secondary), *Test latency on launch* (off) |
+| Network | *Split tunneling*, *Blocked traffic*, *Bypass local network* (off, Android 13+), *Tunnel MTU* (default 1500, 1280–1500) |
+| Advanced (collapsed) | *TCP buffer per connection* (64 / 128 / 256 KB, default 128), *Disable path MTU discovery* (off), *Answer ping locally* (off), *Answer DNS in the tunnel* (on), *Custom DNS server* (off; primary plus optional secondary), *Test latency on launch* (off) |
 | Diagnostics | *Test tunnel* (measures name lookup, connect and download through the running tunnel), *Export logs* (the zip described in [Troubleshooting](#troubleshooting-and-diagnostics)) |
 | About | Opens the About screen: app version, bundled core version read from the binary, repository / issues / licence links. *Open source licenses* (next to it) lists every dependency the APK contains with its version and licence, generated at build time by Licensee, plus the Hysteria core and `libtun2socks.so` with their full licence texts. Nothing on that screen is loaded from the network |
 
+The *Advanced* group is collapsed when the screen opens; expanding it is a property
+of the screen, not a stored preference, so it is remembered across a rotation and
+forgotten when the screen closes. The preference keys, their defaults and their
+behaviour are unchanged by that layout: only *Appearance* and *Network* are visible
+without opening it.
+
 Everything here is stored in the app's private DataStore and survives a restart; the
 app sends none of it anywhere. Android Auto Backup can include the DataStore in a
-device backup (see [Security notes](#security-notes)).
+device backup (see [Security notes](#security-notes)). The order above is the order
+on screen; release `v0.9.0` had the advanced items inline in *Network*, see
+[docs/versions/v0.9.0/settings.md](docs/versions/v0.9.0/settings.md).
 
 ## Profile fields
 

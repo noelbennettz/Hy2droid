@@ -178,4 +178,6 @@
     <string name="licenses_section_libraries">Bibliothèques</string>
     <string name="licenses_section_libraries_summary">%1$d dépendances Maven, issues du rapport de licences de la compilation.</string>
     <string name="licenses_native_note">Les mêmes textes figurent dans NOTICE, dans le dépôt du code. Rien sur cet écran n\'est chargé depuis le réseau.</string>
+    <string name="settings_advanced">Avancé</string>
+    <string name="settings_advanced_summary">Tampons, MTU du chemin, DNS et autres réglages rarement modifiés</string>
 </resources>

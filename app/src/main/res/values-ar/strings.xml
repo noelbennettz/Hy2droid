@@ -178,4 +178,6 @@
     <string name="licenses_section_libraries">المكتبات</string>
     <string name="licenses_section_libraries_summary">‏%1$d من اعتماديات Maven، مأخوذة من تقرير الترخيص وقت البناء.</string>
     <string name="licenses_native_note">النصوص نفسها موجودة في NOTICE داخل مستودع المصدر. لا يُحمّل أي شيء في هذه الشاشة من الشبكة.</string>
+    <string name="settings_advanced">إعدادات متقدمة</string>
+    <string name="settings_advanced_summary">المخازن المؤقتة و MTU للمسار و DNS وإعدادات أخرى نادرًا ما تحتاج إلى تغيير</string>
 </resources>
