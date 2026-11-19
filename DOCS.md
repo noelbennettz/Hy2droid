@@ -467,12 +467,13 @@ its certificate digest becomes the last line of the release notes, so a download
 can be checked without trusting the release page: see
 [README > Verify your download](README.md#verify-your-download).
 
-`build.yml`, `release.yml` and `native.yml` end with `scripts/prune-runs.sh 3`
-(`pages.yml` has no such step): it deletes the runs of *that workflow*
-older than the three newest (logs and artifacts included, which keeps
-the Actions tab and the artifact quota small). A deleted release run does not
-remove its GitHub Release. Those three workflows grant `actions: write` for it,
-and the script stops after one pass if it cannot delete anything.
+`build.yml`, `release.yml` and `native.yml` end with `scripts/prune-runs.sh 3`,
+and `pages.yml` keeps only the newest run with `scripts/prune-runs.sh 1`: each
+deletes the runs of *that workflow* older than the number given (logs and
+artifacts included, which keeps the Actions tab and the artifact quota small).
+A deleted release run does not remove its GitHub Release. Those four workflows
+grant `actions: write` for it, and the script stops after one pass if it cannot
+delete anything.
 
 ## Setting up signing
 
