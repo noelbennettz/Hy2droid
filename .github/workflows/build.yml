@@ -88,6 +88,9 @@ jobs:
             exit "$rc"
           fi
 
+      - name: Check the APK checksums and signer
+        run: bash scripts/release-verify.sh app/build/outputs/apk/debug
+
       - name: Lint
         run: |
           set +e
