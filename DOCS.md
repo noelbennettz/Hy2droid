@@ -1,13 +1,15 @@
 # Hy2droid documentation
 
 > Applies to release `v1.0.0` and the `main` that followed it. An older release
-> keeps its documentation under `docs/versions/<tag>/`.
+> keeps its documentation on the project site under `versions/<tag>/`.
 
 Everything beyond the quick start: features in detail, every setting and profile
 field, the blocked-port rules, split tunnelling, how the tunnel is put together,
 the repository layout, the build and core scripts, the CI jobs, the security
 model, diagnostics and the FAQ. [README.md](README.md) is the short version and
-[docs/index.html](docs/index.html) is the landing page.
+<https://noelbennettz.github.io/Hy2droid/> is the landing page, hosted in the
+[`noelbennettz.github.io`](https://github.com/noelbennettz/noelbennettz.github.io)
+repository.
 
 ## Contents
 
@@ -176,7 +178,7 @@ Everything here is stored in the app's private DataStore and survives a restart;
 app sends none of it anywhere. Android Auto Backup can include the DataStore in a
 device backup (see [Security notes](#security-notes)). The order above is the order
 on screen; release `v0.9.0` had the advanced items inline in *Network*, see
-[docs/versions/v0.9.0/settings.md](docs/versions/v0.9.0/settings.md).
+[`versions/v0.9.0/settings.md`](https://noelbennettz.github.io/Hy2droid/versions/v0.9.0/settings.md).
 
 ## Profile fields
 
@@ -340,7 +342,7 @@ files as the source of truth for a release and review the patches there.
 | `scripts/core.sh` | Fetch / verify / upgrade the core |
 | `scripts/tun2socks.sh` | Rebuild `libtun2socks.so` from the pinned upstream tag + patches |
 | `scripts/prune-runs.sh` | Delete all but the newest three runs of the workflow calling it |
-| `.github/workflows` | `build.yml` (debug), `release.yml` (signed release), `native.yml` (rebuild `libtun2socks.so`), `pages.yml` (deploy `docs/`) |
+| `.github/workflows` | `build.yml` (debug), `release.yml` (signed release), `native.yml` (rebuild `libtun2socks.so`) |
 
 ## Building and tooling
 
@@ -442,7 +444,6 @@ directory.
 | `.github/workflows/build.yml` | push to `main`, or manual (`core_tag`) | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `testDebugUnitTest`, `lintDebug` |
 | `.github/workflows/release.yml` | pushing a `v*` tag, or manual with a version | signed release APKs, a signed AAB for Play, + a GitHub Release |
 | `.github/workflows/native.yml` | manual | rebuilt `libtun2socks.so` for all four ABIs, as an artifact |
-| `.github/workflows/pages.yml` | push to `main` touching `docs/**`, or manual | the landing page in `docs/`, deployed to GitHub Pages |
 
 Both app workflows install and verify the bundled core before building and run
 `testDebugUnitTest`; `build.yml` also runs `scripts/check-style.sh` and `lintDebug`,
@@ -467,11 +468,10 @@ its certificate digest becomes the last line of the release notes, so a download
 can be checked without trusting the release page: see
 [README > Verify your download](README.md#verify-your-download).
 
-`build.yml`, `release.yml` and `native.yml` end with `scripts/prune-runs.sh 3`,
-and `pages.yml` keeps only the newest run with `scripts/prune-runs.sh 1`: each
-deletes the runs of *that workflow* older than the number given (logs and
+`build.yml`, `release.yml` and `native.yml` end with `scripts/prune-runs.sh 3`:
+each deletes the runs of *that workflow* older than the number given (logs and
 artifacts included, which keeps the Actions tab and the artifact quota small).
-A deleted release run does not remove its GitHub Release. Those four workflows
+A deleted release run does not remove its GitHub Release. Those three workflows
 grant `actions: write` for it, and the script stops after one pass if it cannot
 delete anything.
 
