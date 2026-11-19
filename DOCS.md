@@ -445,6 +445,14 @@ repository secrets, verified with `apksigner`; the release publishes
 `app-universal-release.apk` plus the four ABI splits to the GitHub Release, and
 keeps the signed `app-release.aab` as a workflow artifact for the Play Console.
 
+A signed release also runs `scripts/release-verify.sh`, which writes
+`SHA256SUMS.txt` (in `sha256sum` format) next to the APKs and reads the signing
+certificate of every one of them with `apksigner verify --print-certs`, failing
+the job if two APKs disagree. The checksum file is published with the release and
+its certificate digest becomes the last line of the release notes, so a download
+can be checked without trusting the release page: see
+[README > Verify your download](README.md#verify-your-download).
+
 `build.yml`, `release.yml` and `native.yml` end with `scripts/prune-runs.sh 3`
 (`pages.yml` has no such step): it deletes the runs of *that workflow*
 older than the three newest (logs and artifacts included, which keeps

@@ -126,6 +126,26 @@ jobs:
           apksigner="$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner 2>/dev/null | sort -V | tail -n1)"
           "$apksigner" verify --print-certs app/build/outputs/apk/release/app-universal-release.apk
 
+      # The checksums and the certificate fingerprint are what a user can check
+      # locally; scripts/release-verify.sh writes SHA256SUMS.txt next to the
+      # APKs and fails if they are not all signed by the same certificate.
+      - name: Checksum the APKs and check their signing certificate
+        id: checksums
+        if: steps.signing.outputs.signed == 'true'
+        run: |
+          set -euo pipefail
+          out="$(bash scripts/release-verify.sh app/build/outputs/apk/release)"
+          echo "Signing certificate SHA-256: ${out#Signing certificate SHA-256: }"
+          echo "certificate=${out#Signing certificate SHA-256: }" >> "$GITHUB_OUTPUT"
+
+      - name: Upload checksums
+        if: steps.signing.outputs.signed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hy2droid-release-checksums
+          path: app/build/outputs/apk/release/SHA256SUMS.txt
+          if-no-files-found: error
+
       - name: Upload release APKs
         uses: actions/upload-artifact@v4
         with:
@@ -161,9 +181,16 @@ jobs:
           Install \`app-arm64-v8a-release.apk\` on most phones, or
           \`app-universal-release.apk\` if you are unsure. Requires Android 11+
           (minSdk 30).
+
+          Verify your download: \`sha256sum -c SHA256SUMS.txt --ignore-missing\`
+          next to the APKs, and compare the signer printed by
+          \`apksigner verify --print-certs\`. See README > Verify your download.
+
+          Signing certificate SHA-256: ${{ steps.checksums.outputs.certificate }}
           NOTES
 
           mapfile -t files < <(ls app/build/outputs/apk/release/*.apk)
+          files+=(app/build/outputs/apk/release/SHA256SUMS.txt)
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" "${files[@]}" --clobber
           else

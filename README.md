@@ -59,6 +59,32 @@ hysteria2://password@server.example.com:443/?sni=server.example.com&obfs=salaman
 Installing a newer APK over the installed one keeps profiles and settings, because
 every release is signed with the same key.
 
+## Verify your download
+
+Every release publishes `SHA256SUMS.txt` next to the APKs, and the last line of
+its notes names the certificate that signed them. Both can be checked on the
+machine that holds the download:
+
+```bash
+sha256sum -c SHA256SUMS.txt --ignore-missing    # only the APKs you downloaded
+apksigner verify --print-certs app-arm64-v8a-release.apk
+```
+
+`--ignore-missing` is what makes the first command work on a partial download:
+the file lists every APK of the release, and the ones you did not take are
+skipped instead of reported as missing. `apksigner` ships with the Android SDK
+build-tools (`$ANDROID_HOME/build-tools/*/apksigner`, needs a JDK), and the
+`Signer #1 certificate SHA-256 digest` it prints has to be
+
+```
+af9c2fa9acffcd5af4d0a2d7924ec45185118adf37eeeba38e4dda547dd4bf9b
+```
+
+which is the release key every APK on the Releases page is signed with
+(`af:9c:2f:…` with the usual colons). On the phone, an app such as AppVerifier
+shows the same digest for an installed APK — useful when the APK came from
+somewhere other than Releases.
+
 ## Build from source
 
 ```bash

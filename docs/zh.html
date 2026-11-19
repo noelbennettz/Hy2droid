@@ -228,6 +228,14 @@
       </div>
     </div>
     <p class="note">
+      <strong>安裝前先核對檔案。</strong>每個 release 都會在 APK 旁附上
+      <code>SHA256SUMS.txt</code>。在下載目錄執行
+      <code>sha256sum -c SHA256SUMS.txt --ignore-missing</code>（沒下載的分割檔會跳過），
+      再執行 <code>apksigner verify --print-certs app-arm64-v8a-release.apk</code>，
+      把它印出的 <code>Signer #1 certificate SHA-256 digest</code> 與下面這個值比對。
+      手機上可以用 AppVerifier 這類 App 看已安裝 APK 的同一組指紋。
+    </p>
+    <p class="note">
       <strong>debug 與 release 使用不同金鑰。</strong>Android 不會允許互相覆蓋，請先解除安裝 debug 版。
       Release 簽章憑證 SHA-256：
       <span class="mono">af:9c:2f:a9:ac:ff:cd:5a:f4:d0:a2:d7:92:4e:c4:51:85:11:8a:df:37:ee:eb:a3:8e:4d:da:54:7d:d4:bf:9b</span>

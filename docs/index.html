@@ -233,6 +233,16 @@
       </div>
     </div>
     <p class="note">
+      <strong>Check the file before installing.</strong> Every release publishes
+      <code>SHA256SUMS.txt</code> next to the APKs. In the download directory run
+      <code>sha256sum -c SHA256SUMS.txt --ignore-missing</code> (it skips the splits
+      you did not download), then
+      <code>apksigner verify --print-certs app-arm64-v8a-release.apk</code> and
+      compare the <code>Signer #1 certificate SHA-256 digest</code> with the value
+      below. On the phone, an app such as AppVerifier shows the same digest for an
+      installed APK.
+    </p>
+    <p class="note">
       <strong>Debug and release use different keys.</strong> Android refuses to update one with the other;
       uninstall the debug copy first. Release signing certificate SHA-256:
       <span class="mono">af:9c:2f:a9:ac:ff:cd:5a:f4:d0:a2:d7:92:4e:c4:51:85:11:8a:df:37:ee:eb:a3:8e:4d:da:54:7d:d4:bf:9b</span>
