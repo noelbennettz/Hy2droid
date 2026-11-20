@@ -177,7 +177,7 @@ jobs:
           curl -sSfL -o "$out/syft_${version}_linux_amd64.tar.gz" \
             "$url/syft_${version}_linux_amd64.tar.gz"
           curl -sSfL -o "$out/checksums.txt" "$url/syft_${version}_checksums.txt"
-          ( cd "$out" && grep ' linux_amd64.tar.gz$' checksums.txt | sha256sum -c - )
+          ( cd "$out" && grep -E "syft_${version}_linux_amd64[.]tar[.]gz$" checksums.txt | sha256sum -c - )
           sudo tar -xzf "$out/syft_${version}_linux_amd64.tar.gz" -C /usr/local/bin syft
           syft version
 
