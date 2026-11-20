@@ -40,7 +40,9 @@ repository.
 - Multiple saved profiles. Import by pasting a `hysteria2://` link or by scanning
   a QR code (an offline scanner, no Play Services needed). Tapping a profile
   while connected switches to it: the service tears the old tunnel down and
-  rebuilds it, so no manual disconnect is needed.
+  rebuilds it, so no manual disconnect is needed. Re-importing the same account
+  updates that profile in place; a different password on the same host and port
+  is a separate account and becomes a new profile.
 - Share a profile as a QR code.
 - Salamander obfuscation, custom SNI, optional "allow insecure certificate".
 - Brutal congestion control as an explicit switch with an upload/download hint.
@@ -194,7 +196,10 @@ on screen; release `v0.9.0` had the advanced items inline in *Network*, see
 - **SNI (optional)** — TLS server name; blank means "derive from the server host".
   Needed when the server is addressed by IP but the certificate is issued to a
   hostname
-- **Obfuscation password (optional)** — Salamander password; blank disables obfs
+- **Obfuscation password (optional)** — Salamander password; blank disables obfs.
+  Salamander is the only obfs type the app writes, so a share link that asks for
+  another type (`obfs=gecko`), certificate pinning (`pinSHA256`) or ECH is
+  rejected on import instead of being connected without the part it promised.
 - **Brutal congestion control** — the switch above the two rate fields. Off keeps
   BBR, which adapts to whatever the path is doing; on, the core paces at exactly
   **Upload Mbps** / **Download Mbps** and ignores loss, so use about 80 percent of

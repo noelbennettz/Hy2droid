@@ -150,4 +150,65 @@ class HysteriaUriTest {
         assertTrue(link.contains("insecure=1"))
         assertTrue(link.endsWith("#Node"))
     }
+
+    @Test
+    fun `literal plus and percent sequences survive a round trip`() {
+        val profile = Profile(
+            id = "1",
+            name = "C++ 100%",
+            server = "example.com",
+            auth = "pa+ss 100%41",
+            port = 443,
+        )
+
+        val link = HysteriaUri.build(profile)
+
+        // Space is %20 and a literal plus is %2B: a client that does not use
+        // form decoding must read the same secret back.
+        assertTrue(link.contains("pa%2Bss%20100%2541@example.com:443"))
+        assertTrue(link.endsWith("#C%2B%2B%20100%25"))
+        val parsed = requireNotNull(HysteriaUri.parse(link))
+        assertEquals(profile.auth, parsed.auth)
+        assertEquals(profile.name, parsed.name)
+    }
+
+    @Test
+    fun `percent escapes are decoded exactly once`() {
+        // pa%2541ss is the encoded form of the literal pa%41ss; the name's %2B
+        // is a literal plus. Decoding twice would turn them into paAss / C++.
+        val parsed = requireNotNull(HysteriaUri.parse("hysteria2://pa%2541ss@host/#C%2B%2B"))
+        assertEquals("pa%41ss", parsed.auth)
+        assertEquals("C++", parsed.name)
+    }
+
+    @Test
+    fun `a raw plus in userinfo and fragment is not a space`() {
+        val parsed = requireNotNull(HysteriaUri.parse("hysteria2://a+b@host/#C++"))
+        assertEquals("a+b", parsed.auth)
+        assertEquals("C++", parsed.name)
+    }
+
+    @Test
+    fun `query values keep form-encoded plus as a space`() {
+        val parsed = requireNotNull(HysteriaUri.parse("hysteria2://pw@host/?obfs-password=a+b"))
+        assertEquals("a b", parsed.obfsPassword)
+    }
+
+    @Test
+    fun `rejects obfs types and TLS features the app cannot honour`() {
+        // Only Salamander is emitted by the config builder. Importing gecko as
+        // Salamander would fail with a misleading password/obfs error, and
+        // silently dropping pinning or ECH would weaken or break the connection.
+        assertNull(HysteriaUri.parse("hysteria2://pw@example.com/?obfs=gecko&obfs-password=x"))
+        assertNull(HysteriaUri.parse("hysteria2://pw@example.com/?pinSHA256=deadbeef"))
+        assertNull(HysteriaUri.parse("hysteria2://pw@example.com/?ech=AAAA"))
+
+        val salamander = requireNotNull(
+            HysteriaUri.parse("hysteria2://pw@example.com/?obfs=salamander&obfs-password=x"),
+        )
+        assertEquals("x", salamander.obfsPassword)
+        // A legacy link with a password but no type is still Salamander.
+        val legacy = requireNotNull(HysteriaUri.parse("hysteria2://pw@example.com/?obfs-password=x"))
+        assertEquals("x", legacy.obfsPassword)
+    }
 }

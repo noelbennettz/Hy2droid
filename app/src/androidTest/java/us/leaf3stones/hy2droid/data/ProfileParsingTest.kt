@@ -100,6 +100,30 @@ class ProfileParsingTest {
     }
 
     @Test
+    fun aLiteralPlusAndPercentInTheSecretSurviveOnTheDevice() {
+        // java.net.URI and URLDecoder are not guaranteed to behave identically on
+        // Android; pin the RFC 3986 encoding (space is %20, plus is %2B) here.
+        val original = Profile(
+            id = "id",
+            name = "C++ 100%",
+            server = "example.com",
+            auth = "pa+ss 100%41",
+        )
+
+        val parsed = requireNotNull(HysteriaUri.parse(HysteriaUri.build(original)))
+
+        assertEquals(original.auth, parsed.auth)
+        assertEquals(original.name, parsed.name)
+    }
+
+    @Test
+    fun aLinkWithAnUnsupportedTlsFeatureIsRejected() {
+        assertNull(HysteriaUri.parse("hysteria2://pw@example.com/?obfs=gecko&obfs-password=x"))
+        assertNull(HysteriaUri.parse("hysteria2://pw@example.com/?pinSHA256=deadbeef"))
+        assertNull(HysteriaUri.parse("hysteria2://pw@example.com/?ech=AAAA"))
+    }
+
+    @Test
     fun anythingThatIsNotAHysteria2LinkIsRejected() {
         assertNull(HysteriaUri.parse(""))
         assertNull(HysteriaUri.parse("not a link"))

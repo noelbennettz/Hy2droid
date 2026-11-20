@@ -86,4 +86,42 @@ class ProfileMergeTest {
 
         assertEquals(incoming, ProfileMerge.resolve(listOf(profile("a")), incoming))
     }
+
+    @Test
+    fun `a different account on the same server is a new profile`() {
+        // Providers run several accounts on one host:port; importing the second
+        // one must not overwrite the first one's password.
+        val existing = listOf(profile("a", auth = "first-pass"))
+        val incoming = profile("new", auth = "second-pass", name = "Second")
+
+        val resolved = ProfileMerge.resolve(existing, incoming)
+
+        assertEquals("new", resolved.id)
+        assertEquals("second-pass", resolved.auth)
+    }
+
+    @Test
+    fun `a link without a secret still updates the stored account`() {
+        val existing = listOf(profile("a", auth = "stored"))
+        val incoming = profile("new", auth = "", name = "Renamed")
+
+        val resolved = ProfileMerge.resolve(existing, incoming)
+
+        assertEquals("a", resolved.id)
+        assertEquals("stored", resolved.auth)
+        assertEquals("Renamed", resolved.name)
+    }
+
+    @Test
+    fun `re-import keeps fast open and insecure`() {
+        // Neither is carried by a share link, so an import must not silently
+        // turn fast open back on or turn certificate checks back on.
+        val stored = profile("a").copy(fastOpen = false, insecure = true)
+        val incoming = profile("b")
+
+        val merged = ProfileMerge.merge(stored, incoming)
+
+        assertFalse(merged.fastOpen)
+        assertTrue(merged.insecure)
+    }
 }

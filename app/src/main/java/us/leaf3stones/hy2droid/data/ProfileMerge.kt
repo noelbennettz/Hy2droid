@@ -11,11 +11,20 @@ package us.leaf3stones.hy2droid.data
  */
 object ProfileMerge {
 
-    /** True when both profiles point at the same server and port. */
+    /**
+     * True when both profiles point at the same account on the same node.
+     *
+     * Host and port alone are not enough: a provider can run several accounts on
+     * one server, and importing the second account's link must add a profile
+     * instead of overwriting the first one's password. A blank auth on either
+     * side still matches, so a link without a secret fills in (or keeps) the
+     * stored one.
+     */
     fun sameNode(existing: Profile, incoming: Profile): Boolean =
         existing.port == incoming.port &&
             Profile.normalizeServer(existing.server)
-                .equals(Profile.normalizeServer(incoming.server), ignoreCase = true)
+                .equals(Profile.normalizeServer(incoming.server), ignoreCase = true) &&
+            (existing.auth.isBlank() || incoming.auth.isBlank() || existing.auth == incoming.auth)
 
     /**
      * Fold [incoming] into [existing]: the id (and therefore the position and the
@@ -28,8 +37,11 @@ object ProfileMerge {
         auth = incoming.auth.ifBlank { existing.auth },
         sni = incoming.sni.ifBlank { existing.sni },
         obfsPassword = incoming.obfsPassword.ifBlank { existing.obfsPassword },
-        // A share link never carries the switch or the rates, so importing one
-        // must not turn Brutal off (or on) and must not wipe the numbers.
+        // The switch, the rates and fast open are not in a share link: importing
+        // one must not turn any of them off. `insecure` can only be turned on by
+        // a link (the editor is where it is turned off again).
+        insecure = incoming.insecure || existing.insecure,
+        fastOpen = existing.fastOpen,
         brutal = incoming.brutal || existing.brutal,
         txMbps = if (incoming.txMbps > 0) incoming.txMbps else existing.txMbps,
         rxMbps = if (incoming.rxMbps > 0) incoming.rxMbps else existing.rxMbps,

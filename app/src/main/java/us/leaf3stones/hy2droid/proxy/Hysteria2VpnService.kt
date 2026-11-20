@@ -253,14 +253,45 @@ class Hysteria2VpnService : VpnService() {
     private suspend fun startTunnel() = tunnelMutex.withLock { startTunnelLocked() }
 
     private suspend fun startTunnelLocked() {
-        // The profile this start is for: the one the app asked for (exact, even if
-        // the user moved the selection on in the meantime), else whatever is
-        // selected. Both the switch decision and the "in use" marker use it.
-        val target = requestedProfileId ?: activeProfileId()
+        val store = ProfileStore(applicationContext)
+        val profiles = try {
+            store.profiles.first()
+        } catch (_: Exception) {
+            emptyList()
+        }
+        if (profiles.isEmpty()) {
+            // A failed read while the tunnel is up must not take a working
+            // connection down; treat it like the duplicate start it probably is.
+            if (tunInterface != null) {
+                Log.w(TAG, "Could not read the profile list while connected; keeping the tunnel")
+                return
+            }
+            // Nothing stored to connect to (the tile can be tapped with an empty
+            // list): undo the "connecting" state quietly instead of flashing an
+            // error notification.
+            Log.i(TAG, "No profile stored; nothing to connect")
+            updateState(TunnelState.Idle)
+            stopForegroundSafely()
+            stopSelf()
+            return
+        }
+        // The profile this start is for: the one the app asked for (exact, even
+        // if the user moved the selection on in the meantime), else whatever is
+        // selected, else the first entry. Resolving it once keeps the "in use"
+        // marker and the config that is written for it on the same profile.
+        val selectedId = try {
+            store.selectedId.first()
+        } catch (_: Exception) {
+            null
+        }
+        val profile = profiles.firstOrNull { it.id == requestedProfileId }
+            ?: profiles.firstOrNull { it.id == selectedId }
+            ?: profiles.first()
+
         if (tunInterface != null) {
             // A second start while connected means "bring up the selected profile",
             // which is how a switched profile takes effect. Same profile: ignore.
-            if (target == null || target == TunnelStatus.activeProfileId.value) {
+            if (profile.id == TunnelStatus.activeProfileId.value) {
                 Log.d(TAG, "Tunnel already running; ignoring duplicate start")
                 return
             }
@@ -275,10 +306,10 @@ class Hysteria2VpnService : VpnService() {
         val coreVersion = CoreVersion.probe(applicationContext) ?: "unknown"
         Log.i(TAG, "Starting tunnel · Hysteria core $coreVersion")
         updateState(TunnelState.Connecting)
-        // Publish the target now rather than after Connected: the UI's "in use"
+        // Publish the profile now rather than after Connected: the UI's "in use"
         // marker and its delete guard must know which entry the pending tunnel
         // belongs to, and a delete landing mid-start must not orphan it.
-        TunnelStatus.setActiveProfile(target)
+        TunnelStatus.setActiveProfile(profile.id)
 
         val settings = SettingsStore(applicationContext)
         val excluded = try {
@@ -338,28 +369,24 @@ class Hysteria2VpnService : VpnService() {
             emptyList()
         }
 
+        val pmtudDisabled = try {
+            settings.disablePathMtuDiscovery.first()
+        } catch (_: Exception) {
+            false
+        }
+
         val configFile = File(filesDir, HYSTERIA_CONFIG_FILE)
         hysteriaConfigFile = configFile
         TunnelStatus.setProblem(null)
-        when (ensureConfigFile(configFile)) {
-
-            ConfigPrep.Ready -> Unit
-
-            ConfigPrep.NoProfile -> {
-                // Nothing stored to connect to (the tile can be tapped with an
-                // empty list): undo the "connecting" state quietly instead of
-                // flashing an error notification.
-                Log.i(TAG, "No profile stored; nothing to connect")
-                updateState(TunnelState.Idle)
-                stopForegroundSafely()
-                stopSelf()
-                return
-            }
-
-            ConfigPrep.Failed -> {
-                fail(getString(R.string.error_no_config))
-                return
-            }
+        // Rebuild the config on every start instead of trusting a file left
+        // behind by a killed process: that file can belong to a profile (or a
+        // password) the user has changed since, and a tile/always-on start never
+        // goes through MainViewModel. Atomic write, so a crash mid-write cannot
+        // leave a truncated YAML that the core would try to parse.
+        val yaml = HysteriaConfigBuilder.build(profile, disablePathMtuDiscovery = pmtudDisabled)
+        if (!ConfigFile.write(configFile, yaml)) {
+            fail(getString(R.string.error_no_config))
+            return
         }
 
         val tun2socksFile = File(filesDir, Tun2socksConfig.FILE_NAME)
@@ -423,13 +450,6 @@ class Hysteria2VpnService : VpnService() {
         startStatsPolling()
         refreshNotification()
         Log.d(TAG, "Tunnel established")
-    }
-
-    /** The profile the running config was built for, for the UI's "in use" marker. */
-    private suspend fun activeProfileId(): String? = try {
-        ProfileStore(applicationContext).selectedId.first()
-    } catch (_: Exception) {
-        null
     }
 
     /** Set the tunnel state and ask the Quick Settings tile to refresh its appearance. */
@@ -707,34 +727,6 @@ class Hysteria2VpnService : VpnService() {
         refreshNotification()
     }
 
-    /** Outcome of preparing `hysteria.yaml` before the core is launched. */
-    private enum class ConfigPrep { Ready, NoProfile, Failed }
-
-    /** Ensure `hysteria.yaml` exists, rebuilding it from the selected profile if missing. */
-    private suspend fun ensureConfigFile(configFile: File): ConfigPrep {
-        if (configFile.exists()) return ConfigPrep.Ready
-        val store = ProfileStore(applicationContext)
-        val profiles = try {
-            store.profiles.first()
-        } catch (_: Exception) {
-            emptyList()
-        }
-        if (profiles.isEmpty()) return ConfigPrep.NoProfile
-        val selectedId = try {
-            store.selectedId.first()
-        } catch (_: Exception) {
-            null
-        }
-        val profile = profiles.firstOrNull { it.id == selectedId } ?: profiles.first()
-        val pmtudDisabled = try {
-            SettingsStore(applicationContext).disablePathMtuDiscovery.first()
-        } catch (_: Exception) {
-            false
-        }
-        val yaml = HysteriaConfigBuilder.build(profile, disablePathMtuDiscovery = pmtudDisabled)
-        return if (ConfigFile.write(configFile, yaml)) ConfigPrep.Ready else ConfigPrep.Failed
-    }
-
     private fun launchCore(configFile: File): Process? = try {
         val binary = File(applicationInfo.nativeLibraryDir, CORE_BINARY)
         val process = ProcessBuilder(binary.absolutePath, "-c", configFile.absolutePath)
@@ -964,11 +956,10 @@ class Hysteria2VpnService : VpnService() {
         logDrainThread = null
         TunnelStatus.resetStats()
         TunnelStatus.setActiveProfile(null)
-        // The config carries the auth secret and is rebuilt by the next connect
-        // (MainViewModel writes it) or by ensureConfigFile on an always-on
-        // restart, so it does not need to sit in filesDir while the tunnel is
-        // down — nor be picked up by a cloud backup. The temp file from an
-        // interrupted atomic write holds the same secret, so it goes too.
+        // The config carries the auth secret and the next start rebuilds it from
+        // the stored profile, so it does not need to sit in filesDir while the
+        // tunnel is down — nor be picked up by a cloud backup. The temp file from
+        // an interrupted atomic write holds the same secret, so it goes too.
         ConfigFile.delete(File(filesDir, HYSTERIA_CONFIG_FILE))
     }
 

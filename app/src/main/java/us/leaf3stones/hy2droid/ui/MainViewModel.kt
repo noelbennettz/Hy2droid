@@ -6,7 +6,6 @@ import android.net.Uri
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,13 +14,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import us.leaf3stones.hy2droid.data.BlockRule
-import us.leaf3stones.hy2droid.data.ConfigFile
 import us.leaf3stones.hy2droid.data.CoreProblem
 import us.leaf3stones.hy2droid.data.DEFAULT_BLOCK_RULES
 import us.leaf3stones.hy2droid.data.DiagnosticsExporter
-import us.leaf3stones.hy2droid.data.HysteriaConfigBuilder
 import us.leaf3stones.hy2droid.data.Profile
 import us.leaf3stones.hy2droid.data.ProfileMerge
 import us.leaf3stones.hy2droid.data.ProfileStore
@@ -32,13 +28,11 @@ import us.leaf3stones.hy2droid.proxy.TunnelState
 import us.leaf3stones.hy2droid.proxy.TunnelStats
 import us.leaf3stones.hy2droid.proxy.TunnelStatus
 import us.leaf3stones.hy2droid.proxy.isProfileInUse
-import java.io.File
 
 /** Owns the profile list and bridges UI intents to the tunnel service. */
 class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val store = ProfileStore(app)
     private val settings = SettingsStore(app)
-    private val configFile = File(app.filesDir, Hysteria2VpnService.HYSTERIA_CONFIG_FILE)
 
     val profiles: StateFlow<List<Profile>> = store.profiles
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -260,13 +254,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     private suspend fun connectNow(profile: Profile) {
         store.select(profile.id)
-        val yaml = HysteriaConfigBuilder.build(
-            profile,
-            disablePathMtuDiscovery = settings.disablePathMtuDiscovery.first(),
-        )
-        // Written atomically: a torn config would be accepted by the service
-        // ("the file exists") and fail the core on every start.
-        withContext(Dispatchers.IO) { ConfigFile.write(configFile, yaml) }
+        // The service rebuilds hysteria.yaml from this profile on every start
+        // (including tile and always-on starts), so the intent only has to carry
+        // the id: the selection can move again before the service reads it.
         val intent = Intent(getApplication<Application>(), Hysteria2VpnService::class.java)
             .setAction(Hysteria2VpnService.ACTION_START_VPN)
             // Authoritative profile id: the selection can move between this write
