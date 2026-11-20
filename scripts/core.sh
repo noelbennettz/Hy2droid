@@ -3,6 +3,7 @@
 # Manage the Hysteria core (`app/src/main/jniLibs/*/libhysteria.so`).
 #
 #   scripts/core.sh fetch                  install the pinned core if missing/stale (Gradle calls this)
+#   scripts/core.sh fetch --pinned         same, but ignore HY2_CORE_TAG (what CI and Gradle use)
 #   scripts/core.sh latest                 resolve the newest upstream release
 #   scripts/core.sh upgrade [tag|latest]   install a specific (default: newest) core
 #   scripts/core.sh version                pinned version + whether the binaries match
@@ -16,7 +17,8 @@
 # `libhysteria.so version` so a swapped binary reports itself honestly.
 #
 # Env:
-#   HY2_CORE_TAG        override the pinned version (e.g. app/v2.12.3)
+#   HY2_CORE_TAG        override the pinned version (e.g. app/v2.12.3); ignored by
+#                       `fetch --pinned`, which is what Gradle and CI run
 #   GITHUB_TOKEN        optional, raises the GitHub API rate limit when resolving "latest"
 #   HY2_GITHUB_MIRROR   optional prefix for release assets, e.g. https://gh-proxy.com/
 #                       (must end with a slash); for networks where GitHub's CDN crawls
@@ -154,7 +156,18 @@ install_tag() {
 }
 
 cmd_fetch() {
-  local want="${HY2_CORE_TAG:-$(prop HYSTERIA_VERSION)}"
+  # `--pinned` means "only what core/core.properties says". CI, the release
+  # workflow and the Gradle fetchCore task use it, so a build cannot silently
+  # bundle a core that came from an environment variable; moving the pin is a
+  # diff in core.properties.
+  local pinned=0
+  [ "${1:-}" = "--pinned" ] && pinned=1
+  local want
+  if [ "$pinned" -eq 1 ]; then
+    want="$(prop HYSTERIA_VERSION)"
+  else
+    want="${HY2_CORE_TAG:-$(prop HYSTERIA_VERSION)}"
+  fi
   [ -n "$want" ] || { echo "core/core.properties has no HYSTERIA_VERSION" >&2; return 1; }
   local tag; tag="$(normalize_tag "$want")"
   if [ "$(prop HYSTERIA_VERSION)" = "${tag#app/}" ] && binaries_match_manifest; then
@@ -238,7 +251,7 @@ cmd_verify() {
 }
 
 case "${1:-}" in
-  fetch)   cmd_fetch ;;
+  fetch)   shift; cmd_fetch "${1:-}" ;;
   latest)  cmd_latest ;;
   upgrade) shift; cmd_upgrade "${1:-latest}" ;;
   version) cmd_version ;;
