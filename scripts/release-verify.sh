@@ -60,24 +60,31 @@ done < <(printf '%s\n' "${apks[@]}" | sort)
 echo "Wrote $sums (${#apks[@]} APK(s))" >&2
 cat "$sums" >&2
 
-# `--print-certs` prints one "Signer #N certificate SHA-256 digest: <hex>" line
-# per signer; anything other than exactly one distinct digest means the APKs
-# were not all signed with the same key.
+# `--print-certs` prints a certificate SHA-256 digest per signer; anything other
+# than exactly one distinct digest means the APKs were not all signed with the
+# same key.
 certs=()
 for apk in "${apks[@]}"; do
   out="$("$apksigner" verify --print-certs "$apk" 2>&1)" || {
     echo "$out" >&2
     die "apksigner could not verify $(basename "$apk") (unsigned or malformed)"
   }
-  # Newer apksigner prints "Signer #1 certificate SHA-256 digest: ..."; older
-  # builds use "... certificate SHA-256 digest:" with the same wording, so this
-  # pattern matches both. Only the first signer is considered: an APK with a
-  # second signer is a different distribution model.
-  one="$(printf '%s\n' "$out" \
-    | sed -n 's/^Signer #1 certificate SHA-256 digest: *//p' | head -n1)"
-  [ -n "$one" ] || die "no certificate digest in apksigner output for $(basename "$apk")"
-  certs+=("$one")
-  echo "$(basename "$apk"): $one" >&2
+  # The signer prefix differs between apksigner builds: build-tools 36 and older
+  # print "Signer #1 certificate SHA-256 digest: ...", while newer builds verify
+  # each scheme separately and print "V2 Signer: certificate SHA-256 digest: ..."
+  # (and "V1 Signer:"/"V3 Signer:" for the other schemes). Match on the digest
+  # label alone so both spellings work. Every digest must agree: a second scheme
+  # or a second signer with a different certificate is a different distribution
+  # model and must not be published as this release's signer.
+  digests="$(printf '%s\n' "$out" \
+    | sed -n 's/^.*certificate SHA-256 digest: *//p' | sort -u)"
+  [ -n "$digests" ] || die "no certificate digest in apksigner output for $(basename "$apk")"
+  if [ "$(printf '%s\n' "$digests" | wc -l)" -ne 1 ]; then
+    printf '%s\n' "$digests" >&2
+    die "apksigner reported multiple signing certificates for $(basename "$apk")"
+  fi
+  certs+=("$digests")
+  echo "$(basename "$apk"): $digests" >&2
 done
 
 first="${certs[0]}"
