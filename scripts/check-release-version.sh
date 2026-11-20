@@ -64,7 +64,7 @@ else
 fi
 
 # Prefixes, suffixes and malformed shapes.
-for name in 1.0.0-rc1 1.0.0-rc.1 1.0.0-dev 1.0.0+build 1.0.0-rc1+build v1.0.0 1.0 1.0.0.0 '' 1.0.0.0-rc1; do
+for name in 1.0.0-rc1 1.0.0-rc.1 1.0.0-dev 1.0.0+build 1.0.0-rc1+build v1.0.0 1.0 1.0.0.0 '' 1.0.0.0-rc1 01.0.0 1.01.0 1.0.01; do
   rejects "$name"
 done
 # Out of range for versionCode, so also not publishable.

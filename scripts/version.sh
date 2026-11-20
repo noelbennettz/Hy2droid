@@ -113,10 +113,11 @@ version_code() {
 
 release_name() {
   local name="${1:-}"
-  if ! [[ "$name" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  if ! [[ "$name" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
     die "'${name:-<empty>}' is not a stable release version — expected" \
-        "<major>.<minor>.<patch> with no suffix (a -rc/-dev/+build name shares" \
-        "its versionCode with the final release, so Play refuses the upload)"
+        "<major>.<minor>.<patch> with no suffix or leading zero (a -rc/-dev/+build" \
+        "name shares its versionCode with the final release, and 01.0.0 aliases" \
+        "1.0.0, so Play refuses the second upload)"
   fi
   version_code "$name" > /dev/null
   printf '%s\n' "$name"
