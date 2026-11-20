@@ -20,8 +20,9 @@
 #                name's semantic prefix (`0.9.0-dev.5+…` -> 9000). It is a pure
 #                function of the name, so rebuilding the same commit cannot
 #                produce a different, non-upgradeable code. The largest value
-#                Google Play accepts is 2_100_000_000, which caps the major at
-#                2100 and the minor/patch at 999.
+#                Google Play accepts is 2_100_000_000, so the derived value is
+#                checked against that ceiling; minor and patch are still each
+#                limited to 999 so two names cannot alias the same code.
 #                A checkout with no tags at all (`0.0.0-dev`) derives 0, which
 #                Android rejects as a versionCode, so it is clamped to 1. Those
 #                builds are for CI and local use only; nothing is published from
@@ -96,10 +97,13 @@ version_code() {
     die "cannot derive a versionCode from '$name' (expected <major>.<minor>.<patch>[-…])"
   fi
   local major="${BASH_REMATCH[1]}" minor="${BASH_REMATCH[2]}" patch="${BASH_REMATCH[3]}"
-  if (( major > 2100 || minor > 999 || patch > 999 )); then
-    die "'$name' does not fit the versionCode rule (major <= 2100, minor/patch <= 999)"
+  if (( minor > 999 || patch > 999 )); then
+    die "'$name' does not fit the versionCode rule (minor/patch <= 999)"
   fi
   local code=$(( major * 1000000 + minor * 1000 + patch ))
+  if (( code > 2100000000 )); then
+    die "'$name' derives versionCode $code, above Google Play's maximum 2_100_000_000"
+  fi
   # A shallow CI clone has no tags, so the name is `0.0.0-dev` and the rule gives
   # 0 — which AGP rejects ("versionCode is set to 0, but it should be a positive
   # integer"). Nothing with that name is ever published, so one is enough.

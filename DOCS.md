@@ -716,7 +716,8 @@ so rebuilding the same commit or re-running the release workflow yields the same
 code. It used to be the workflow run number, which changed on every run and could
 not be reproduced; nothing has been published to Play, so there is no installed
 version whose code we would have to stay ahead of. The largest value Play accepts
-is 2 100 000 000, which caps the major at 2100 and the minor/patch at 999 —
+is 2 100 000 000; the script rejects any name whose derived code exceeds it,
+and still limits minor/patch to 999 so two names cannot alias the same code —
 `scripts/version.sh` fails loudly outside that. A checkout with no tags at all
 derives `0`, which Android rejects as a `versionCode`, so it is clamped to `1`;
 those builds are never published.

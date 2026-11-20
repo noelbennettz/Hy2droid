@@ -42,8 +42,8 @@ rejects() {
   fi
 }
 
-# Stable names, including the edges of the versionCode rule.
-for name in 0.0.1 1.0.0 2.1.0 2100.999.999; do
+# Stable names, including the largest one whose code still fits Play's ceiling.
+for name in 0.0.1 1.0.0 2.1.0 2099.999.999; do
   accepts "$name"
 done
 
@@ -68,6 +68,8 @@ for name in 1.0.0-rc1 1.0.0-rc.1 1.0.0-dev 1.0.0+build 1.0.0-rc1+build v1.0.0 1.
   rejects "$name"
 done
 # Out of range for versionCode, so also not publishable.
+rejects 2100.0.1
+rejects 2100.999.999
 rejects 2101.0.0
 rejects 1.1000.0
 
