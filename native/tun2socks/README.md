@@ -66,11 +66,75 @@ so `scripts/tun2socks.sh` still applies exactly the two patches above.
 
 ## 16 KB page size
 
-`libtun2socks.so` is linked with `-Wl,-z,max-page-size=16384`, and
-`scripts/tun2socks.sh verify` fails when a LOAD segment is aligned below that
-(Android 15+ maps libraries on 16 KB kernels). The bundled Hysteria core is an
-upstream prebuilt and is still 4 KB aligned; `scripts/tun2socks.sh info` prints
-its alignment so a future bump is visible.
+`libtun2socks.so` is linked with `-Wl,-z,max-page-size=16384` on **all four**
+ABIs, including the two 32-bit ones, and `scripts/tun2socks.sh verify` fails when
+any LOAD segment is aligned below that. 32-bit *devices* only ever run 4 KB
+kernels, so the flag costs nothing there; it just means a rebuild cannot
+silently produce a library that the 64-bit 16 KB-page devices refuse to load.
+Android 15+ maps libraries on 16 KB kernels, so this is the check that matters.
+
+The bundled Hysteria core is an upstream prebuilt and is different: its
+`arm64-v8a`/`x86_64` binaries are 16 KB aligned, its `armeabi-v7a`/`x86` ones
+are still 4 KB. `scripts/core.sh verify` only enforces the rule on the 64-bit
+ABIs, and `scripts/tun2socks.sh info` prints the alignment of whatever core is
+bundled so a future bump is visible.
+
+## Which binary is this? The SHA-256 manifest
+
+`native/tun2socks/SHA256SUMS` pins the four committed libraries:
+
+```
+scripts/tun2socks.sh verify          # exits non-zero on a byte that moved
+scripts/tun2socks.sh sha256          # print the manifest for the current files
+```
+
+`verify` also checks that the manifest has exactly one entry per ABI, so a
+library cannot be added or dropped without the manifest following it. CI runs it
+on every pull request (`build.yml`) and after every rebuild (`native.yml`).
+
+## Reproducibility
+
+The inputs are pinned: the upstream tag (`HEV_TAG` in `scripts/tun2socks.sh`,
+`2.19.3`, whose commit `git clone --branch <tag>` resolves to), the two patches
+in this directory, the NDK (r25c, the revision recorded in `.note.android.ident`
+of each library), and the flags in `cmd_build`. Nothing reads the clock or the
+network beyond that clone.
+
+The one thing that used to move was the build path: the sources are compiled
+with absolute file names, `__FILE__` strings end up in the merged string table,
+and the link order of those strings depends on their content — so a build in
+`/tmp/tmp.uV85bwFKVk` and one in `/tmp/tmp.Xi0Y0axBmp` had different bytes even
+though they were the same code. `build` therefore passes
+
+```
+-ffile-prefix-map=<checkout>=/hev-socks5-tunnel
+-fdebug-prefix-map=<checkout>=/hev-socks5-tunnel
+```
+
+Measured on 2026-11-20 with NDK 25.2.9519653, `arm64-v8a`, two builds in two
+different directories: identical SHA-256 (`0d0ee296…9670c`, 343 936 bytes).
+Before the prefix map the same pair differed in 16 330 of 344 256 bytes.
+
+What is still not reproducible, and cannot be checked by CI:
+
+- **The toolchain.** A different NDK revision produces different code. The
+  version is recorded in `.note.android.ident` but `build` accepts whatever
+  `ANDROID_NDK_HOME`/`sdkmanager` gives it; use 25.2.9519653 (r25c) for a
+  byte-identical result. `native.yml` installs exactly that.
+- **Stripping.** `ndk-build` installs the library as built; nothing re-strips or
+  re-signs it afterwards, which is what keeps the hash stable. Do not run
+  `llvm-strip` on these files.
+- **The manifest is a pin, not a proof.** CI compares the committed files with
+  the checked-in hashes, so a change is always visible and reviewable, but only
+  `native.yml` (or a local run) actually rebuilds and can show that the hash is
+  reachable from the pinned sources.
+
+To reproduce and compare:
+
+```bash
+ANDROID_NDK_HOME=/path/to/android-ndk-r25c scripts/tun2socks.sh build
+scripts/tun2socks.sh sha256 | diff native/tun2socks/SHA256SUMS -   # empty = identical
+```
 
 ## Testing the rule parser without a device
 

@@ -33,8 +33,8 @@ you supply.
 - Android 11 (API 30) or newer, on `arm64-v8a`, `armeabi-v7a`, `x86` or `x86_64`.
 - JDK 17 to build the app.
 - Android SDK platform 37 — `compileSdk 37`, `targetSdk 37` in `app/build.gradle`.
-- No NDK: `libtun2socks.so` is a committed prebuilt and the Hysteria core is a
-  downloaded binary.
+- No NDK: `libtun2socks.so` is a committed prebuilt pinned by
+  `native/tun2socks/SHA256SUMS`, and the Hysteria core is a downloaded binary.
 - Internet access on the build machine: the core is fetched from the upstream
   release and checksum-verified during the build.
 - A Hysteria 2 server URI (`hysteria2://…`), or its QR code, to connect to.
@@ -114,7 +114,7 @@ what would be released.
 | --- | --- |
 | [DOCS.md](DOCS.md) | Features in detail, every setting and profile field, blocked-port rules, split tunnelling, internals, repository layout, build and core scripts, CI and signing, security notes, troubleshooting, FAQ |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Development setup, the checks to run before opening a pull request, the DCO sign-off every commit needs, and what the project will not accept |
-| [native/tun2socks/README.md](native/tun2socks/README.md) | The patches applied to hev-socks5-tunnel, and how to rebuild `libtun2socks.so` |
+| [native/tun2socks/README.md](native/tun2socks/README.md) | The patches applied to hev-socks5-tunnel, the SHA-256 manifest, and how to rebuild `libtun2socks.so` reproducibly |
 | [Project site](https://noelbennettz.github.io/Hy2droid/) | English and Traditional Chinese pages, hosted in the [`noelbennettz.github.io`](https://github.com/noelbennettz/noelbennettz.github.io) repository under `docs/Hy2droid/` |
 
 ## Security

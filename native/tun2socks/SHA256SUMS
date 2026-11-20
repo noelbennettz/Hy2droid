@@ -1,0 +1,4 @@
+0d0ee29694e3e08537940c2220e94c077c1894dc2a7ab25daa34945aa329670c  app/src/main/jniLibs/arm64-v8a/libtun2socks.so
+23227d5a3e0b014a09db3ce3aa8941ed9e2e3ba4e7af29d5975d7204e4b38e98  app/src/main/jniLibs/armeabi-v7a/libtun2socks.so
+f676380df994f84ab672798e99bddc901c304b50b2076196562ca9f8801e2d5b  app/src/main/jniLibs/x86/libtun2socks.so
+0044b852e870c2a133b14e24eac488fcb21af450ceafe19ea2241adc0bcf06e3  app/src/main/jniLibs/x86_64/libtun2socks.so

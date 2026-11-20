@@ -70,6 +70,9 @@ jobs:
         run: bash scripts/core.sh verify
 
       - name: Verify tun2socks binaries
+        # Checks native/tun2socks/SHA256SUMS, the JNI entry points and 16 KB
+        # alignment on all four ABIs. A changed .so with an unchanged manifest
+        # fails here.
         run: bash scripts/tun2socks.sh verify
 
       - name: Set up JDK 17
