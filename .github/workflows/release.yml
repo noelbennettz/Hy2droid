@@ -17,6 +17,10 @@ on:
 
 permissions:
   contents: write
+  # actions/attest-build-provenance signs a Sigstore statement with the workflow's
+  # OIDC identity and stores it in the repository's attestation log.
+  id-token: write
+  attestations: write
   # For the run cleanup step at the end of the job.
   actions: write
 
@@ -26,6 +30,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # The commit is part of the provenance, and the version name comes from
+          # the tag, so the whole history and every tag have to be here.
+          fetch-depth: 0
+
 
       - name: Resolve version
         id: version
@@ -174,13 +183,48 @@ jobs:
           if-no-files-found: error
 
       # A signed bundle is what Google Play accepts; the APKs above are for
-      # sideloading and the GitHub release.
+      # sideloading and the GitHub release. Keeping it as a workflow artifact is
+      # the whole Play pipeline: nothing here talks to the Play API, and the
+      # upload to a track is a manual step (see PLAY_RELEASE.md).
       - name: Upload Play app bundle
         uses: actions/upload-artifact@v4
         with:
           name: hy2droid-release-aab
           path: app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
+
+      # Everything a reviewer needs to tie the artefacts back to this commit.
+      # Written sorted and without the clock, so two runs over the same inputs
+      # produce the same file.
+      - name: Write build info
+        run: |
+          set -euo pipefail
+          {
+            echo "version=${{ steps.version.outputs.name }}"
+            echo "versionCode=${{ steps.version.outputs.code }}"
+            echo "commit=$(git rev-parse HEAD)"
+            echo "tag=${{ github.ref_name }}"
+            echo "core=$(grep -m1 '^HYSTERIA_VERSION=' core/core.properties | cut -d= -f2)"
+            echo "tun2socks=$(sed -n 's/^HEV_TAG=\"\\(.*\\)\"$/\\1/p' scripts/tun2socks.sh)"
+            echo "tun2socks_sha256:"
+            sort native/tun2socks/SHA256SUMS | sed 's/^/  /'
+            echo "signing_certificate_sha256=${{ steps.checksums.outputs.certificate }}"
+          } > BUILD-INFO.txt
+          cat BUILD-INFO.txt
+
+      # Signed provenance for the APKs and the AAB: `gh attestation verify`
+      # checks that these bytes were produced by this workflow in this repository
+      # from this commit, without trusting the release page.
+      # actions/attest-build-provenance v2.3.0
+      - name: Attest build provenance
+        if: steps.signing.outputs.signed == 'true'
+        uses: actions/attest-build-provenance@db473fddc028af60658334401dc6fa3ffd8669fd
+        with:
+          subject-path: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/bundle/release/*.aab
+            app/build/outputs/apk/release/SHA256SUMS.txt
+            BUILD-INFO.txt
 
       - name: Publish GitHub Release
         if: steps.signing.outputs.signed == 'true'
@@ -206,11 +250,17 @@ jobs:
           next to the APKs, and compare the signer printed by
           \`apksigner verify --print-certs\`. See README > Verify your download.
 
+          Provenance: \`gh attestation verify app-universal-release.apk --repo ${{ github.repository }}\`
+          checks that these files were built by this workflow from this commit.
+          \`BUILD-INFO.txt\` records the commit, the core version and the
+          libtun2socks hashes the release was built with.
+
           Signing certificate SHA-256: ${{ steps.checksums.outputs.certificate }}
           NOTES
 
           mapfile -t files < <(ls app/build/outputs/apk/release/*.apk)
-          files+=(app/build/outputs/apk/release/SHA256SUMS.txt hy2droid-*.spdx.json)
+          files+=(app/build/outputs/apk/release/SHA256SUMS.txt BUILD-INFO.txt \
+                  hy2droid-*.spdx.json)
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" "${files[@]}" --clobber
           else

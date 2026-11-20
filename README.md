@@ -90,6 +90,19 @@ which is the release key every APK on the Releases page is signed with
 shows the same digest for an installed APK — useful when the APK came from
 somewhere other than Releases.
 
+Every release is also attested by the workflow that built it, so the file can be
+tied to a commit without trusting the release page:
+
+```bash
+gh attestation verify app-arm64-v8a-release.apk --repo noelbennettz/Hy2droid
+```
+
+`BUILD-INFO.txt` in the same release records the commit, the version and
+versionCode, the bundled core version, the SHA-256 of each `libtun2socks.so`, and
+the signing certificate. See
+[DOCS > Reproducibility and provenance](DOCS.md#reproducibility-and-provenance)
+for what is deterministic and what cannot be.
+
 ## Build from source
 
 ```bash
@@ -117,6 +130,7 @@ what would be released.
 | --- | --- |
 | [DOCS.md](DOCS.md) | Features in detail, every setting and profile field, blocked-port rules, split tunnelling, internals, repository layout, build and core scripts, CI and signing, security notes, troubleshooting, FAQ |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Development setup, the checks to run before opening a pull request, the DCO sign-off every commit needs, and what the project will not accept |
+| [PLAY_RELEASE.md](PLAY_RELEASE.md) | The Google Play checklist: artefacts, data safety, privacy policy, `specialUse` foreground service, internal track — all manual, no Play API |
 | [native/tun2socks/README.md](native/tun2socks/README.md) | The patches applied to hev-socks5-tunnel, the SHA-256 manifest, and how to rebuild `libtun2socks.so` reproducibly |
 | [Project site](https://noelbennettz.github.io/Hy2droid/) | English and Traditional Chinese pages, hosted in the [`noelbennettz.github.io`](https://github.com/noelbennettz/noelbennettz.github.io) repository under `docs/Hy2droid/` |
 

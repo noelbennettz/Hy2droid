@@ -33,6 +33,7 @@ Run the same gates CI runs:
 ```bash
 ./scripts/check-style.sh                 # whitespace, import order, line width
 ./scripts/check-locales.sh               # identical key sets in every translation
+./scripts/check-docs.sh                  # links, anchors, undocumented scripts
 ./scripts/check-version-consistency.sh   # README/DOCS vs the newest pushed tag
 ./gradlew testDebugUnitTest lintDebug    # lint errors fail the build
 ```

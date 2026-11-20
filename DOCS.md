@@ -488,6 +488,8 @@ binary with `-c <config>`; if a release changes the YAML schema,
 | `scripts/tun2socks.sh` | Rebuild, verify or inspect `libtun2socks.so` (see below) |
 | `scripts/check-style.sh` | Enforce the `.editorconfig` rules; `--fix` rewrites the mechanical ones |
 | `scripts/check-locales.sh` | Fail when the `values-*/strings.xml` key sets differ from `values/strings.xml` (missing, extra, duplicate, or a changed element type) |
+| `scripts/check-docs.sh` | Fail when a Markdown link, a script, a workflow or the DOCS contents list disagrees with the repository |
+| `scripts/check-dco.sh <base> <head>` | Require a `Signed-off-by:` trailer matching the author on every non-merge commit; `dco.yml` runs it on pull requests |
 | `scripts/check-native-licences.sh` | Verify `native/LICENSES.tsv` against the licence assets the app shows, `NOTICE`, and the pinned versions |
 | `scripts/sbom.sh <apk>` | Write the SPDX 2.3 SBOM for a built APK (syft + Licensee's report); deterministic for a commit |
 | `scripts/version.sh` | The single source of `versionName`/`versionCode`; `app/build.gradle` calls it |
@@ -515,10 +517,11 @@ directory.
 
 | Workflow | Trigger | Output |
 | --- | --- | --- |
-| `.github/workflows/build.yml` | push to `main`, pull request, or manual | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `scripts/check-version-consistency.sh`, `testDebugUnitTest`, `lintDebug` |
+| `.github/workflows/build.yml` | push to `main`, pull request, or manual | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `scripts/check-locales.sh`, `scripts/check-version-consistency.sh`, `scripts/check-docs.sh`, `testDebugUnitTest`, `lintDebug`; a second job builds the release variant + AAB unsigned |
 | `.github/workflows/connected.yml` | pull request (API 30), push to `main` / manual (API 30 and 37) | instrumentation-test report; gate: `connectedDebugAndroidTest` on an emulator |
-| `.github/workflows/release.yml` | pushing a `v*` tag, or manual with a version | signed release APKs, a signed AAB for Play, + a GitHub Release |
+| `.github/workflows/release.yml` | pushing a `v*` tag, or manual with a version | signed release APKs, a signed AAB for Play, `SHA256SUMS.txt`, `BUILD-INFO.txt`, a build attestation, and a GitHub Release |
 | `.github/workflows/native.yml` | manual | rebuilt `libtun2socks.so` for all four ABIs, as an artifact |
+| `.github/workflows/dco.yml` | pull request | `scripts/check-dco.sh` over the pull request's commits; plain git, no GitHub App |
 
 Both app workflows install and verify the bundled core before building and run
 `testDebugUnitTest`; `build.yml` also runs `scripts/check-style.sh` and `lintDebug`.
@@ -534,6 +537,29 @@ keeps the signed `app-release.aab` as a workflow artifact for the Play Console.
 dependency is not under one of the licences allowed in `app/build.gradle`
 (Apache-2.0, MIT, BSD-2-Clause, BSD-3-Clause, ISC); the same task writes the
 report the in-app licences screen shows.
+
+### What runs where, and what it costs
+
+`build.yml` has three jobs. `changes` reads the pull request's file list and says
+whether anything other than prose changed (anything outside
+`README.md`, `DOCS.md`, `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`, `NOTICE` and
+`screenshots/`). `debug-apk` runs on every pull request: style, locale parity,
+docs/version consistency, licences, the core and `libtun2socks.so` checks,
+`testDebugUnitTest`, `assembleDebug`, `lintDebug`. `unsigned-release` runs
+`assembleRelease` and `bundleRelease` — the R8/shrinking/bundle path that a tag
+uses — and skips itself for a documentation-only pull request. On `main` and on
+manual runs it always runs.
+
+Both Gradle jobs use `actions/setup-gradle`, which persists `~/.gradle/caches` and
+the build cache (`org.gradle.caching=true` in `gradle.properties`) between runs,
+so a warm run resolves no dependencies and recompiles only what changed.
+
+The **configuration cache is deliberately off**. `versionName`/`versionCode` are
+produced by `scripts/version.sh` (`git describe`) inside the build, and Gradle
+cannot see the git repository as an input: a restored configuration-cache entry
+would keep the version of whichever commit stored it, including a new tag's
+`versionCode`. A few seconds per run is not worth risking a release that
+reports the previous version.
 
 A signed release also runs `scripts/release-verify.sh`, which writes
 `SHA256SUMS.txt` (in `sha256sum` format) next to the APKs and reads the signing
@@ -625,6 +651,37 @@ is derived from it, so every release is upgradeable. Without
 the JNI bindings) but produces an unsigned APK, skips the signature check and does
 not publish.
 
+## Setting up signing
+
+Add four repository secrets (Settings → Secrets and variables → Actions):
+
+| Secret | Value |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | keystore, base64-encoded: `base64 -w0 signing/production.jks` |
+| `ANDROID_KEYSTORE_PASSWORD` | keystore password |
+| `ANDROID_KEY_PASSWORD` | key password |
+| `ANDROID_KEY_ALIAS` | key alias |
+
+Create the keystore once and back it up — losing it means installed apps can never
+be updated under the same package name:
+
+```bash
+keytool -genkeypair -v -keystore signing/production.jks -alias signing \
+  -keyalg RSA -keysize 2048 -validity 10000
+```
+
+Then publish by pushing a tag (or from the Actions tab with a version input):
+
+```bash
+git tag v2.1.0 && git push origin v2.1.0     # versionName 2.1.0
+```
+
+`versionName` comes from the tag (or the `version_name` input) and `versionCode`
+is derived from it, so every release is upgradeable. Without
+`ANDROID_KEYSTORE_BASE64` the workflow still builds (validating R8/ProGuard against
+the JNI bindings) but produces an unsigned APK, skips the signature check and does
+not publish.
+
 ### Release procedure
 
 `versionName` and `versionCode` have one source: `scripts/version.sh`, which
@@ -660,9 +717,44 @@ A release is then four steps:
 3. Push the commit to `main`, wait for the checks, then `git tag vX.Y.Z` and
    `git push origin vX.Y.Z`. The tag is the version — there is no second place to
    type it in.
-4. `release.yml` builds, signs, writes `SHA256SUMS.txt`, publishes the GitHub
-   Release and uploads the AAB artifact. Getting that AAB onto a Play track is a
-   manual step, not something CI does.
+4. `release.yml` builds, signs, writes `SHA256SUMS.txt` and `BUILD-INFO.txt`,
+   attests the artefacts, publishes the GitHub Release and uploads the AAB
+   artifact. Getting that AAB onto a Play track is a manual step, not something CI
+   does — the whole checklist is in [PLAY_RELEASE.md](PLAY_RELEASE.md).
+
+### Reproducibility and provenance
+
+What is deterministic, and how you can check it:
+
+| Thing | Rule | Check |
+| --- | --- | --- |
+| `versionName`/`versionCode` | `git describe` (or the release input); code = `major*1e6 + minor*1e3 + patch` | `scripts/version.sh print` |
+| Hysteria core | version + four SHA-256 in `core/core.properties`, verified after every fetch | `scripts/core.sh verify` |
+| `libtun2socks.so` | `native/tun2socks/SHA256SUMS`, and a rebuild is byte-identical with NDK r25c | `scripts/tun2socks.sh verify` |
+| `SHA256SUMS.txt` | sorted by file name, no clock | `sha256sum -c` |
+| `BUILD-INFO.txt` | commit, versions, core, tun2socks hashes, certificate; sorted, no clock | attached to the release |
+| Artefacts → workflow | Sigstore attestation from the release workflow's OIDC identity | `gh attestation verify <file> --repo noelbennettz/Hy2droid` |
+
+What is **not** deterministic, stated rather than implied:
+
+- **The APK/AAB bytes.** AGP writes ZIP entries with the build's file
+  modifications times and does not honour `SOURCE_DATE_EPOCH`, so two builds of
+  the same commit differ even before signing. There is no reproducible-APK claim
+  here; the claim is that the inputs are pinned (core, tun2socks, dependency
+  versions from `gradle/libs.versions.toml`), that the pinned binaries are
+  hash-checked, and that the artefacts are attested to the commit and workflow
+  that produced them.
+- **`versionCode` monotonicity across tracks** is a Play Console fact, not a build
+  fact: the code comes from the version name, so a rebuild of the same tag is the
+  same code (Play refuses that upload as a duplicate, which is the intended
+  outcome).
+- **Signing time.** `apksigner` is not given a timestamp source; the v2/v3
+  signature block carries no signing time, so the signature itself adds nothing
+  varying — but the ZIP does.
+
+CI never reads the clock for anything that lands in an artefact, and never reads
+`github.run_number` for a version. The one remaining clock dependency is the ZIP
+timestamps above.
 
 To sign locally, place the keystore at `signing/production.jks` (gitignored, or
 point `HY2_KEYSTORE_FILE` at it) and export `HY2_KEYSTORE_PASSWORD`,
