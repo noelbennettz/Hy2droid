@@ -69,6 +69,13 @@ jobs:
       - name: Check code style
         run: bash scripts/check-style.sh
 
+      # The two native components are not Maven artefacts, so nothing else checks
+      # their licence texts. This compares native/LICENSES.tsv with the assets the
+      # app shows, with NOTICE, and with the versions in core.properties and
+      # scripts/tun2socks.sh.
+      - name: Check native component licences
+        run: bash scripts/check-native-licences.sh
+
       # Every values-*/strings.xml has to carry the same key set: a translation
       # that lost a key shows English, and a key the default file does not have
       # is usually a rename that only touched one side. Lint's
