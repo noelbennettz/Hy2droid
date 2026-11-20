@@ -503,6 +503,7 @@ binary with `-c <config>`; if a release changes the YAML schema,
 | `scripts/sbom.sh <apk>` | Write the SPDX 2.3 SBOM for a built APK (syft + Licensee's report); deterministic for a commit |
 | `scripts/version.sh` | The single source of `versionName`/`versionCode`; `app/build.gradle` calls it |
 | `scripts/check-version-consistency.sh` | Fail when README/DOCS name a release other than the newest pushed tag, or the core badge drifts from `core/core.properties` |
+| `scripts/check-release-version.sh` | Fail when `version.sh release` accepts a suffixed version, or `release.yml` stops validating before the build |
 | `scripts/prune-runs.sh [keep]` | Delete all but the newest runs of the workflow that is running it (default `keep=3`) |
 
 `scripts/tun2socks.sh` takes one of five subcommands:
@@ -526,11 +527,16 @@ directory.
 
 | Workflow | Trigger | Output |
 | --- | --- | --- |
-| `.github/workflows/build.yml` | push to `main`, pull request, or manual | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `scripts/check-locales.sh`, `scripts/check-version-consistency.sh`, `scripts/check-docs.sh`, `testDebugUnitTest`, `lintDebug`; a second job builds the release variant + AAB unsigned |
+| `.github/workflows/build.yml` | push to `main`, pull request, or manual | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `scripts/check-locales.sh`, `scripts/check-version-consistency.sh`, `scripts/check-release-version.sh`, `scripts/check-docs.sh`, `testDebugUnitTest`, `lintDebug`; a second job builds the release variant + AAB unsigned |
 | `.github/workflows/connected.yml` | pull request (API 30), push to `main` / manual (API 30 and 36) | instrumentation-test report; gate: `connectedDebugAndroidTest` on an emulator |
 | `.github/workflows/release.yml` | pushing a `v*` tag, or manual with a version | signed release APKs, a signed AAB for Play, `SHA256SUMS.txt`, `BUILD-INFO.txt`, a build attestation, and a GitHub Release |
 | `.github/workflows/native.yml` | manual | rebuilt `libtun2socks.so` for all four ABIs, as an artifact |
 | `.github/workflows/dco.yml` | pull request | `scripts/check-dco.sh` over the pull request's commits; plain git, no GitHub App |
+
+Every `uses:` in these workflows is pinned to a full commit SHA with the original
+tag in a trailing comment, so a moved tag cannot change what a build runs.
+`.github/dependabot.yml` proposes the weekly bump of those pins and of the Gradle
+dependencies in `gradle/libs.versions.toml`.
 
 Both app workflows install and verify the bundled core before building and run
 `testDebugUnitTest`; `build.yml` also runs `scripts/check-style.sh` and `lintDebug`.
@@ -703,6 +709,7 @@ hand-maintained constant.
 | untagged commit, 11 commits after `v0.9.0` | `0.9.0-dev.11+g1f5e2fa` | `9000` |
 | no tags (exported tarball, or a shallow CI clone) | `0.0.0-dev` | `1` |
 | `workflow_dispatch` with `version_name: 2.1.0` | `2.1.0` | `2001000` |
+| `v1.2.3-rc1` tag, or any suffixed release input | rejected by `release.yml` | — |
 
 The code is `major*1_000_000 + minor*1_000 + patch`, a pure function of the name,
 so rebuilding the same commit or re-running the release workflow yields the same
@@ -713,6 +720,14 @@ is 2 100 000 000, which caps the major at 2100 and the minor/patch at 999 —
 `scripts/version.sh` fails loudly outside that. A checkout with no tags at all
 derives `0`, which Android rejects as a `versionCode`, so it is clamped to `1`;
 those builds are never published.
+
+A published version must be **exactly `<major>.<minor>.<patch>` with no suffix**.
+`v1.0.0-rc1` and `v1.0.0` both derive `1000000`, so allowing a pre-release tag
+would mean the final release is refused by Play as a duplicate. `release.yml`
+runs `scripts/version.sh release` on the tag (or the `version_name` input) before
+it builds anything and fails the run otherwise. `-dev` names such as
+`0.9.0-dev.11+g1f5e2fa` stay valid for local and CI builds, which are never
+published; `scripts/check-release-version.sh` asserts both halves of that rule.
 
 A release is then four steps:
 

@@ -6,6 +6,7 @@
 #   scripts/version.sh code [name]     versionCode for that name (default: `name`)
 #   scripts/version.sh newest-tag      newest v* tag, default: from origin
 #   scripts/version.sh print           name and code, one `key=value` per line
+#   scripts/version.sh release <name>  validate a stable release name
 #
 # `app/build.gradle` calls this from `defaultConfig`, so a local build and a CI
 # release derive the version from the same inputs. `-PversionName` /
@@ -25,6 +26,13 @@
 #                Android rejects as a versionCode, so it is clamped to 1. Those
 #                builds are for CI and local use only; nothing is published from
 #                them.
+#   release      a published version has to be exactly `<major>.<minor>.<patch>`.
+#                `-dev`, `-rc1`, `+g<sha>` and similar suffixes are fine for local
+#                and CI builds (nothing is published from them), but two suffixed
+#                names can collide with an already-published code: `1.0.0-rc1` and
+#                `1.0.0` both derive 1_000_000, and Play refuses the second upload
+#                as a duplicate. The release workflow therefore runs
+#                `version.sh release`, which fails loudly on any suffix.
 #
 # Nothing here reads the clock or the workflow run number.
 set -euo pipefail
@@ -99,16 +107,28 @@ version_code() {
   printf '%s\n' "$code"
 }
 
+release_name() {
+  local name="${1:-}"
+  if ! [[ "$name" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    die "'${name:-<empty>}' is not a stable release version — expected" \
+        "<major>.<minor>.<patch> with no suffix (a -rc/-dev/+build name shares" \
+        "its versionCode with the final release, so Play refuses the upload)"
+  fi
+  version_code "$name" > /dev/null
+  printf '%s\n' "$name"
+}
+
 case "${1:-}" in
   name)       version_name ;;
   code)       version_code "${2:-}" ;;
   newest-tag) newest_tag "${2:-origin}" ;;
+  release)    release_name "${2:-}" ;;
   print)
     name="$(version_name)"
     printf 'name=%s\ncode=%s\n' "$name" "$(version_code "$name")"
     ;;
   *)
-    sed -n '3,8p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+    sed -n '3,9p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
     exit 2
     ;;
 esac
