@@ -265,23 +265,22 @@ private fun AppRoot(
                 },
                 onCancel = { scannerOpen = false },
             )
-            // While a restored id is still unresolved, render nothing: opening the
-            // editor with `initial == null` would snapshot a fresh id and turn an
-            // edit into a duplicate.
-            editorOpen -> if (editing != null || editingId == null) {
-                EditProfileScreen(
-                    initial = editing,
-                    onSave = { profile ->
-                        vm.save(profile)
-                        editorOpen = false
-                        editingId = null
-                    },
-                    onBack = {
-                        editorOpen = false
-                        editingId = null
-                    },
-                )
-            }
+            // While a restored id is still unresolved, fall through to the list:
+            // opening the editor with `initial == null` would snapshot a fresh id
+            // and turn an edit into a duplicate, and rendering nothing leaves a
+            // blank screen until the store emits.
+            editorOpen && (editing != null || editingId == null) -> EditProfileScreen(
+                initial = editing,
+                onSave = { profile ->
+                    vm.save(profile)
+                    editorOpen = false
+                    editingId = null
+                },
+                onBack = {
+                    editorOpen = false
+                    editingId = null
+                },
+            )
             splitTunnelOpen -> SplitTunnelScreen(
                 viewModel = vm,
                 onBack = { splitTunnelOpen = false },

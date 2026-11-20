@@ -479,13 +479,22 @@ class Hysteria2VpnService : VpnService() {
             .setMtu(mtu)
             .addAddress(Tun.IPV4, Tun.PREFIX4)
             .addAddress(Tun.IPV6, Tun.PREFIX6)
+        var dnsAdded = 0
         for (dns in dnsServers) {
             if (dns.isBlank()) continue
             try {
                 builder.addDnsServer(dns)
+                dnsAdded++
             } catch (_: Exception) {
                 // Not a numeric address; skip.
             }
+        }
+        if (dnsAdded == 0) {
+            // A restored/hand-edited preference can slip a non-address through.
+            // A VPN with no resolver at all would let Android resolve through the
+            // underlying network (a DNS leak), so fall back to the safe default.
+            Log.w(TAG, "No usable DNS server in $dnsServers; using the default resolver")
+            builder.addDnsServer(SettingsStore.DEFAULT_DNS_PRIMARY)
         }
         builder.addRoute("0.0.0.0", 0)
         builder.addRoute("::", 0)
@@ -906,7 +915,9 @@ class Hysteria2VpnService : VpnService() {
     private fun teardownTunnel() {
         shuttingDown = true
         updateState(TunnelState.Disconnecting)
-        teardown()
+        // A profile switch or a stop is followed by a new core sooner or later;
+        // wait for this one to release the SOCKS/HTTP ports before returning.
+        teardown(waitForCore = true)
         updateState(TunnelState.Idle)
     }
 
@@ -925,7 +936,7 @@ class Hysteria2VpnService : VpnService() {
     }
 
     /** Release every native/OS resource. Idempotent. */
-    private fun teardown() {
+    private fun teardown(waitForCore: Boolean = false) {
         statsJob?.cancel()
         statsJob = null
         monitorJob?.cancel()
@@ -946,16 +957,34 @@ class Hysteria2VpnService : VpnService() {
             // Already closed.
         }
         tunInterface = null
+        val core = coreProcess
+        coreProcess = null
         try {
-            coreProcess?.destroy()
+            core?.destroy()
         } catch (_: Throwable) {
             // Already dead.
         }
-        coreProcess = null
+        if (waitForCore && core != null) {
+            // SIGTERM can leave the listener bound for a moment. A new core that
+            // starts immediately after a profile switch would then fail to bind
+            // 127.0.0.1:1080/1081 and exit, which looks like a broken tunnel.
+            try {
+                if (!core.waitFor(CORE_STOP_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+                    core.destroyForcibly()
+                    core.waitFor(CORE_STOP_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+                }
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+            }
+        }
         logDrainThread?.interrupt()
         logDrainThread = null
         TunnelStatus.resetStats()
         TunnelStatus.setActiveProfile(null)
+        // A hint from the log of the session that just ended would otherwise stay
+        // on the home screen while the state is Idle, pointing at a failure that
+        // no longer describes anything.
+        TunnelStatus.setProblem(null)
         // The config carries the auth secret and the next start rebuilds it from
         // the stored profile, so it does not need to sit in filesDir while the
         // tunnel is down — nor be picked up by a cloud backup. The temp file from

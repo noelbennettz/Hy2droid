@@ -103,10 +103,26 @@ object HysteriaConfigBuilder {
                 '\n' -> sb.append("\\n")
                 '\r' -> sb.append("\\r")
                 '\t' -> sb.append("\\t")
-                else -> sb.append(ch)
+                else -> {
+                    // YAML requires the remaining control characters (and the two
+                    // Unicode line separators) to be escaped; left raw they can end
+                    // the scalar or make the document invalid, and the core then
+                    // refuses to start with a config error.
+                    val code = ch.code
+                    if (code < 0x20 || code in 0x7F..0x9F || code == 0x2028 || code == 0x2029) {
+                        sb.append("\\u")
+                        for (shift in intArrayOf(12, 8, 4, 0)) {
+                            sb.append(HEX[(code shr shift) and 0xF])
+                        }
+                    } else {
+                        sb.append(ch)
+                    }
+                }
             }
         }
         sb.append('"')
         return sb.toString()
     }
+
+    private const val HEX = "0123456789ABCDEF"
 }

@@ -155,15 +155,15 @@ fun SettingsScreen(
         }
     }
 
-    var dns1Text by remember { mutableStateOf("") }
-    var dns2Text by remember { mutableStateOf("") }
-    var dnsInitialized by remember { mutableStateOf(false) }
+    var dns1Text by remember { mutableStateOf(dns1) }
+    var dns2Text by remember { mutableStateOf(dns2) }
+    // The ViewModel's flows start with their defaults and emit the stored values
+    // a moment later. Keep the fields in sync with every actual change: with a
+    // one-shot "initialised" latch, that first emission was ignored and Save
+    // wrote the default (9.9.9.9) over the user's stored resolver.
     LaunchedEffect(dns1, dns2) {
-        if (!dnsInitialized) {
-            dns1Text = dns1
-            dns2Text = dns2
-            dnsInitialized = true
-        }
+        dns1Text = dns1
+        dns2Text = dns2
     }
 
     // Option A: only turn the custom-DNS switch off when leaving with an
@@ -567,8 +567,13 @@ private fun TunnelTestDialog(connected: Boolean, onDismiss: () -> Unit) {
         results = emptyList()
         running = true
         scope.launch {
-            TunnelProbe().run { step -> results = results + step }
-            running = false
+            try {
+                TunnelProbe().run { step -> results = results + step }
+            } finally {
+                // A cancellation or an unexpected exception must not leave the
+                // dialog showing "running" with the button disabled forever.
+                running = false
+            }
         }
     }
 

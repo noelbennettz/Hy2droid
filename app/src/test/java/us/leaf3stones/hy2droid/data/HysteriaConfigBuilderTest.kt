@@ -138,4 +138,14 @@ class HysteriaConfigBuilderTest {
 
         assertEquals("\"a\\\"b\\\\c:d#e\"", quoted)
     }
+
+    @Test
+    fun `escapes the remaining control characters as unicode`() {
+        // A pasted password can contain C0/C1 controls or a Unicode line
+        // separator; left raw they break the YAML scalar.
+        assertEquals(
+            "\"a\\u0001b\\u0085c\\u2028d\"",
+            HysteriaConfigBuilder.quote("a\u0001b\u0085c\u2028d"),
+        )
+    }
 }

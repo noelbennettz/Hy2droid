@@ -222,7 +222,14 @@ class SettingsStore(private val context: Context) {
         if (json.isNullOrBlank()) return emptySet()
         return try {
             val array = JSONArray(json)
-            buildSet { for (i in 0 until array.length()) add(array.getString(i)) }
+            buildSet {
+                for (i in 0 until array.length()) {
+                    // Skip a malformed element instead of dropping every excluded
+                    // package (the rest of the split-tunnel list is still valid).
+                    val packageName = array.opt(i) as? String ?: continue
+                    if (packageName.isNotBlank()) add(packageName)
+                }
+            }
         } catch (_: Exception) {
             emptySet()
         }

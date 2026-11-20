@@ -150,7 +150,20 @@ class ProfileStore(private val context: Context) {
         if (json.isNullOrBlank()) return emptyList()
         return try {
             val array = JSONArray(json)
-            List(array.length()) { i -> decode(array.getJSONObject(i)) }
+            // One malformed entry (an old/partial write, a hand-edited backup)
+            // must not hide every other profile: skip just that object. The outer
+            // catch is for a payload that is not a JSON array at all.
+            buildList {
+                for (i in 0 until array.length()) {
+                    val obj = array.optJSONObject(i) ?: continue
+                    val profile = try {
+                        decode(obj)
+                    } catch (_: Exception) {
+                        null
+                    }
+                    if (profile != null) add(profile)
+                }
+            }
         } catch (_: Exception) {
             emptyList()
         }

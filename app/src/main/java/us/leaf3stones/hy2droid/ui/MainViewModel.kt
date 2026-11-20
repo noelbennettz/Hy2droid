@@ -317,9 +317,16 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         if (profile.id in _latencyTesting.value) return
         _latencyTesting.update { it + profile.id }
         try {
+            val disablePmtud = try {
+                settings.disablePathMtuDiscovery.first()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                false
+            }
             val millis = LatencyProbe(getApplication<Application>()).measure(
                 profile,
-                disablePathMtuDiscovery = settings.disablePathMtuDiscovery.first(),
+                disablePathMtuDiscovery = disablePmtud,
             )
             _latency.update { it + (profile.id to millis) }
             store.setLatency(profile.id, millis)

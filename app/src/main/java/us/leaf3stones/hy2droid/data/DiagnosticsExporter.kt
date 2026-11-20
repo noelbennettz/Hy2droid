@@ -146,7 +146,8 @@ class DiagnosticsExporter(private val context: Context) {
                 val buffer = ByteArray(8 * 1024)
                 var total = 0L
                 while (total < limit) {
-                    val read = input.read(buffer)
+                    val want = minOf(buffer.size.toLong(), limit - total).toInt()
+                    val read = input.read(buffer, 0, want)
                     if (read < 0) break
                     out.write(buffer, 0, read)
                     total += read

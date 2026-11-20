@@ -12,6 +12,7 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.net.URI
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 /**
@@ -40,6 +41,9 @@ class LatencyProbe(private val context: Context) {
         clearStaleConfigs()
         val (socksPort, httpPort) = freePorts() ?: return@withContext null
         val configFile = File(context.cacheDir, "$CONFIG_PREFIX${UUID.randomUUID()}.yaml")
+        // Register before the file exists on disk, so a concurrent probe's cleanup
+        // can never remove a config this one is about to write.
+        activeConfigs += configFile.absolutePath
         try {
             // `lazy` is explicit, not inherited from the builder default: with an
             // eager core a flaky network turns into a reconnect loop while we are
@@ -69,6 +73,7 @@ class LatencyProbe(private val context: Context) {
             Log.w(TAG, "Latency probe failed: ${e.message}")
             null
         } finally {
+            activeConfigs -= configFile.absolutePath
             configFile.delete()
         }
     }
@@ -85,10 +90,13 @@ class LatencyProbe(private val context: Context) {
         null
     }
 
-    /** Remove probe configs left behind by an interrupted run. */
+    /** Remove probe configs left behind by an interrupted run, but never one a
+     *  concurrent probe is still using: testing two rows at once used to delete
+     *  the other probe's config before its core had read it. */
     private fun clearStaleConfigs() {
-        context.cacheDir.listFiles { file -> file.name.startsWith(CONFIG_PREFIX) }
-            ?.forEach { it.delete() }
+        context.cacheDir.listFiles { file ->
+            file.name.startsWith(CONFIG_PREFIX) && file.absolutePath !in activeConfigs
+        }?.forEach { it.delete() }
     }
 
     /** SIGTERM, then SIGKILL if the core has not exited in time. */
@@ -180,6 +188,9 @@ class LatencyProbe(private val context: Context) {
 
         /** Prefix of the throwaway configs written to the cache dir. */
         private const val CONFIG_PREFIX = "latency-"
+
+        /** Config paths a probe in this process is still using. */
+        private val activeConfigs: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
         /**
          * `generate_204` endpoints, tried in order. Both are served by the node's
