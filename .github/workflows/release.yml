@@ -14,10 +14,6 @@ on:
       version_name:
         description: 'Release version, e.g. 2.1.0 (published tag becomes v2.1.0)'
         required: true
-      core_tag:
-        description: 'Hysteria core tag (e.g. app/v2.13.0) or "latest"'
-        required: false
-        default: 'latest'
 
 permissions:
   contents: write
@@ -55,19 +51,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          tag="${{ github.event.inputs.core_tag || '' }}"
-          if [ "$tag" = "latest" ]; then
-            tag="$(bash scripts/core.sh latest)"
-            echo "Resolved latest upstream core: $tag"
-          fi
-          if [ -z "$tag" ]; then
-            # Tag push: ship the core pinned in core/core.properties, so rebuilding
-            # the same tag later yields the same binaries.
-            echo "Using the core pinned in core/core.properties"
-            bash scripts/core.sh fetch
-          else
-            bash scripts/core.sh upgrade "$tag"
-          fi
+          # The core is pinned in core/core.properties and nothing here can move
+          # it: a release rebuild must produce the same binaries as the tag did.
+          bash scripts/core.sh fetch --pinned
           bash scripts/core.sh version | tee core-version.txt
 
       - name: Verify bundled core

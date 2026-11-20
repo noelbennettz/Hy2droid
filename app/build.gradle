@@ -130,8 +130,9 @@ android {
     }
 
     // CI runs `lintDebug`: lint errors fail the build, warnings stay warnings.
-    // Translation coverage is checked by the i18n script instead (it compares the
-    // key sets across all locales, which lint cannot do).
+    // Translation coverage is `scripts/check-locales.sh` instead: it compares the
+    // complete key set of every values-*/strings.xml, which lint does not do
+    // (lint only notices a *missing* translation of a string it sees in code).
     lint {
         abortOnError = true
         warningsAsErrors = false
@@ -140,13 +141,17 @@ android {
 }
 
 // The Hysteria core binaries are downloaded at build time instead of being
-// committed (see scripts/core.sh + core/core.properties). This task is a no-op
-// when the pinned binaries are already present and match their checksums.
+// committed (see scripts/core.sh + core/core.properties). `--pinned` keeps the
+// task to the version and checksums in core.properties — an exported
+// HY2_CORE_TAG cannot change which core a debug build bundles — and the verify
+// that follows fails the build if the binaries on disk are not the pinned ones.
+// This is a no-op when they are already present and match.
 tasks.register('fetchCore', Exec) {
     group = 'build setup'
     description = 'Download the pinned Hysteria core into app/src/main/jniLibs'
     workingDir rootProject.projectDir
-    commandLine 'bash', rootProject.file('scripts/core.sh').absolutePath, 'fetch'
+    commandLine 'bash', '-c',
+            'bash scripts/core.sh fetch --pinned && bash scripts/core.sh verify'
 }
 
 tasks.named('preBuild').configure { dependsOn 'fetchCore' }

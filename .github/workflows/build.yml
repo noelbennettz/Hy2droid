@@ -6,12 +6,9 @@ on:
   # Pull requests run the same gates as main, so a red check is visible before
   # the merge instead of after it.
   pull_request:
+  # No inputs: the core comes from core/core.properties, never from the newest
+  # upstream release, so a manual run builds exactly what a pull request builds.
   workflow_dispatch:
-    inputs:
-      core_tag:
-        description: 'Hysteria core tag (e.g. app/v2.13.0) or "latest"'
-        required: false
-        default: 'latest'
 
 # actions: write is for the run cleanup step at the end of the job.
 permissions:
@@ -43,6 +40,13 @@ jobs:
       - name: Check native component licences
         run: bash scripts/check-native-licences.sh
 
+      # Every values-*/strings.xml has to carry the same key set: a translation
+      # that lost a key shows English, and a key the default file does not have
+      # is usually a rename that only touched one side. Lint's
+      # MissingTranslation is disabled, so this is the coverage gate.
+      - name: Check locale parity
+        run: bash scripts/check-locales.sh
+
       # README/DOCS say which release they describe, and the core badge says
       # which core is pinned. This keeps a release note, a tag and the docs from
       # drifting apart; it needs no Gradle, so it fails fast.
@@ -55,17 +59,16 @@ jobs:
       - name: Check dependency licences
         run: ./gradlew licenseeRelease --no-daemon --console=plain
 
+      # The core is pinned by core/core.properties (version + per-ABI SHA-256).
+      # `fetch --pinned` ignores HY2_CORE_TAG on purpose: a build must not pick up
+      # a different core because the environment says so. Moving the pin is a
+      # reviewable change to that file, made by `scripts/core.sh upgrade <tag>`.
       - name: Install Hysteria core
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          tag="${{ github.event.inputs.core_tag || 'latest' }}"
-          if [ "$tag" = "latest" ]; then
-            tag="$(bash scripts/core.sh latest)"
-            echo "Resolved latest upstream core: $tag"
-          fi
-          bash scripts/core.sh upgrade "$tag"
+          bash scripts/core.sh fetch --pinned
           {
             echo "### Hysteria core"
             echo '```'
