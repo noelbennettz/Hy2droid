@@ -36,7 +36,10 @@ you supply.
 - No NDK: `libtun2socks.so` is a committed prebuilt pinned by
   `native/tun2socks/SHA256SUMS`, and the Hysteria core is a downloaded binary.
 - Internet access on the build machine: the core is fetched from the upstream
-  release and checksum-verified during the build.
+  release and checksum-verified during the build. It is pinned to
+  `core/core.properties`; an offline build reuses `libhysteria.so` files that match
+  those hashes (see
+  [Building offline, or through a mirror](DOCS.md#building-offline-or-through-a-mirror)).
 - A Hysteria 2 server URI (`hysteria2://…`), or its QR code, to connect to.
 
 ## Install

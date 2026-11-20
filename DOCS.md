@@ -278,6 +278,13 @@ placeholders intact, escape apostrophes as
 `\'`). `app_name` is not translated (`translatable="false"`). The layouts only use
 direction-aware padding/alignment, so RTL (Arabic) mirrors correctly.
 
+`scripts/check-locales.sh` compares the **complete key set** — strings, plurals
+and string arrays — of every `values-*/strings.xml` with the default file and
+fails on a missing key, an extra key (usually a rename that only touched one
+side), a duplicate, or an element type that differs. `build.yml` runs it on every
+pull request, next to `check-style.sh`. Lint's `MissingTranslation` stays disabled:
+it only reports a string it sees used in code, while this compares the files.
+
 ## How it works
 
 ```
@@ -410,33 +417,61 @@ reported truthfully.
 
 | Command | Description |
 | --- | --- |
-| `scripts/core.sh fetch` | Install the pinned core (no-op when already present); Gradle runs this via the `fetchCore` task on `preBuild` |
+| `scripts/core.sh fetch` | Install the pinned core (no-op when already present); Gradle runs `fetch --pinned` via the `fetchCore` task on `preBuild`, then `verify` |
+| `scripts/core.sh fetch --pinned` | Same, but ignore `HY2_CORE_TAG`: only the version in `core/core.properties` is accepted (what CI, the release workflow and Gradle use) |
 | `scripts/core.sh latest` | Resolve the newest upstream release tag |
-| `scripts/core.sh upgrade [tag\|latest]` | Install a specific (default: newest) core |
+| `scripts/core.sh upgrade [tag\|latest]` | Install a specific (default: newest) core and rewrite `core/core.properties` |
 | `scripts/core.sh version` | Pinned version + whether the binaries match |
 | `scripts/core.sh verify` | Verify the binaries against the manifest, including 16 KB LOAD alignment on the 64-bit ABIs (run in CI) |
 | `scripts/core.sh hashes` | Print the per-ABI checksums |
 
-The debug workflow (`build.yml`) installs the newest upstream release on every run
-(`core_tag` defaults to `latest`) and prints the resolved version in the run
-summary; the release workflow ships the pinned core on a tag push. Pin a build with
-the `core_tag` workflow input (e.g.
-`app/v2.12.3`) or locally:
+Every workflow installs the core the same way, `scripts/core.sh fetch --pinned`,
+and then runs `scripts/core.sh verify`. Nothing in `build.yml` or `release.yml`
+can move the pin: there is no `latest` option and no `core_tag` input any more,
+because a build that fetched the newest upstream release would not be
+reproducible and could bundle a core nobody reviewed. The debug APK and the
+released APK therefore contain the same core as the commit they were built from.
+
+Moving the pin is a normal change to `core/core.properties` (version plus the
+four SHA-256 values), produced by:
 
 ```bash
-HY2_CORE_TAG=app/v2.12.3 ./gradlew assembleDebug   # fetch that tag now
-scripts/core.sh upgrade app/v2.12.3                # same, then print the version
+scripts/core.sh upgrade app/v2.15.0     # downloads, verifies against upstream
+                                        # hashes.txt, rewrites core.properties
+git diff core/core.properties           # review the version + hashes
 ```
 
-Both end in the script's `install_tag`, which rewrites `core/core.properties` with
-the new tag and checksums — restore that file if the pin should not move.
+For a one-off local experiment without touching the pin, `HY2_CORE_TAG` still
+works with a plain `fetch`/`assembleDebug`, but `fetch --pinned` (Gradle's
+`fetchCore`), `verify` and CI ignore it, so an experiment cannot leak into a
+build. `core/core.properties` is what the app ships.
 
-Where GitHub's release CDN is slow, point the asset download at a mirror (the
-checksums still come from upstream's `hashes.txt`):
+### Building offline, or through a mirror
 
-```bash
-HY2_GITHUB_MIRROR=https://gh-proxy.com/ scripts/core.sh upgrade app/v2.14.0
-```
+The core binaries are not committed, so a machine that has never built the
+project needs the four `libhysteria.so` files once. After that, `fetch` is a
+no-op as long as they match `core/core.properties`:
+
+- **Second build, no network**: nothing is downloaded. `fetch --pinned` sees the
+  binaries, matches the checksums, and returns; Gradle dependencies come from the
+  Gradle cache (`--offline` works once they are cached).
+- **Fresh checkout, no network**: copy
+  `app/src/main/jniLibs/<abi>/libhysteria.so` from another build (or from a
+  released APK's `lib/<abi>/`), put them in place, and run
+  `scripts/core.sh verify`. If the four hashes match `core/core.properties`,
+  Gradle accepts them without touching the network; if they do not, the build
+  fails instead of shipping a different core.
+- **Restricted network**: `HY2_GITHUB_MIRROR=<prefix>` repoints the asset URLs
+  (the checksums still come from upstream's `hashes.txt`), and `GITHUB_TOKEN`
+  lifts the API rate limit when resolving `latest`. Neither is used by CI, which
+  downloads directly from upstream with the pinned tag:
+
+  ```bash
+  HY2_GITHUB_MIRROR=https://gh-proxy.com/ scripts/core.sh upgrade app/v2.14.0
+  ```
+- Nothing else in the build downloads binaries: `libtun2socks.so` is committed
+  (with its own `native/tun2socks/SHA256SUMS`), and the rest is Maven
+  dependencies.
 
 ABI mapping: `arm64-v8a` → `arm64`, `armeabi-v7a` → `armv7`, `x86_64` → `amd64`,
 `x86` → `386`. A core bump needs no app changes because the service only execs the
@@ -450,6 +485,7 @@ binary with `-c <config>`; if a release changes the YAML schema,
 | `scripts/core.sh` | Fetch / verify / upgrade the bundled Hysteria core (see [Bundled core](#bundled-core)) |
 | `scripts/tun2socks.sh` | Rebuild, verify or inspect `libtun2socks.so` (see below) |
 | `scripts/check-style.sh` | Enforce the `.editorconfig` rules; `--fix` rewrites the mechanical ones |
+| `scripts/check-locales.sh` | Fail when the `values-*/strings.xml` key sets differ from `values/strings.xml` (missing, extra, duplicate, or a changed element type) |
 | `scripts/version.sh` | The single source of `versionName`/`versionCode`; `app/build.gradle` calls it |
 | `scripts/check-version-consistency.sh` | Fail when README/DOCS name a release other than the newest pushed tag, or the core badge drifts from `core/core.properties` |
 | `scripts/prune-runs.sh [keep]` | Delete all but the newest runs of the workflow that is running it (default `keep=3`) |
@@ -475,17 +511,17 @@ directory.
 
 | Workflow | Trigger | Output |
 | --- | --- | --- |
-| `.github/workflows/build.yml` | push to `main`, pull request, or manual (`core_tag`) | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `scripts/check-version-consistency.sh`, `testDebugUnitTest`, `lintDebug` |
+| `.github/workflows/build.yml` | push to `main`, pull request, or manual | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `scripts/check-version-consistency.sh`, `testDebugUnitTest`, `lintDebug` |
 | `.github/workflows/connected.yml` | pull request (API 30), push to `main` / manual (API 30 and 37) | instrumentation-test report; gate: `connectedDebugAndroidTest` on an emulator |
 | `.github/workflows/release.yml` | pushing a `v*` tag, or manual with a version | signed release APKs, a signed AAB for Play, `SHA256SUMS.txt`, `BUILD-INFO.txt`, a build attestation, and a GitHub Release |
 | `.github/workflows/native.yml` | manual | rebuilt `libtun2socks.so` for all four ABIs, as an artifact |
 
 Both app workflows install and verify the bundled core before building and run
-`testDebugUnitTest`; `build.yml` also runs `scripts/check-style.sh` and `lintDebug`,
-while a tag build in `release.yml` ships the core **pinned in
-`core/core.properties`** so rebuilding a tag yields the same binaries (only a
-manual run with an explicit `core_tag` moves it). The debug workflow follows the
-newest upstream core, which is the point of it. Signing uses a keystore from
+`testDebugUnitTest`; `build.yml` also runs `scripts/check-style.sh` and `lintDebug`.
+Both use `scripts/core.sh fetch --pinned` followed by `scripts/core.sh verify`, so
+the core is always the one pinned in `core/core.properties`: a debug APK and a
+released APK built from the same commit contain the same core, and no workflow
+input can substitute another. Signing uses a keystore from
 repository secrets, verified with `apksigner`; the release publishes
 `app-universal-release.apk` plus the four ABI splits to the GitHub Release, and
 keeps the signed `app-release.aab` as a workflow artifact for the Play Console.
@@ -629,8 +665,8 @@ store listing to push through and a background downloader would be one more thin
 holding the `INTERNET` permission. Watch the repository or the Releases page.
 
 The bundled core can move independently of the app: a release built from a tag
-ships the version pinned in `core/core.properties`, a manual run with `core_tag`
-takes another one — see [Bundled core](#bundled-core). A core bump needs no app
+ships the version pinned in `core/core.properties`, and that pin is the only way
+to change it — see [Bundled core](#bundled-core). A core bump needs no app
 change unless upstream changes the YAML schema.
 
 Restoring on a new phone is Android Auto Backup's job (see
@@ -703,8 +739,10 @@ Nothing else on the device is written to.
 - The service logs to the `Hysteria2VpnService` tag, including the bundled core
   version at every connect:
   `adb logcat -s Hysteria2VpnService | grep 'Hysteria core'`.
-- If a newly released core breaks connectivity, pin the previous one via the
-  `core_tag` input or `HY2_CORE_TAG` and open an issue.
+- If a newly released core breaks connectivity, pin the previous one by moving
+  `core/core.properties` back (`scripts/core.sh upgrade <previous tag>`) and open
+  an issue. `HY2_CORE_TAG` is a local-only experiment: Gradle's `fetchCore` and CI
+  use `fetch --pinned` and ignore it.
 - Report bugs at
   [noelbennettz/Hy2droid/issues](https://github.com/noelbennettz/Hy2droid/issues)
   with the *Export logs* zip attached — the config inside is redacted. Never paste
