@@ -8,7 +8,7 @@ lifecycleRuntimeKtx = "2.11.0"
 activityCompose = "1.13.0"
 composeBom = "2026.09.00"
 camera = "1.6.2"
-zxing = "3.5.3"
+zxing = "3.5.4"
 # Instrumentation. The Compose test artifacts come from the BOM above.
 androidxTestExtJunit = "1.3.0"
 androidxTestRunner = "1.7.0"
