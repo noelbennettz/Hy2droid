@@ -46,9 +46,8 @@ If a change touches a screen or anything that needs an Android runtime, run
 `./gradlew connectedDebugAndroidTest` with a device or emulator attached (API 30+)
 — CI runs it on every pull request, but a failure there costs a round trip.
 Bumping the app version is not a Gradle change: `scripts/version.sh` derives it
-from the git tag (see DOCS > Release procedure), and
-`scripts/check-version-consistency.sh` fails a pull request whose documentation
-still names an older release.
+from the git tag (see DOCS > Release procedure). `scripts/check-version-consistency.sh`
+fails a pull request whose documentation still names an older release.
 
 Keep a change small and explained: what it changes, why, and what you tested. If
 it changes behaviour a user can see, update `DOCS.md` and both language versions
@@ -83,8 +82,8 @@ git config user.email "you@example.com"
 
 The sign-off has to use the same address as the commit author, and a commit
 whose author is a bot (`<name>[bot]`) is skipped by the check. To fix a missing
-sign-off, amend or rebase (`git commit --amend -s`, `git rebase --signoff
-origin/main`) and force-push your own branch. The check runs on the pull request,
+sign-off, amend or rebase (`git commit --amend -s`, `git rebase --signoff origin/main`)
+and force-push your own branch. The check runs on the pull request,
 so a failing run lists the commit that is missing it.
 
 ## What this project will not accept

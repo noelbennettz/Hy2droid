@@ -60,8 +60,8 @@ someone is available, and fixes ship when they are ready.
 - **Bugs in the upstream Hysteria core.** `libhysteria.so` is an unmodified build
   of [apernet/hysteria](https://github.com/apernet/hysteria); protocol-level
   findings belong there, through its own security process
-  (<https://github.com/apernet/hysteria/security>). Tell upstream, not this
-  repository; a fix here is only a version bump, which happens by itself.
+  (<https://github.com/apernet/hysteria/security>). Report it upstream; this
+  project only picks up the fixed version.
 - **Bugs in hev-socks5-tunnel**, the upstream of `libtun2socks.so` (patched
   copies of the patches live in `native/tun2socks/`): report to
   <https://github.com/heiher/hev-socks5-tunnel>. A bug in one of *our* patches is

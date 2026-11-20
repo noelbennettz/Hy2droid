@@ -1,13 +1,14 @@
 # Hy2droid documentation
 
-> Applies to release `v0.9.0` and the `main` that followed it. An older release
-> keeps its documentation on the project site under `versions/<tag>/`.
+> Applies to `main`. No release is published at the moment; when one is, this line
+> names its tag. Older versions keep their documentation on the project site under
+> `versions/<tag>/`.
 
-Everything beyond the quick start: features in detail, every setting and profile
-field, the blocked-port rules, split tunnelling, how the tunnel is put together,
-the repository layout, the build and core scripts, the CI jobs, the security
-model, diagnostics and the FAQ. [README.md](README.md) is the short version and
-<https://noelbennettz.github.io/Hy2droid/> is the landing page, hosted in the
+The README is the short version. This file has the details: every feature and
+setting, the profile fields, blocked-port rules, split tunnelling, how the tunnel
+is built, the repository layout, build and core scripts, CI jobs, the security
+model, diagnostics and the FAQ. The landing page,
+<https://noelbennettz.github.io/Hy2droid/>, lives in the
 [`noelbennettz.github.io`](https://github.com/noelbennettz/noelbennettz.github.io)
 repository.
 
@@ -48,54 +49,54 @@ repository.
 - Brutal congestion control as an explicit switch with an upload/download hint.
   It is off by default because Brutal paces at a fixed rate and does not back off
   on loss; BBR adapts by itself.
-- `fastOpen` is **on** by default: the client accepts each new connection without
-  waiting for the server to confirm the destination, which removes one round trip
-  per connection. That is invisible in a bulk download but is what makes browsing
-  many small connections feel fast (measured on a ~150 ms node: 580 → 230 ms to
-  open a connection, 1.27 → 0.76 s to first byte). The trade-off, per upstream, is
-  that a dead destination is closed instead of reporting an error; the
-  per-profile switch turns it off. `lazy` is always on (it only defers the
-  *first* connection — upstream: "the client will not connect until the first
-  call to TCP() or UDP()"; after that the session is held open), with a 20 s QUIC
-  heartbeat.
-- **16 KB page size**: `libtun2socks.so` is 16 KB `LOAD`-aligned on all four ABIs,
-  including `armeabi-v7a` and `x86` (32-bit devices run 4 KB kernels, so the flag
-  is harmless there and keeps one build rule instead of two); the bundled Hysteria
-  core is 16 KB aligned on the 64-bit ABIs only, and stays at 4 KB on the 32-bit
-  ones, which is what those devices expect.
-  `scripts/core.sh verify` fails if the core regresses on `arm64-v8a` or `x86_64`,
-  `scripts/tun2socks.sh verify` if `libtun2socks.so` regresses on any of the four,
-  and Android 15+ on a 16 KB-page device loads the 64-bit libraries without a
-  compatibility warning.
-- **Failures are named**, not just reported: the status card translates the core's
-  own log line into one sentence (name does not resolve, TLS failed, password
-  rejected, nothing came back, something else answered, obfuscation mismatch)
+- `fastOpen` is **on** by default. The client accepts each new connection without
+  waiting for the server to confirm the destination, which saves one round trip.
+  That is invisible in a bulk download, but it is what makes browsing many small
+  connections feel fast: on a ~150 ms node, opening a connection went from 580 to
+  230 ms, and time to first byte from 1.27 to 0.76 s. The trade-off, per upstream,
+  is that a dead destination is closed instead of returning an error; the
+  per-profile switch turns it off.
+- `lazy` is always on. It defers only the *first* connection until the app asks for
+  one (upstream: "the client will not connect until the first call to TCP() or
+  UDP()"); after that the session stays open, with a 20 s QUIC heartbeat.
+- **16 KB page size.** `libtun2socks.so` is 16 KB `LOAD`-aligned on all four ABIs,
+  including `armeabi-v7a` and `x86`. 32-bit devices run 4 KB kernels, so the flag
+  costs nothing there and keeps one build rule instead of two. The bundled Hysteria
+  core is 16 KB-aligned on the 64-bit ABIs only and stays at 4 KB on the 32-bit
+  ones, which is what those devices expect. `scripts/core.sh verify` fails if the
+  core regresses on `arm64-v8a` or `x86_64`; `scripts/tun2socks.sh verify` fails if
+  `libtun2socks.so` regresses on any ABI. Android 15+ on a 16 KB-page device
+  therefore loads the 64-bit libraries without a compatibility warning.
+- **Failures are named**, not just reported: the status card turns the core's own
+  log line into a short explanation (name does not resolve, TLS failed, password
+  rejected, nothing came back, something else answered, obfuscation mismatch),
   while the raw line stays in logcat and the diagnostics export.
 - **Answer ping locally** (Settings → Network → Advanced, off by default): Hysteria carries
   TCP and UDP only, so ICMP cannot cross it; this makes the engine answer echo
   itself. It is off by default because a fake reply makes ping meaningless.
-- DNS, three modes (`DnsMode` in
-  `app/src/main/java/us/leaf3stones/hy2droid/proxy/DnsMode.kt`), decided by two
-  controls in Settings → Network → Advanced. **Answer DNS in the tunnel** is on by default
-  and is answered by the tunnel engine (hev's `mapdns`): the VPN pushes one
-  resolver (`192.0.2.53`), the engine intercepts queries sent to it, answers A
-  queries instantly with an address from `198.18.0.0/15`, and forwards the *name*
-  over SOCKS5 so the server resolves it. That removes a round trip per name, the
-  largest DNS cost on a high-latency tunnel. The trade-offs are real: a mapped
-  address only means something while the app is connected, so a client that
-  resolves early and connects much later can fail, and IPv6-only destinations do
-  not resolve in this mode. With the switch off, the tun gets real resolvers —
-  Quad9 (`9.9.9.9` / `2620:fe::fe`) with Cloudflare (`1.1.1.1` /
-  `2606:4700:4700::1111`) as the backup — because Android
-  has no "no DNS means use the tunnel" mode: with an empty DNS list it resolves
-  through the underlying network, so the queries leave over Wi-Fi and never reach
-  the server. **Custom DNS server** (off by default) overrides the switch: the
-  primary and the optional secondary replace that list, and a list that ends up
-  empty falls back to Quad9/Cloudflare. With the system Private DNS setting on,
-  names leave the tunnel past the in-tunnel cache and the switch has no effect;
-  Settings shows a hint under the switch in that case. A local resolver on port
-  53 is not an option: Android reserves privileged ports and `bind()` fails with
-  `EACCES`.
+- DNS has three modes (`DnsMode` in
+  `app/src/main/java/us/leaf3stones/hy2droid/proxy/DnsMode.kt`), chosen by two
+  controls in Settings → Network → Advanced.
+  - **Answer DNS in the tunnel** (on by default): the VPN pushes one resolver
+    (`192.0.2.53`). The engine intercepts queries sent to it, answers A queries
+    instantly with an address from `198.18.0.0/15`, and forwards the *name* over
+    SOCKS5 so the server resolves it. This removes a round trip per name, the
+    largest DNS cost on a high-latency tunnel. The trade-offs are real: a mapped
+    address only means something while the app is connected, so a client that
+    resolves early and connects much later can fail, and IPv6-only destinations
+    do not resolve in this mode.
+  - **Forwarded DNS** (switch off): the tun gets real resolvers — Quad9
+    (`9.9.9.9` / `2620:fe::fe`) with Cloudflare (`1.1.1.1` /
+    `2606:4700:4700::1111`) as the backup. Android has no "no DNS means use the
+    tunnel" mode: with an empty list it resolves through the underlying network,
+    so the queries leave over Wi-Fi and never reach the server.
+  - **Custom DNS server** (off by default) overrides the switch: the primary and
+    optional secondary replace that list, and a list that ends up empty falls back
+    to Quad9/Cloudflare.
+  - With the system Private DNS setting on, names leave the tunnel past the
+    in-tunnel cache and the switch has no effect; Settings shows a hint under the
+    switch in that case. A local resolver on port 53 is not an option because
+    Android reserves privileged ports and `bind()` fails with `EACCES`.
 - **Network handover**: switching Wi-Fi ↔ mobile restarts the Hysteria core, so
   the session is back within a second instead of waiting out the 30 s QUIC idle
   timeout. The TUN and the tunnel engine stay up; flows in flight during the
@@ -184,8 +185,9 @@ without opening it.
 Everything here is stored in the app's private DataStore and survives a restart; the
 app sends none of it anywhere. Android Auto Backup can include the DataStore in a
 device backup (see [Security notes](#security-notes)). The order above is the order
-on screen; release `v0.9.0` had the advanced items inline in *Network*, see
-[`versions/v0.9.0/settings.md`](https://noelbennettz.github.io/Hy2droid/versions/v0.9.0/settings.md).
+on screen. Older 0.9.0 builds had the advanced items inline in *Network*, as the
+[`versions/v0.9.0/settings.md`](https://noelbennettz.github.io/Hy2droid/versions/v0.9.0/settings.md)
+page shows.
 
 ## Profile fields
 
@@ -307,26 +309,26 @@ UI (Compose / Material 3)
                         └─ libtun2socks.so (JNI): TUN fd → SOCKS5
 ```
 
-The core runs as a child process exposing a local SOCKS5 listener;
+The core runs as a child process with a local SOCKS5 listener.
 `libtun2socks.so` (hev-socks5-tunnel plus the patches in `native/tun2socks/`)
-bridges the TUN device to it. The service monitors the child process and tears the
-tunnel down if it exits.
+bridges the TUN device to that listener. The service watches the child process and
+tears the tunnel down if it exits.
 
 The app's own UID is excluded from the tunnel
-(`VpnService.Builder.addDisallowedApplication(packageName)`), so the core child
-process — same UID — reaches the server over the underlying network and resolves
+(`VpnService.Builder.addDisallowedApplication(packageName)`). The core runs with
+the same UID, so it reaches the server over the underlying network and resolves
 the profile's hostname with the system resolver. If that resolver is broken the
-connect fails; there is deliberately no fallback (no hardcoded resolver, no DoH
-retry) on that path. DNS *inside* the tunnel is separate: the tun always gets a
-resolver (see [Features in detail](#features-in-detail)), and in the default mode
-that resolver is the TUN's own `mapdns` address, answered by the engine, which
-forwards the name over SOCKS5.
+connect fails: there is deliberately no fallback (no hardcoded resolver, no DoH
+retry) on that path. DNS *inside* the tunnel is separate; the tun always gets a
+resolver (see [Features in detail](#features-in-detail)). In the default mode that
+resolver is the TUN's own `mapdns` address, answered by the engine, which forwards
+the name over SOCKS5.
 
 A network handover cannot be fixed by re-pinning the TUN: Hysteria 2 has no rebind
-API, so the service watches the set of validated non-VPN transports and restarts
-the core when it changes (Wi-Fi ↔ mobile, airplane mode). The restart is
-serialised with connect/disconnect, the old process is killed before the new one
-binds the SOCKS port, and a core that dies afterwards is still reported as an
+API. The service therefore watches the set of validated non-VPN transports and
+restarts the core when it changes (Wi-Fi ↔ mobile, airplane mode). The restart is
+serialised with connect/disconnect, and the old process is killed before the new
+one binds the SOCKS port. A core that dies afterwards is still reported as an
 error.
 
 `libtun2socks.so` binds its JNI symbols to the **exact** class
@@ -336,17 +338,16 @@ nor those signatures may change without rebuilding the `.so`, and ProGuard/R8 is
 configured to keep them. The prebuilt `.so` files are committed, so building the
 app needs no NDK.
 
-Unlike the Hysteria core — downloaded at build time and verified against the
-SHA-256 values in `core/core.properties` — these four binaries are checked into
-git. They are pinned by `native/tun2socks/SHA256SUMS`, which
-`scripts/tun2socks.sh verify` checks on every pull request, and
-`scripts/tun2socks.sh build` is now byte-reproducible with the same NDK
-(`-ffile-prefix-map` removes the build path from the binary; measured, see
+The Hysteria core is downloaded at build time and verified against the SHA-256
+values in `core/core.properties`. The four `libtun2socks.so` files are different:
+they are checked into git and pinned by `native/tun2socks/SHA256SUMS`, which
+`scripts/tun2socks.sh verify` checks on every pull request. `scripts/tun2socks.sh build`
+is byte-reproducible with the same NDK (`-ffile-prefix-map` removes the build path;
+see
 [`native/tun2socks/README.md`](native/tun2socks/README.md#reproducibility)). The
-residual limit is the toolchain: a different NDK revision produces different
-code, so a byte-identical rebuild needs NDK r25c (25.2.9519653). Treat the
-committed files as the source of truth for a release and review the patches
-there.
+remaining limit is the toolchain: a different NDK revision produces different
+code, so a byte-identical rebuild needs NDK r25c (25.2.9519653). The committed
+files are what a release ships; review the patches there.
 
 ## Repository layout
 
@@ -590,17 +591,17 @@ its certificate digest becomes the last line of the release notes, so a download
 can be checked without trusting the release page: see
 [README > Verify your download](README.md#verify-your-download).
 
-`build.yml`, `connected.yml`, `release.yml` and `native.yml` end with
-`scripts/prune-runs.sh 3`:
-each deletes the runs of *that workflow* older than the number given (logs and
-artifacts included, which keeps the Actions tab and the artifact quota small).
-A deleted release run does not remove its GitHub Release. Those three workflows
-grant `actions: write` for it, and the script stops after one pass if it cannot
-delete anything.
+Every workflow includes a final cleanup step that runs `scripts/prune-runs.sh 3`.
+It keeps only the newest three runs of *that workflow* and deletes the rest,
+including their logs and artifacts, which keeps the Actions tab and the artifact
+quota small. Deleting a release run does not remove its GitHub Release. All five
+workflows grant `actions: write`; on a run whose token cannot delete (for example
+a pull request from a fork), the script stops after one pass instead of failing
+the job.
 
 ## Licences and the SBOM
 
-Three separate things describe what ships, and each can be checked:
+Three records describe what ships, and each has a CI check:
 
 | Question | Answer | Gate |
 | --- | --- | --- |
@@ -632,11 +633,11 @@ The result is deterministic for a commit: the document namespace is derived from
 the version and commit, `created` is the commit date rather than the clock, the
 temporary extraction path is normalised out of every SPDX id, and packages and
 relationships are sorted. Two runs over the same commit produced byte-identical
-files (checked before this was written). The tool is pinned: `release.yml`
+files. The tool is pinned: `release.yml`
 downloads `syft 1.33.0`, verifies it against the release's `checksums.txt`, and
 records `Tool: syft-1.33.0` in the document.
 
-What the SBOM does **not** contain, stated rather than implied: it does not list
+What the SBOM does **not** contain: it does not list
 every file in the APK (`filesAnalyzed: false` for the Maven packages), it does not
 resolve licences for the Go modules (syft reports `NOASSERTION` where the module
 does not declare one), and it says nothing about code that was shrunk away by R8.
@@ -738,12 +739,13 @@ published; `scripts/check-release-version.sh` asserts both halves of that rule.
 
 A release is then four steps:
 
-1. Bump the documentation in the same commit as the version: `README.md` and
-   `DOCS.md` both carry an `Applies to release` line naming `vX.Y.Z`, and any
-   `versions/<tag>/` link has to name a tag that exists.
+1. Update the documentation in the same commit as the version: change the
+   `Applies to` line in `README.md` and `DOCS.md` to `release vX.Y.Z`, and make
+   every `versions/<tag>/` link name a tag that exists.
 2. Run `scripts/check-version-consistency.sh`; it compares those lines, the
    versioned links and the core badge with the newest *pushed* tag. A local tag
    that was never pushed does not count: a release is what a user can download.
+   If no tag is published at all, the script warns and skips the comparison.
    `build.yml` runs the same script on every pull request and push.
 3. Push the commit to `main`, wait for the checks, then `git tag vX.Y.Z` and
    `git push origin vX.Y.Z`. The tag is the version — there is no second place to
@@ -766,7 +768,7 @@ What is deterministic, and how you can check it:
 | `BUILD-INFO.txt` | commit, versions, core, tun2socks hashes, certificate; sorted, no clock | attached to the release |
 | Artefacts → workflow | Sigstore attestation from the release workflow's OIDC identity | `gh attestation verify <file> --repo noelbennettz/Hy2droid` |
 
-What is **not** deterministic, stated rather than implied:
+What is **not** deterministic:
 
 - **The APK/AAB bytes.** AGP writes ZIP entries with the build's file
   modifications times and does not honour `SOURCE_DATE_EPOCH`, so two builds of
@@ -779,9 +781,9 @@ What is **not** deterministic, stated rather than implied:
   fact: the code comes from the version name, so a rebuild of the same tag is the
   same code (Play refuses that upload as a duplicate, which is the intended
   outcome).
-- **Signing time.** `apksigner` is not given a timestamp source; the v2/v3
-  signature block carries no signing time, so the signature itself adds nothing
-  varying — but the ZIP does.
+- **Signing time.** `apksigner` is not given a timestamp source. The v2/v3
+  signature block carries no signing time, so the signature adds nothing that
+  varies; the ZIP timestamps still do.
 
 CI never reads the clock for anything that lands in an artefact, and never reads
 `github.run_number` for a version. The one remaining clock dependency is the ZIP
