@@ -394,8 +394,17 @@ screen's packaged data, and share-link parsing through the device's own
 ```
 
 CI runs them in `.github/workflows/connected.yml` on API 30 for every pull
-request and on API 30 + API 37 on `main` (see
+request, and on API 30 + API 36 on `main` (see
 [Continuous integration and releases](#continuous-integration-and-releases)).
+
+**API 36, not 37.** `targetSdk` is 37, but Google publishes no
+`system-images;android-37*` image and no `platforms;android-37` package (the
+platform is `platforms;android-37.0`), so `android-emulator-runner` — which
+installs `platforms;android-<api-level>` before booting — cannot start an API 37
+emulator; it fails in its own setup step, before any test runs. 36 is the newest
+emulator image that exists, so it is what runs; API 37 behaviour (edge-to-edge,
+orientation/resizability rules, local network permission) is checked on a
+physical device running Android 17.
 
 **Real VPN testing stays a physical-device job.** These tests render screens and
 write settings; none of them establish a tunnel, because that needs a reachable
@@ -518,7 +527,7 @@ directory.
 | Workflow | Trigger | Output |
 | --- | --- | --- |
 | `.github/workflows/build.yml` | push to `main`, pull request, or manual | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `scripts/check-locales.sh`, `scripts/check-version-consistency.sh`, `scripts/check-docs.sh`, `testDebugUnitTest`, `lintDebug`; a second job builds the release variant + AAB unsigned |
-| `.github/workflows/connected.yml` | pull request (API 30), push to `main` / manual (API 30 and 37) | instrumentation-test report; gate: `connectedDebugAndroidTest` on an emulator |
+| `.github/workflows/connected.yml` | pull request (API 30), push to `main` / manual (API 30 and 36) | instrumentation-test report; gate: `connectedDebugAndroidTest` on an emulator |
 | `.github/workflows/release.yml` | pushing a `v*` tag, or manual with a version | signed release APKs, a signed AAB for Play, `SHA256SUMS.txt`, `BUILD-INFO.txt`, a build attestation, and a GitHub Release |
 | `.github/workflows/native.yml` | manual | rebuilt `libtun2socks.so` for all four ABIs, as an artifact |
 | `.github/workflows/dco.yml` | pull request | `scripts/check-dco.sh` over the pull request's commits; plain git, no GitHub App |
