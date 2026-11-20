@@ -55,9 +55,11 @@ repository.
   *first* connection — upstream: "the client will not connect until the first
   call to TCP() or UDP()"; after that the session is held open), with a 20 s QUIC
   heartbeat.
-- **16 KB page size**: `libtun2socks.so` is 16 KB aligned on all four ABIs, and
-  the bundled Hysteria core is 16 KB aligned on the 64-bit ones (its 32-bit
-  builds stay at 4 KB, which is what those devices expect).
+- **16 KB page size**: `libtun2socks.so` is 16 KB `LOAD`-aligned on all four ABIs,
+  including `armeabi-v7a` and `x86` (32-bit devices run 4 KB kernels, so the flag
+  is harmless there and keeps one build rule instead of two); the bundled Hysteria
+  core is 16 KB aligned on the 64-bit ABIs only, and stays at 4 KB on the 32-bit
+  ones, which is what those devices expect.
   `scripts/core.sh verify` fails if the core regresses on `arm64-v8a` or `x86_64`,
   `scripts/tun2socks.sh verify` if `libtun2socks.so` regresses on any of the four,
   and Android 15+ on a 16 KB-page device loads the 64-bit libraries without a
@@ -322,12 +324,15 @@ app needs no NDK.
 
 Unlike the Hysteria core — downloaded at build time and verified against the
 SHA-256 values in `core/core.properties` — these four binaries are checked into
-git and carry no published hash of their own. They are reproducible only
-approximately: `scripts/tun2socks.sh build` rebuilds them from the pinned
-upstream tag plus the two patches listed in
-[`native/tun2socks/README.md`](native/tun2socks/README.md), but the toolchain
-version is not pinned, so a rebuild is not byte-identical. Treat the committed
-files as the source of truth for a release and review the patches there.
+git. They are pinned by `native/tun2socks/SHA256SUMS`, which
+`scripts/tun2socks.sh verify` checks on every pull request, and
+`scripts/tun2socks.sh build` is now byte-reproducible with the same NDK
+(`-ffile-prefix-map` removes the build path from the binary; measured, see
+[`native/tun2socks/README.md`](native/tun2socks/README.md#reproducibility)). The
+residual limit is the toolchain: a different NDK revision produces different
+code, so a byte-identical rebuild needs NDK r25c (25.2.9519653). Treat the
+committed files as the source of truth for a release and review the patches
+there.
 
 ## Repository layout
 
@@ -338,7 +343,7 @@ files as the source of truth for a release and review the patches there.
 | `app/src/main/java/us/leaf3stones/hy2droid/proxy` | `Hysteria2VpnService`, `VpnTileService`, `TunnelStatus` (`TunnelState.kt`), `Tun`, `Tun2socksConfig`, `DnsMode`, `NetworkSwitch`, `LatencyProbe`, `TunnelProbe`, `CoreLog` |
 | `app/src/main/res` | `values/strings.xml` and the six translations, `xml/locales_config.xml`, the backup rules |
 | `app/src/main/jniLibs` | `libtun2socks.so` (committed, see `native/tun2socks/`); `libhysteria.so` is downloaded at build time |
-| `native/tun2socks` | Patches applied on top of hev-socks5-tunnel (blocked-port rules, JNI names) |
+| `native/tun2socks` | Patches applied on top of hev-socks5-tunnel (blocked-port rules, JNI names), plus `SHA256SUMS` pinning the four committed libraries |
 | `core/core.properties` | Pinned Hysteria core version + per-ABI checksums |
 | `scripts/core.sh` | Fetch / verify / upgrade the core |
 | `scripts/tun2socks.sh` | Rebuild `libtun2socks.so` from the pinned upstream tag + patches |
@@ -447,12 +452,13 @@ binary with `-c <config>`; if a release changes the YAML schema,
 | `scripts/check-style.sh` | Enforce the `.editorconfig` rules; `--fix` rewrites the mechanical ones |
 | `scripts/prune-runs.sh [keep]` | Delete all but the newest runs of the workflow that is running it (default `keep=3`) |
 
-`scripts/tun2socks.sh` takes one of four subcommands:
+`scripts/tun2socks.sh` takes one of five subcommands:
 
 | Command | Description |
 | --- | --- |
 | `scripts/tun2socks.sh build [abi…]` | Clone the pinned hev-socks5-tunnel tag (`HEV_TAG` in the script), apply `native/tun2socks/*.patch`, run `ndk-build`, install into `app/src/main/jniLibs/` |
-| `scripts/tun2socks.sh verify` | Check the committed `.so` files, including 16 KB LOAD alignment on all four ABIs (run in CI) |
+| `scripts/tun2socks.sh verify` | Check the committed `.so` files against `native/tun2socks/SHA256SUMS`, then check the JNI entry points and 16 KB LOAD alignment on all four ABIs (run in CI) |
+| `scripts/tun2socks.sh sha256` | Print the manifest for the four current libraries; redirect it to refresh the checked-in file |
 | `scripts/tun2socks.sh source` | Prepare the patched tree only and print its path |
 | `scripts/tun2socks.sh info` | Pinned upstream version, patch list, and the alignment of whichever core is bundled |
 
@@ -675,7 +681,9 @@ must be linked with 16 KB LOAD alignment to be mapped there. Both libraries are:
 `libtun2socks.so` on all four ABIs and the bundled core on `arm64-v8a` and
 `x86_64`. The core's `armeabi-v7a` and `x86` builds stay at 4 KB, which is what
 `scripts/core.sh verify` requires: only the 64-bit libraries are checked, because
-those are the ones a 16 KB-page kernel loads.
+those are the ones a 16 KB-page kernel loads. `libtun2socks.so` is 16 KB aligned
+even on the 32-bit ABIs — an unused alignment on 4 KB kernels, not a bug, and it
+means one build rule instead of two.
 `scripts/tun2socks.sh info` prints the alignment of whatever core is bundled.
 
 ### Connected, but pages do not load — where do I start?

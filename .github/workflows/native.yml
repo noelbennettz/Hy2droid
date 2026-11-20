@@ -30,13 +30,26 @@ jobs:
         run: bash scripts/tun2socks.sh build
 
       - name: Verify
+        # Also compares the fresh binaries with native/tun2socks/SHA256SUMS, so
+        # this run shows whether the committed files are reproducible from the
+        # pinned sources; refresh the manifest in the same commit as the .so
+        # files when a patch or HEV_TAG changes.
         run: bash scripts/tun2socks.sh verify
+
+      - name: Show how the rebuilt binaries differ from the manifest
+        if: always()
+        run: |
+          set -o pipefail
+          bash scripts/tun2socks.sh sha256 | diff -u native/tun2socks/SHA256SUMS - || true
+          git --no-pager diff --stat -- app/src/main/jniLibs native/tun2socks/SHA256SUMS || true
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
           name: libtun2socks-so
-          path: app/src/main/jniLibs/*/libtun2socks.so
+          path: |
+            app/src/main/jniLibs/*/libtun2socks.so
+            native/tun2socks/SHA256SUMS
           if-no-files-found: error
 
       # Last on purpose: keep only the newest three runs of this workflow.
