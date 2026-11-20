@@ -130,8 +130,9 @@ android {
     }
 
     // CI runs `lintDebug`: lint errors fail the build, warnings stay warnings.
-    // Translation coverage is checked by the i18n script instead (it compares the
-    // key sets across all locales, which lint cannot do).
+    // Translation coverage is `scripts/check-locales.sh` instead: it compares the
+    // complete key set of every values-*/strings.xml, which lint does not do
+    // (lint only notices a *missing* translation of a string it sees in code).
     lint {
         abortOnError = true
         warningsAsErrors = false
