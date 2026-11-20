@@ -140,7 +140,7 @@ jobs:
       # go: every run re-resolved every dependency.
       # gradle/actions/setup-gradle v4.4.3
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c
 
       # Platform 37 can be newer than the runner image's SDK, so install it
       # explicitly instead of depending on the image's revision.
@@ -214,7 +214,7 @@ jobs:
 
       # gradle/actions/setup-gradle v4.4.3
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c
 
       - name: Install Android SDK platform 37
         run: |
