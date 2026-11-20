@@ -54,10 +54,11 @@ jobs:
           # and `1.0.0-rc1` are both 1000000), so Play refuses the second upload
           # as a duplicate. Fail here, before anything is built or published;
           # `-dev` names stay valid for local and CI builds.
-          if ! name="$(bash scripts/version.sh release "$name")"; then
+          if ! release_name="$(bash scripts/version.sh release "$name")"; then
             echo "::error::release versions must be stable X.Y.Z, got '$name' — push the final tag instead of a pre-release one"
             exit 1
           fi
+          name="$release_name"
           # versionCode is a pure function of the version name (scripts/version.sh),
           # so a rebuild of the same tag keeps the same, upgradeable code. The
           # workflow run number is deliberately not used: it changes on every run.
