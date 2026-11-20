@@ -2,9 +2,11 @@ package us.leaf3stones.hy2droid.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +14,12 @@ import kotlinx.coroutines.flow.map
 import org.json.JSONArray
 import org.json.JSONObject
 
-private val Context.profileDataStore: DataStore<Preferences> by preferencesDataStore(name = "hysteria_profiles")
+// A corrupt profiles file must not crash the app; recover to an empty list (the
+// individual-entry decode below still salvages a hand-edited array).
+private val Context.profileDataStore: DataStore<Preferences> by preferencesDataStore(
+    name = "hysteria_profiles",
+    corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+)
 
 /**
  * Id to keep selected after the entry at [removedIndex] was deleted: the entry
@@ -241,7 +248,9 @@ class ProfileStore(private val context: Context) {
             txMbps = tx,
             rxMbps = rx,
             fastOpen = o.optBoolean("fastOpen", true),
-            port = o.optInt("port", 443),
+            // A hand-edited or restored value outside the port range would only
+            // fail later in the core; fall back to the default instead.
+            port = o.optInt("port", 443).takeIf { it in 1..65535 } ?: 443,
         )
     }
 

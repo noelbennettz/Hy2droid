@@ -2,9 +2,11 @@ package us.leaf3stones.hy2droid.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -12,7 +14,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.json.JSONArray
 
-private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+// A corrupt preferences file must not take the app down at startup: the
+// handler falls back to the defaults below (and DataStore rewrites the file).
+private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(
+    name = "settings",
+    corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+)
 
 /**
  * Global (non per-profile) app settings, persisted in a Preferences DataStore.
@@ -105,7 +112,7 @@ class SettingsStore(private val context: Context) {
      * buffer plus a fixed 84 KiB task stack, so the default is a compromise.
      */
     val tcpBufferKb: Flow<Int> = context.settingsDataStore.data
-        .map { it[keyTcpBuffer] ?: DEFAULT_TCP_BUFFER_KB }
+        .map { clampTcpBufferKb(it[keyTcpBuffer] ?: DEFAULT_TCP_BUFFER_KB) }
 
     /**
      * Whether ICMP echo is answered inside the tunnel (`tunnel.icmp: reply`).
