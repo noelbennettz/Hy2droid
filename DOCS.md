@@ -278,6 +278,13 @@ placeholders intact, escape apostrophes as
 `\'`). `app_name` is not translated (`translatable="false"`). The layouts only use
 direction-aware padding/alignment, so RTL (Arabic) mirrors correctly.
 
+`scripts/check-locales.sh` compares the **complete key set** — strings, plurals
+and string arrays — of every `values-*/strings.xml` with the default file and
+fails on a missing key, an extra key (usually a rename that only touched one
+side), a duplicate, or an element type that differs. `build.yml` runs it on every
+pull request, next to `check-style.sh`. Lint's `MissingTranslation` stays disabled:
+it only reports a string it sees used in code, while this compares the files.
+
 ## How it works
 
 ```
@@ -450,6 +457,7 @@ binary with `-c <config>`; if a release changes the YAML schema,
 | `scripts/core.sh` | Fetch / verify / upgrade the bundled Hysteria core (see [Bundled core](#bundled-core)) |
 | `scripts/tun2socks.sh` | Rebuild, verify or inspect `libtun2socks.so` (see below) |
 | `scripts/check-style.sh` | Enforce the `.editorconfig` rules; `--fix` rewrites the mechanical ones |
+| `scripts/check-locales.sh` | Fail when the `values-*/strings.xml` key sets differ from `values/strings.xml` (missing, extra, duplicate, or a changed element type) |
 | `scripts/version.sh` | The single source of `versionName`/`versionCode`; `app/build.gradle` calls it |
 | `scripts/check-version-consistency.sh` | Fail when README/DOCS name a release other than the newest pushed tag, or the core badge drifts from `core/core.properties` |
 | `scripts/prune-runs.sh [keep]` | Delete all but the newest runs of the workflow that is running it (default `keep=3`) |
