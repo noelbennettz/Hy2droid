@@ -230,7 +230,7 @@ jobs:
       # actions/attest-build-provenance v2.3.0
       - name: Attest build provenance
         if: steps.signing.outputs.signed == 'true'
-        uses: actions/attest-build-provenance@db473fddc028af60658334401dc6fa3ffd8669fd
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
         with:
           subject-path: |
             app/build/outputs/apk/release/*.apk
