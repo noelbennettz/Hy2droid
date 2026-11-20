@@ -185,6 +185,10 @@ jobs:
       # Maven artefacts from Licensee's report. Deterministic for a commit (see
       # scripts/sbom.sh), so two runs over the same tag produce the same bytes.
       - name: Generate SPDX SBOM
+        env:
+          # The dispatched version, not the nearest tag plus -dev: the document
+          # describes this release.
+          HY2_VERSION_NAME: ${{ steps.version.outputs.name }}
         run: bash scripts/sbom.sh app/build/outputs/apk/release/app-universal-release.apk
 
       - name: Upload SBOM
@@ -215,7 +219,7 @@ jobs:
             echo "version=${{ steps.version.outputs.name }}"
             echo "versionCode=${{ steps.version.outputs.code }}"
             echo "commit=$(git rev-parse HEAD)"
-            echo "tag=${{ github.ref_name }}"
+            echo "tag=v${{ steps.version.outputs.name }}"
             echo "core=$(grep -m1 '^HYSTERIA_VERSION=' core/core.properties | cut -d= -f2)"
             echo "tun2socks=$(sed -n 's/^HEV_TAG=\"\\(.*\\)\"$/\\1/p' scripts/tun2socks.sh)"
             echo "tun2socks_sha256:"

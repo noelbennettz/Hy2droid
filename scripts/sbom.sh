@@ -34,7 +34,7 @@ die() { echo "sbom: $*" >&2; exit 1; }
 [ -f "$APK" ] || die "no APK at $APK (build one first, or pass a path)"
 command -v syft > /dev/null || die "syft is not on PATH (CI installs a pinned release)"
 
-version="$(bash scripts/version.sh name)"
+version="${HY2_VERSION_NAME:-$(bash scripts/version.sh name)}"
 commit="$(git rev-parse HEAD)"
 created="$(git log -1 --format=%cI)"
 [ -n "$OUT" ] || OUT="hy2droid-$version.spdx.json"
