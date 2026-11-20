@@ -221,7 +221,7 @@ jobs:
             echo "commit=$(git rev-parse HEAD)"
             echo "tag=v${{ steps.version.outputs.name }}"
             echo "core=$(grep -m1 '^HYSTERIA_VERSION=' core/core.properties | cut -d= -f2)"
-            echo "tun2socks=$(sed -n 's/^HEV_TAG=\"\\(.*\\)\"$/\\1/p' scripts/tun2socks.sh)"
+            echo "tun2socks=$(grep -m1 '^HEV_TAG=' scripts/tun2socks.sh | cut -d'"' -f2)"
             echo "tun2socks_sha256:"
             sort native/tun2socks/SHA256SUMS | sed 's/^/  /'
             echo "signing_certificate_sha256=${{ steps.checksums.outputs.certificate }}"
