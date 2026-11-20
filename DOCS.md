@@ -1,8 +1,7 @@
 # Hy2droid documentation
 
-> Applies to `main`. No release is published at the moment; when one is, this line
-> names its tag. Older versions keep their documentation on the project site under
-> `versions/<tag>/`.
+> Applies to `main`. Older versions keep their documentation on the project site
+> under `versions/<tag>/`.
 
 The README is the short version. This file has the details: every feature and
 setting, the profile fields, blocked-port rules, split tunnelling, how the tunnel
