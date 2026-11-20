@@ -445,6 +445,8 @@ binary with `-c <config>`; if a release changes the YAML schema,
 | `scripts/core.sh` | Fetch / verify / upgrade the bundled Hysteria core (see [Bundled core](#bundled-core)) |
 | `scripts/tun2socks.sh` | Rebuild, verify or inspect `libtun2socks.so` (see below) |
 | `scripts/check-style.sh` | Enforce the `.editorconfig` rules; `--fix` rewrites the mechanical ones |
+| `scripts/version.sh` | The single source of `versionName`/`versionCode`; `app/build.gradle` calls it |
+| `scripts/check-version-consistency.sh` | Fail when README/DOCS name a release other than the newest pushed tag, or the core badge drifts from `core/core.properties` |
 | `scripts/prune-runs.sh [keep]` | Delete all but the newest runs of the workflow that is running it (default `keep=3`) |
 
 `scripts/tun2socks.sh` takes one of four subcommands:
@@ -467,7 +469,7 @@ directory.
 
 | Workflow | Trigger | Output |
 | --- | --- | --- |
-| `.github/workflows/build.yml` | push to `main`, pull request, or manual (`core_tag`) | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `testDebugUnitTest`, `lintDebug` |
+| `.github/workflows/build.yml` | push to `main`, pull request, or manual (`core_tag`) | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `scripts/check-version-consistency.sh`, `testDebugUnitTest`, `lintDebug` |
 | `.github/workflows/connected.yml` | pull request (API 30), push to `main` / manual (API 30 and 37) | instrumentation-test report; gate: `connectedDebugAndroidTest` on an emulator |
 | `.github/workflows/release.yml` | pushing a `v*` tag, or manual with a version | signed release APKs, a signed AAB for Play, + a GitHub Release |
 | `.github/workflows/native.yml` | manual | rebuilt `libtun2socks.so` for all four ABIs, as an artifact |
@@ -529,10 +531,49 @@ git tag v2.1.0 && git push origin v2.1.0     # versionName 2.1.0
 ```
 
 `versionName` comes from the tag (or the `version_name` input) and `versionCode`
-from the workflow run number, so every release is upgradeable. Without
+is derived from it, so every release is upgradeable. Without
 `ANDROID_KEYSTORE_BASE64` the workflow still builds (validating R8/ProGuard against
 the JNI bindings) but produces an unsigned APK, skips the signature check and does
 not publish.
+
+### Release procedure
+
+`versionName` and `versionCode` have one source: `scripts/version.sh`, which
+`app/build.gradle` calls. Nothing reads the clock, the workflow run number or a
+hand-maintained constant.
+
+| Input | `versionName` | `versionCode` |
+| --- | --- | --- |
+| `v1.2.3` tag on `HEAD` | `1.2.3` | `1002003` |
+| untagged commit, 11 commits after `v0.9.0` | `0.9.0-dev.11+g1f5e2fa` | `9000` |
+| no tags (exported tarball, or a shallow CI clone) | `0.0.0-dev` | `1` |
+| `workflow_dispatch` with `version_name: 2.1.0` | `2.1.0` | `2001000` |
+
+The code is `major*1_000_000 + minor*1_000 + patch`, a pure function of the name,
+so rebuilding the same commit or re-running the release workflow yields the same
+code. It used to be the workflow run number, which changed on every run and could
+not be reproduced; nothing has been published to Play, so there is no installed
+version whose code we would have to stay ahead of. The largest value Play accepts
+is 2 100 000 000, which caps the major at 2100 and the minor/patch at 999 —
+`scripts/version.sh` fails loudly outside that. A checkout with no tags at all
+derives `0`, which Android rejects as a `versionCode`, so it is clamped to `1`;
+those builds are never published.
+
+A release is then four steps:
+
+1. Bump the documentation in the same commit as the version: `README.md` and
+   `DOCS.md` both carry an `Applies to release` line naming `vX.Y.Z`, and any
+   `versions/<tag>/` link has to name a tag that exists.
+2. Run `scripts/check-version-consistency.sh`; it compares those lines, the
+   versioned links and the core badge with the newest *pushed* tag. A local tag
+   that was never pushed does not count: a release is what a user can download.
+   `build.yml` runs the same script on every pull request and push.
+3. Push the commit to `main`, wait for the checks, then `git tag vX.Y.Z` and
+   `git push origin vX.Y.Z`. The tag is the version — there is no second place to
+   type it in.
+4. `release.yml` builds, signs, writes `SHA256SUMS.txt`, publishes the GitHub
+   Release and uploads the AAB artifact. Getting that AAB onto a Play track is a
+   manual step, not something CI does.
 
 To sign locally, place the keystore at `signing/production.jks` (gitignored, or
 point `HY2_KEYSTORE_FILE` at it) and export `HY2_KEYSTORE_PASSWORD`,

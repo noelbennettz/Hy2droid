@@ -24,11 +24,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # scripts/version.sh derives versionName/versionCode from the tags;
+          # a shallow clone has none, so the debug APK would report 0.0.0-dev.
+          # The history here is small, and this also gives the consistency check
+          # the same tags a developer sees.
+          fetch-depth: 0
 
       # .editorconfig is not enforced by anything at build time; this is the
       # gate that keeps whitespace and import order from drifting.
       - name: Check code style
         run: bash scripts/check-style.sh
+
+      # README/DOCS say which release they describe, and the core badge says
+      # which core is pinned. This keeps a release note, a tag and the docs from
+      # drifting apart; it needs no Gradle, so it fails fast.
+      - name: Check docs and version consistency
+        run: bash scripts/check-version-consistency.sh
 
       # Licensee fails the build when a dependency is under a licence that is
       # not allowed in app/build.gradle. The same task produces the report the

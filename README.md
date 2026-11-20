@@ -103,7 +103,10 @@ device or emulator on API 30+), `./gradlew assembleRelease` (signed when a keyst
 is present) and `scripts/check-style.sh` (`--fix` rewrites the mechanical
 violations). The first build downloads the pinned core into
 `app/src/main/jniLibs/<abi>/libhysteria.so`; see [DOCS.md](DOCS.md) for the core
-tooling, the instrumentation tests, the signing secrets and the CI jobs.
+tooling, the instrumentation tests, the signing secrets and the CI jobs. A local
+build takes its version from git — `0.9.0-dev.11+g1f5e2fa` on an untagged commit,
+the tag itself on a tagged one — so `versionName` and `versionCode` always match
+what would be released.
 
 ## Documentation
 
