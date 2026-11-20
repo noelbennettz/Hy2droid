@@ -450,6 +450,8 @@ binary with `-c <config>`; if a release changes the YAML schema,
 | `scripts/core.sh` | Fetch / verify / upgrade the bundled Hysteria core (see [Bundled core](#bundled-core)) |
 | `scripts/tun2socks.sh` | Rebuild, verify or inspect `libtun2socks.so` (see below) |
 | `scripts/check-style.sh` | Enforce the `.editorconfig` rules; `--fix` rewrites the mechanical ones |
+| `scripts/check-docs.sh` | Fail when a Markdown link, a script, a workflow or the DOCS contents list disagrees with the repository |
+| `scripts/check-dco.sh <base> <head>` | Require a `Signed-off-by:` trailer matching the author on every non-merge commit; `dco.yml` runs it on pull requests |
 | `scripts/version.sh` | The single source of `versionName`/`versionCode`; `app/build.gradle` calls it |
 | `scripts/check-version-consistency.sh` | Fail when README/DOCS name a release other than the newest pushed tag, or the core badge drifts from `core/core.properties` |
 | `scripts/prune-runs.sh [keep]` | Delete all but the newest runs of the workflow that is running it (default `keep=3`) |
@@ -475,10 +477,11 @@ directory.
 
 | Workflow | Trigger | Output |
 | --- | --- | --- |
-| `.github/workflows/build.yml` | push to `main`, pull request, or manual (`core_tag`) | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `scripts/check-version-consistency.sh`, `testDebugUnitTest`, `lintDebug` |
+| `.github/workflows/build.yml` | push to `main`, pull request, or manual (`core_tag`) | debug APK as a workflow artifact; gates: `scripts/check-style.sh`, `scripts/check-version-consistency.sh`, `scripts/check-docs.sh`, `testDebugUnitTest`, `lintDebug`; a second job builds the release variant + AAB unsigned |
 | `.github/workflows/connected.yml` | pull request (API 30), push to `main` / manual (API 30 and 37) | instrumentation-test report; gate: `connectedDebugAndroidTest` on an emulator |
 | `.github/workflows/release.yml` | pushing a `v*` tag, or manual with a version | signed release APKs, a signed AAB for Play, + a GitHub Release |
 | `.github/workflows/native.yml` | manual | rebuilt `libtun2socks.so` for all four ABIs, as an artifact |
+| `.github/workflows/dco.yml` | pull request | `scripts/check-dco.sh` over the pull request's commits; plain git, no GitHub App |
 
 Both app workflows install and verify the bundled core before building and run
 `testDebugUnitTest`; `build.yml` also runs `scripts/check-style.sh` and `lintDebug`,
@@ -494,6 +497,29 @@ keeps the signed `app-release.aab` as a workflow artifact for the Play Console.
 dependency is not under one of the licences allowed in `app/build.gradle`
 (Apache-2.0, MIT, BSD-2-Clause, BSD-3-Clause, ISC); the same task writes the
 report the in-app licences screen shows.
+
+### What runs where, and what it costs
+
+`build.yml` has three jobs. `changes` reads the pull request's file list and says
+whether anything other than prose changed (anything outside
+`README.md`, `DOCS.md`, `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`, `NOTICE` and
+`screenshots/`). `debug-apk` runs on every pull request: style, locale parity,
+docs/version consistency, licences, the core and `libtun2socks.so` checks,
+`testDebugUnitTest`, `assembleDebug`, `lintDebug`. `unsigned-release` runs
+`assembleRelease` and `bundleRelease` — the R8/shrinking/bundle path that a tag
+uses — and skips itself for a documentation-only pull request. On `main` and on
+manual runs it always runs.
+
+Both Gradle jobs use `actions/setup-gradle`, which persists `~/.gradle/caches` and
+the build cache (`org.gradle.caching=true` in `gradle.properties`) between runs,
+so a warm run resolves no dependencies and recompiles only what changed.
+
+The **configuration cache is deliberately off**. `versionName`/`versionCode` are
+produced by `scripts/version.sh` (`git describe`) inside the build, and Gradle
+cannot see the git repository as an input: a restored configuration-cache entry
+would keep the version of whichever commit stored it, including a new tag's
+`versionCode`. A few seconds per run is not worth risking a release that
+reports the previous version.
 
 A signed release also runs `scripts/release-verify.sh`, which writes
 `SHA256SUMS.txt` (in `sha256sum` format) next to the APKs and reads the signing

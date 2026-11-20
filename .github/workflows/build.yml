@@ -19,6 +19,41 @@ permissions:
   actions: write
 
 jobs:
+  # A pull request that only edits prose does not need R8 to run. This job decides
+  # that, and the release-variant job below skips itself when the answer is "docs
+  # only". Everything else — the debug build, unit tests, lint, the licence and
+  # locale checks — still runs on every pull request.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether this change can affect the app
+        id: diff
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" != "pull_request" ]; then
+            echo "Not a pull request ($EVENT_NAME): building everything."
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed="$(git diff --name-only "$BASE_SHA" HEAD)"
+          printf '%s\n' "$changed"
+          if printf '%s\n' "$changed" | grep -qvE '^(README\.md|DOCS\.md|CONTRIBUTING\.md|SECURITY\.md|LICENSE|NOTICE|screenshots/)'; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=false" >> "$GITHUB_OUTPUT"
+            echo "Documentation-only change: skipping the release-variant build."
+          fi
+
   debug-apk:
     runs-on: ubuntu-latest
     steps:
@@ -31,6 +66,7 @@ jobs:
           # the same tags a developer sees.
           fetch-depth: 0
 
+
       # .editorconfig is not enforced by anything at build time; this is the
       # gate that keeps whitespace and import order from drifting.
       - name: Check code style
@@ -40,7 +76,9 @@ jobs:
       # which core is pinned. This keeps a release note, a tag and the docs from
       # drifting apart; it needs no Gradle, so it fails fast.
       - name: Check docs and version consistency
-        run: bash scripts/check-version-consistency.sh
+        run: |
+          bash scripts/check-version-consistency.sh
+          bash scripts/check-docs.sh
 
       # Licensee fails the build when a dependency is under a licence that is
       # not allowed in app/build.gradle. The same task produces the report the
@@ -81,6 +119,13 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      # Caches ~/.gradle/caches and the build cache between runs, and writes a
+      # summary of what was restored. This is where most of the CI time used to
+      # go: every run re-resolved every dependency.
+      # gradle/actions/setup-gradle v4.4.3
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a
+
       # Platform 37 can be newer than the runner image's SDK, so install it
       # explicitly instead of depending on the image's revision.
       - name: Install Android SDK platform 37
@@ -102,9 +147,6 @@ jobs:
             done
             exit "$rc"
           fi
-
-      - name: Build release APK (unsigned)
-        run: ./gradlew assembleRelease --no-daemon --console=plain
 
       - name: Lint
         run: |
@@ -133,3 +175,55 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/prune-runs.sh 3
+
+  # The release variant is where R8, resource shrinking and the JNI keep rules
+  # fail, so it has to run before a tag — but not for a pull request that only
+  # touched prose. Everything here mirrors release.yml except the signing step,
+  # which is exactly the part CI cannot reproduce without the keystore secrets.
+  unsigned-release:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # gradle/actions/setup-gradle v4.4.3
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a
+
+      - name: Install Android SDK platform 37
+        run: |
+          set -euo pipefail
+          sdkmgr="$(command -v sdkmanager || echo "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager")"
+          yes | "$sdkmgr" --licenses > /dev/null || true
+          "$sdkmgr" 'platforms;android-37.0'
+
+      - name: Install Hysteria core
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          bash scripts/core.sh fetch --pinned
+          bash scripts/core.sh verify
+
+      - name: Build release APK and app bundle (unsigned)
+        run: |
+          set +e
+          ./gradlew assembleRelease bundleRelease --no-daemon --stacktrace --console=plain 2>&1 | tee /tmp/release.log
+          rc=${PIPESTATUS[0]}
+          if [ "$rc" -ne 0 ]; then
+            echo "::error::Gradle release build failed (exit $rc); surfacing R8 errors:"
+            grep -E '^e: |error:|What went wrong|Caused by|> Task .* FAILED|R8: ' /tmp/release.log | tail -n 40 | while IFS= read -r line; do
+              echo "::error::$line"
+            done
+            exit "$rc"
+          fi
