@@ -21,6 +21,10 @@
 #                produce a different, non-upgradeable code. The largest value
 #                Google Play accepts is 2_100_000_000, which caps the major at
 #                2100 and the minor/patch at 999.
+#                A checkout with no tags at all (`0.0.0-dev`) derives 0, which
+#                Android rejects as a versionCode, so it is clamped to 1. Those
+#                builds are for CI and local use only; nothing is published from
+#                them.
 #
 # Nothing here reads the clock or the workflow run number.
 set -euo pipefail
@@ -87,7 +91,12 @@ version_code() {
   if (( major > 2100 || minor > 999 || patch > 999 )); then
     die "'$name' does not fit the versionCode rule (major <= 2100, minor/patch <= 999)"
   fi
-  printf '%s\n' "$(( major * 1000000 + minor * 1000 + patch ))"
+  local code=$(( major * 1000000 + minor * 1000 + patch ))
+  # A shallow CI clone has no tags, so the name is `0.0.0-dev` and the rule gives
+  # 0 — which AGP rejects ("versionCode is set to 0, but it should be a positive
+  # integer"). Nothing with that name is ever published, so one is enough.
+  (( code > 0 )) || code=1
+  printf '%s\n' "$code"
 }
 
 case "${1:-}" in

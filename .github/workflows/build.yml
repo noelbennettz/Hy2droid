@@ -24,6 +24,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # scripts/version.sh derives versionName/versionCode from the tags;
+          # a shallow clone has none, so the debug APK would report 0.0.0-dev.
+          # The history here is small, and this also gives the consistency check
+          # the same tags a developer sees.
+          fetch-depth: 0
 
       # .editorconfig is not enforced by anything at build time; this is the
       # gate that keeps whitespace and import order from drifting.

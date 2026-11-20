@@ -546,7 +546,7 @@ hand-maintained constant.
 | --- | --- | --- |
 | `v1.2.3` tag on `HEAD` | `1.2.3` | `1002003` |
 | untagged commit, 11 commits after `v0.9.0` | `0.9.0-dev.11+g1f5e2fa` | `9000` |
-| no tags (exported tarball) | `0.0.0-dev` | `0` |
+| no tags (exported tarball, or a shallow CI clone) | `0.0.0-dev` | `1` |
 | `workflow_dispatch` with `version_name: 2.1.0` | `2.1.0` | `2001000` |
 
 The code is `major*1_000_000 + minor*1_000 + patch`, a pure function of the name,
@@ -555,7 +555,9 @@ code. It used to be the workflow run number, which changed on every run and coul
 not be reproduced; nothing has been published to Play, so there is no installed
 version whose code we would have to stay ahead of. The largest value Play accepts
 is 2 100 000 000, which caps the major at 2100 and the minor/patch at 999 —
-`scripts/version.sh` fails loudly outside that.
+`scripts/version.sh` fails loudly outside that. A checkout with no tags at all
+derives `0`, which Android rejects as a `versionCode`, so it is clamped to `1`;
+those builds are never published.
 
 A release is then four steps:
 
