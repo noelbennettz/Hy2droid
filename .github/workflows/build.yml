@@ -36,6 +36,13 @@ jobs:
       - name: Check code style
         run: bash scripts/check-style.sh
 
+      # The two native components are not Maven artefacts, so nothing else checks
+      # their licence texts. This compares native/LICENSES.tsv with the assets the
+      # app shows, with NOTICE, and with the versions in core.properties and
+      # scripts/tun2socks.sh.
+      - name: Check native component licences
+        run: bash scripts/check-native-licences.sh
+
       # README/DOCS say which release they describe, and the core badge says
       # which core is pinned. This keeps a release note, a tag and the docs from
       # drifting apart; it needs no Gradle, so it fails fast.

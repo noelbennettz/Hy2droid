@@ -142,3 +142,9 @@ section 13 (network use) does not apply to it; what applies is the distribution
 side of the licence: every APK is published together with this source tree, and
 if you modify the app and distribute the result, you must offer the source of
 your version too.
+
+Each release also carries an SPDX 2.3 SBOM (`hy2droid-<version>.spdx.json`) that
+lists the Maven artefacts and the native components with their versions and
+licences, and every component's licence text is verified in CI against
+`native/LICENSES.tsv`, `NOTICE` and the assets the app shows. See
+[DOCS > Licences and the SBOM](DOCS.md#licences-and-the-sbom).

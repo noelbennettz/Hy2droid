@@ -1,0 +1,16 @@
+# Native components that ship inside the APK.
+#
+# These are not Maven artefacts, so neither Licensee nor the Gradle dependency
+# graph sees them: this file is the checked-in record, and
+# scripts/check-native-licences.sh verifies it against the licence texts in
+# app/src/main/assets/licenses/ (what Settings → About shows) and against NOTICE
+# (what the repository carries), plus the version each component's source of
+# truth declares.
+#
+# Columns, tab separated:
+#   component <TAB> version-source <TAB> licence-asset <TAB> upstream <TAB> SPDX id
+#
+# version-source is `<file>:<KEY>` (the value that pins the version) or
+# `binary` when the version comes from the shipped library itself.
+hysteria2-core	core/core.properties:HYSTERIA_VERSION	licenses/hysteria-LICENSE.txt	https://github.com/apernet/hysteria	MIT
+hev-socks5-tunnel	scripts/tun2socks.sh:HEV_TAG	licenses/hev-socks5-tunnel-LICENSE.txt	https://github.com/heiher/hev-socks5-tunnel	MIT

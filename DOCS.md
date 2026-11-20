@@ -26,6 +26,7 @@ repository.
 - [Bundled core](#bundled-core)
 - [Scripts](#scripts)
 - [Continuous integration and releases](#continuous-integration-and-releases)
+- [Licences and the SBOM](#licences-and-the-sbom)
 - [Setting up signing](#setting-up-signing)
 - [Updating](#updating)
 - [Security notes](#security-notes)
@@ -344,6 +345,7 @@ there.
 | `app/src/main/res` | `values/strings.xml` and the six translations, `xml/locales_config.xml`, the backup rules |
 | `app/src/main/jniLibs` | `libtun2socks.so` (committed, see `native/tun2socks/`); `libhysteria.so` is downloaded at build time |
 | `native/tun2socks` | Patches applied on top of hev-socks5-tunnel (blocked-port rules, JNI names), plus `SHA256SUMS` pinning the four committed libraries |
+| `native/LICENSES.tsv` | One row per bundled native component: version source, licence asset, upstream, SPDX id |
 | `core/core.properties` | Pinned Hysteria core version + per-ABI checksums |
 | `scripts/core.sh` | Fetch / verify / upgrade the core |
 | `scripts/tun2socks.sh` | Rebuild `libtun2socks.so` from the pinned upstream tag + patches |
@@ -450,6 +452,8 @@ binary with `-c <config>`; if a release changes the YAML schema,
 | `scripts/core.sh` | Fetch / verify / upgrade the bundled Hysteria core (see [Bundled core](#bundled-core)) |
 | `scripts/tun2socks.sh` | Rebuild, verify or inspect `libtun2socks.so` (see below) |
 | `scripts/check-style.sh` | Enforce the `.editorconfig` rules; `--fix` rewrites the mechanical ones |
+| `scripts/check-native-licences.sh` | Verify `native/LICENSES.tsv` against the licence assets the app shows, `NOTICE`, and the pinned versions |
+| `scripts/sbom.sh <apk>` | Write the SPDX 2.3 SBOM for a built APK (syft + Licensee's report); deterministic for a commit |
 | `scripts/version.sh` | The single source of `versionName`/`versionCode`; `app/build.gradle` calls it |
 | `scripts/check-version-consistency.sh` | Fail when README/DOCS name a release other than the newest pushed tag, or the core badge drifts from `core/core.properties` |
 | `scripts/prune-runs.sh [keep]` | Delete all but the newest runs of the workflow that is running it (default `keep=3`) |
@@ -511,7 +515,50 @@ A deleted release run does not remove its GitHub Release. Those three workflows
 grant `actions: write` for it, and the script stops after one pass if it cannot
 delete anything.
 
-## Setting up signing
+## Licences and the SBOM
+
+Three separate things describe what ships, and each can be checked:
+
+| Question | Answer | Gate |
+| --- | --- | --- |
+| Which Maven artefacts does the release link, and under what licence? | `./gradlew licenseeRelease` (plugin allowlist in `app/build.gradle`) and the same report as an app asset — the *Open source licenses* screen | `build.yml` fails on a disallowed licence |
+| Which native components, which version, which licence text? | `native/LICENSES.tsv` | `scripts/check-native-licences.sh` in `build.yml` |
+| What exactly is inside the built APK? | `hy2droid-<version>.spdx.json`, SPDX 2.3 | generated in `release.yml`, attached to the release |
+
+`native/LICENSES.tsv` is one row per bundled binary: the component, where its
+version is pinned (`core/core.properties` for the Go core, `scripts/tun2socks.sh`
+for the tunnel engine), the licence asset the app displays, the upstream
+repository and the SPDX licence id. `scripts/check-native-licences.sh` fails when
+the asset is missing or empty, when its text does not appear verbatim in `NOTICE`,
+when `ThirdPartyLicenses.kt` no longer references it, or when the version in the
+manifest disagrees with the pin. The texts themselves are the upstream files,
+committed unchanged — this repository does not write or paraphrase licence text.
+
+`scripts/sbom.sh <apk>` builds the SBOM from two real inputs:
+
+- **syft** scans the unpacked universal APK. It reads the **Go build info** of
+  `libhysteria.so`, so the Hysteria core and its whole module graph appear with
+  versions syft read from the binary. The three other ABI copies of that library
+  are excluded: they are the same code and would list every module four times.
+- **Licensee's report** supplies the Maven artefacts (Compose, AndroidX, …).
+  syft cannot see them: by the time the APK is packaged they are DEX, and the JARs
+  are gone. Their SPDX licence ids come from the same report the in-app screen
+  shows, so the SBOM and the app cannot disagree.
+
+The result is deterministic for a commit: the document namespace is derived from
+the version and commit, `created` is the commit date rather than the clock, the
+temporary extraction path is normalised out of every SPDX id, and packages and
+relationships are sorted. Two runs over the same commit produced byte-identical
+files (checked before this was written). The tool is pinned: `release.yml`
+downloads `syft 1.33.0`, verifies it against the release's `checksums.txt`, and
+records `Tool: syft-1.33.0` in the document.
+
+What the SBOM does **not** contain, stated rather than implied: it does not list
+every file in the APK (`filesAnalyzed: false` for the Maven packages), it does not
+resolve licences for the Go modules (syft reports `NOASSERTION` where the module
+does not declare one), and it says nothing about code that was shrunk away by R8.
+It is an inventory of what was linked, not a legal opinion.
+
 
 Add four repository secrets (Settings → Secrets and variables → Actions):
 
