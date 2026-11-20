@@ -9,6 +9,8 @@ on:
 
 permissions:
   contents: read
+  # For the run cleanup step: keep only the newest three dco runs.
+  actions: write
 
 jobs:
   sign-off:
@@ -25,3 +27,10 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: bash scripts/check-dco.sh "$BASE_SHA" "$HEAD_SHA"
+
+      # Same retention rule as every other workflow: newest three runs only.
+      - name: Prune old workflow runs
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/prune-runs.sh 3

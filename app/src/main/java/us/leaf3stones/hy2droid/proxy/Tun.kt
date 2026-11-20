@@ -9,9 +9,24 @@ import us.leaf3stones.hy2droid.data.HysteriaConfigBuilder
  * files with a "must match" comment, which fails silently when one drifts.
  */
 object Tun {
-    const val IPV4 = "10.0.88.88"
-    const val PREFIX4 = 16
-    const val IPV6 = "fc00::1"
+    /**
+     * The interface address, deliberately outside every range in [LanRanges]:
+     * a VPN address inside `10.0.0.0/8` would make the connected route for its
+     * own subnet (e.g. `10.0.0.0/16`) shadow the excluded `10.0.0.0/8`, so a
+     * LAN on `10.0.x` would still be routed into the tunnel. 198.51.100.0/24 is
+     * TEST-NET-2 (RFC 5737) and never a real destination.
+     */
+    const val IPV4 = "198.51.100.1"
+    const val PREFIX4 = 24
+
+    /**
+     * A ULA `/64` that is not used by the common defaults (Docker's
+     * `fd00:dead:beef::/48`, Kubernetes' `fd00:10:244::/56`, Tailscale's
+     * `fd7a:115c:a1e0::/48`, …). It is inside the ULA space excluded by
+     * "bypass LAN"; only this single /64 can be shadowed, which is why the
+     * prefix is deliberately unusual.
+     */
+    const val IPV6 = "fd00:6879:6472:6f69::1"
     const val PREFIX6 = 64
 
     /** The core's local SOCKS5 port that the tunnel engine dials. */

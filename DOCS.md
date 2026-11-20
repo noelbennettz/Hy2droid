@@ -85,7 +85,8 @@ repository.
   address only means something while the app is connected, so a client that
   resolves early and connects much later can fail, and IPv6-only destinations do
   not resolve in this mode. With the switch off, the tun gets real resolvers —
-  Quad9 (`9.9.9.9`) with Cloudflare (`1.1.1.1`) as the backup — because Android
+  Quad9 (`9.9.9.9` / `2620:fe::fe`) with Cloudflare (`1.1.1.1` /
+  `2606:4700:4700::1111`) as the backup — because Android
   has no "no DNS means use the tunnel" mode: with an empty DNS list it resolves
   through the underlying network, so the queries leave over Wi-Fi and never reach
   the server. **Custom DNS server** (off by default) overrides the switch: the
@@ -299,7 +300,7 @@ UI (Compose / Material 3)
                                        ▼
                      Hysteria2VpnService (VpnService)
                         ├─ VpnService.Builder → TUN fd
-                        │    IPv4 10.0.88.88/16, IPv6 fc00::1/64,
+                        │    IPv4 198.51.100.1/24, IPv6 fd00:6879:6472:6f69::1/64,
                         │    MTU from Settings (default 1500)
                         ├─ exec libhysteria.so -c filesDir/hysteria.yaml
                         │    → 127.0.0.1:1080 (SOCKS5) + :1081 (HTTP)

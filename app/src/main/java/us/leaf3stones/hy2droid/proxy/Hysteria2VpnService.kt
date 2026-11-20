@@ -492,9 +492,15 @@ class Hysteria2VpnService : VpnService() {
         if (dnsAdded == 0) {
             // A restored/hand-edited preference can slip a non-address through.
             // A VPN with no resolver at all would let Android resolve through the
-            // underlying network (a DNS leak), so fall back to the safe default.
-            Log.w(TAG, "No usable DNS server in $dnsServers; using the default resolver")
-            builder.addDnsServer(SettingsStore.DEFAULT_DNS_PRIMARY)
+            // underlying network (a DNS leak), so fall back to the safe defaults.
+            Log.w(TAG, "No usable DNS server in $dnsServers; using the default resolvers")
+            for (dns in SettingsStore.DEFAULT_DNS_SERVERS) {
+                try {
+                    builder.addDnsServer(dns)
+                } catch (_: Exception) {
+                    // The defaults are numeric; ignore a platform that disagrees.
+                }
+            }
         }
         builder.addRoute("0.0.0.0", 0)
         builder.addRoute("::", 0)

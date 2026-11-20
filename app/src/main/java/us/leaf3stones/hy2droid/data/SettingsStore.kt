@@ -250,19 +250,29 @@ class SettingsStore(private val context: Context) {
 
     companion object {
         /**
-         * Resolvers pushed into the tunnel when the custom DNS switch is off: Quad9
-         * first, Cloudflare as the backup. Any address works — the query is routed
-         * into the VPN and answered from the server's egress — but Android needs at
-         * least one, otherwise it resolves through the underlying network and leaks
-         * DNS outside the tunnel.
+         * Resolvers pushed into the tunnel when the custom DNS switch is off:
+         * Quad9 first, Cloudflare as the backup, with the IPv6 counterpart of
+         * each so a dual-stack or IPv6-only network can resolve through the
+         * tunnel instead of falling back to the underlying one.
          */
         const val DEFAULT_DNS_PRIMARY = "9.9.9.9"
 
         /** Backup resolver, used when the primary does not answer. */
         const val DEFAULT_DNS_SECONDARY = "1.1.1.1"
 
-        /** The two addresses above, in the order they are pushed to the tun. */
-        val DEFAULT_DNS_SERVERS: List<String> = listOf(DEFAULT_DNS_PRIMARY, DEFAULT_DNS_SECONDARY)
+        /** Quad9 over IPv6 (`2620:fe::fe`). */
+        const val DEFAULT_DNS_PRIMARY_V6 = "2620:fe::fe"
+
+        /** Cloudflare over IPv6 (`2606:4700:4700::1111`). */
+        const val DEFAULT_DNS_SECONDARY_V6 = "2606:4700:4700::1111"
+
+        /** Every default resolver, paired IPv4 then IPv6, in priority order. */
+        val DEFAULT_DNS_SERVERS: List<String> = listOf(
+            DEFAULT_DNS_PRIMARY,
+            DEFAULT_DNS_PRIMARY_V6,
+            DEFAULT_DNS_SECONDARY,
+            DEFAULT_DNS_SECONDARY_V6,
+        )
 
         /**
          * Default TUN MTU: 1500, the largest standard Ethernet frame. The TUN is

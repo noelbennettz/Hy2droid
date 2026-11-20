@@ -15,7 +15,8 @@ class Tun2socksConfigTest {
         val yaml = Tun2socksConfig.build(emptyList())
 
         assertTrue(yaml.contains("socks5:\n  port: 1080\n  address: 127.0.0.1\n  udp: 'udp'"))
-        assertTrue(yaml.contains("ipv4: 10.0.88.88"))
+        assertTrue(yaml.contains("ipv4: ${Tun.IPV4}"))
+        assertTrue(yaml.contains("ipv6: '${Tun.IPV6}'"))
         assertTrue(yaml.contains("misc:\n  tcp-buffer-size: "))
         assertFalse(yaml.contains("block-"))
     }

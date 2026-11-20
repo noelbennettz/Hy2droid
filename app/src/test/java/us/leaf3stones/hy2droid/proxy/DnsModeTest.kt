@@ -38,15 +38,22 @@ class DnsModeTest {
     }
 
     @Test
-    fun `forwarded mode is bit-identical to the old behaviour`() {
+    fun `forwarded mode pushes both stacks of both public resolvers`() {
         assertEquals(
-            listOf("9.9.9.9", "1.1.1.1"),
+            listOf(
+                "9.9.9.9",
+                "2620:fe::fe",
+                "1.1.1.1",
+                "2606:4700:4700::1111",
+            ),
             dnsServersFor(DnsMode.Forwarded, "8.8.8.8", "8.8.4.4"),
         )
         assertEquals(
             SettingsStore.DEFAULT_DNS_SERVERS,
             dnsServersFor(DnsMode.Forwarded, "", ""),
         )
+        assertEquals(SettingsStore.DEFAULT_DNS_PRIMARY_V6, "2620:fe::fe")
+        assertEquals(SettingsStore.DEFAULT_DNS_SECONDARY_V6, "2606:4700:4700::1111")
     }
 
     @Test
@@ -79,6 +86,18 @@ class DnsModeTest {
             listOf("1.0.0.1"),
             dnsServersFor(DnsMode.Custom, "1.0.0.1", Tun.MAPPED_DNS),
         )
+    }
+
+    @Test
+    fun `the tun address is outside every lan range`() {
+        // Otherwise the VPN's own connected route shadows the excluded range and
+        // "bypass local network" silently stops working for that subnet.
+        for ((network, prefix) in LanRanges.IPV4) {
+            assertFalse(
+                "${Tun.IPV4} must not be inside $network/$prefix",
+                inPrefix(Tun.IPV4, network, prefix),
+            )
+        }
     }
 
     /**
