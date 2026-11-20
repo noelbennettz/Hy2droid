@@ -4,7 +4,9 @@
 #
 #   scripts/version.sh name            versionName for this checkout
 #   scripts/version.sh code [name]     versionCode for that name (default: `name`)
-#   scripts/version.sh newest-tag      newest v* tag, default: from origin
+#   scripts/version.sh newest-tag      newest published v* tag (default: origin)
+#                                      empty when origin has no tags; local tags
+#                                      are used only when origin cannot be queried
 #   scripts/version.sh print           name and code, one `key=value` per line
 #   scripts/version.sh release <name>  validate a stable release name
 #
@@ -51,15 +53,19 @@ sort_versions() { sort -V; }
 
 newest_tag() {
   local source="${1:-origin}"
-  local tags=""
+  local tags="" raw="" rc=0
   if have_git; then
     if [ "$source" = "origin" ]; then
-      # The release a user can download is the pushed tag, not a local one, so
-      # an unpushed tag never becomes "the newest release" here.
-      tags="$(git ls-remote --tags --refs origin 'v*' 2>/dev/null \
-                | sed -n 's#.*refs/tags/##p' || true)"
-    fi
-    if [ -z "$tags" ]; then
+      # The release a user can download is the pushed tag, not a local one. Ask
+      # the remote; only when it cannot be reached at all fall back to the local
+      # tags. A successful query with no tags means nothing is published yet.
+      raw="$(git ls-remote --tags --refs origin 'v*' 2>/dev/null)" || rc=$?
+      if [ "$rc" -eq 0 ]; then
+        tags="$(printf '%s\n' "$raw" | sed -n 's#.*refs/tags/##p')"
+      else
+        tags="$(git tag --list 'v*')"
+      fi
+    else
       tags="$(git tag --list 'v*')"
     fi
   fi

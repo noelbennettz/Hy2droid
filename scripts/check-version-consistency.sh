@@ -11,6 +11,10 @@
 #     release, so it is ignored by default.
 #   * every `versions/vX.Y.Z/` path in those files belongs to a real tag.
 #   * the Hysteria core badge in README.md matches `core/core.properties`.
+#   * when origin has no `v*` tag at all, the version checks are skipped with a
+#     warning: there is no published release to compare the documents against.
+#     (Deleting a release is a deliberate state; only an unreachable remote falls
+#     back to local tags instead.)
 #
 # Docs-only gate: no Gradle, no Android SDK, ~1 s.
 set -euo pipefail
@@ -26,8 +30,11 @@ note() { echo "version-consistency: $*" >&2; fail=1; }
 
 newest="$(bash scripts/version.sh newest-tag "$source" || true)"
 if [ -z "$newest" ]; then
-  echo "version-consistency: no v* tag found; nothing to compare against" >&2
-  exit 1
+  # A repository with no published release has nothing to compare against. That
+  # is a deliberate state (tags and releases can be removed), not a docs error;
+  # warn and keep the build usable.
+  echo "version-consistency: no v* tag in $source; nothing is published to compare against, skipping" >&2
+  exit 0
 fi
 echo "newest published tag: $newest (source: $source)"
 
