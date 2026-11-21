@@ -69,7 +69,10 @@ repository.
 - **Failures are named**, not just reported: the status card turns the core's own
   log line into a short explanation (name does not resolve, TLS failed, password
   rejected, nothing came back, something else answered, obfuscation mismatch),
-  while the raw line stays in logcat and the diagnostics export.
+  while the raw line stays in logcat and the diagnostics export. The explanation
+  goes away when the core reports a successful connection again (or when the
+  tunnel is restarted after a network handover), so a timeout from an outage
+  does not sit under a recovered tunnel.
 - **Answer ping locally** (Settings → Network → Advanced, off by default): Hysteria carries
   TCP and UDP only, so ICMP cannot cross it; this makes the engine answer echo
   itself. It is off by default because a fake reply makes ping meaningless.

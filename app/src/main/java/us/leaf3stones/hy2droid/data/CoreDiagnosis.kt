@@ -62,4 +62,17 @@ object CoreDiagnosis {
         if (text.isBlank() || text.contains("redacted")) return null
         return RULES.firstOrNull { rule -> rule.needles.any { text.contains(it) } }?.problem
     }
+
+    /**
+     * True when [line] says the core has a working session again.
+     *
+     * The core prints this on every (re)connect, with a `count` field, so it is
+     * the positive signal that makes an earlier diagnosis obsolete. Without it a
+     * hint from the outage (typically [CoreProblem.Timeout]) would sit under a
+     * Connected tunnel until the user disconnected and connected again.
+     */
+    fun connectionEstablished(line: String): Boolean =
+        line.lowercase().contains(CONNECTED_NEEDLE)
+
+    private const val CONNECTED_NEEDLE = "connected to server"
 }

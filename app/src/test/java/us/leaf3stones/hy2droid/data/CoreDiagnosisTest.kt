@@ -1,7 +1,9 @@
 package us.leaf3stones.hy2droid.data
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /** The heuristics behind "why is it not working". */
@@ -66,5 +68,17 @@ class CoreDiagnosisTest {
         assertNull(CoreDiagnosis.classify("INFO connected to server"))
         assertNull(CoreDiagnosis.classify(""))
         assertNull(CoreDiagnosis.classify("client: [redacted: line contains credentials]"))
+    }
+
+    @Test
+    fun `a successful reconnect is recognised`() {
+        assertTrue(
+            CoreDiagnosis.connectionEstablished(
+                "2026-11-21T10:00:00+08:00\tINFO\tconnected to server\t" +
+                    "{\"addr\": \"203.0.113.7:443\", \"udpEnabled\": true, \"count\": 2}",
+            ),
+        )
+        assertFalse(CoreDiagnosis.connectionEstablished("dial tcp 203.0.113.7:443: i/o timeout"))
+        assertFalse(CoreDiagnosis.connectionEstablished(""))
     }
 }

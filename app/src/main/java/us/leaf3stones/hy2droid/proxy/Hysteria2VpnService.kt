@@ -110,6 +110,14 @@ class Hysteria2VpnService : VpnService() {
 
     private val networkSwitch = NetworkSwitchPolicy()
 
+    /**
+     * True when the last settled snapshot had no usable transport. The hint
+     * from that outage has to go the moment a transport is back, even if the
+     * lazy core has not opened a new handshake yet.
+     */
+    @Volatile
+    private var networkLost = false
+
     @Volatile
     private var shuttingDown = false
 
@@ -555,6 +563,7 @@ class Hysteria2VpnService : VpnService() {
         networkTokenCache.clear()
         networkTokens.value = null
         networkSwitch.reset()
+        networkLost = false
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) = record(network)
 
@@ -644,6 +653,7 @@ class Hysteria2VpnService : VpnService() {
         networkTokenCache.clear()
         networkTokens.value = null
         networkSwitch.reset()
+        networkLost = false
         val callback = networkCallback ?: return
         networkCallback = null
         try {
@@ -659,11 +669,19 @@ class Hysteria2VpnService : VpnService() {
             // Nothing usable: show it instead of a stale "Connected". The core is
             // kept alive — a returning network is adopted below, and killing it
             // here would only make the recovery slower.
+            networkLost = true
             if (TunnelStatus.state.value == TunnelState.Connected) {
                 updateState(TunnelState.Connecting)
                 refreshNotification()
             }
             return
+        }
+        if (networkLost) {
+            networkLost = false
+            // The core may still be failing for a real reason; it re-reports that
+            // on the next attempt, but an outage diagnosis must not outlive the
+            // outage.
+            TunnelStatus.setProblem(null)
         }
         when (networkSwitch.onCurrent(token)) {
             NetworkAction.Adopt -> {
@@ -766,9 +784,17 @@ class Hysteria2VpnService : VpnService() {
                         val safe = Redact.logLine(line)
                         Log.v(CORE_TAG, safe)
                         coreLog?.write(safe)
-                        // Say what went wrong while it is happening, not only in
-                        // an exported log after the fact.
-                        CoreDiagnosis.classify(safe)?.let { TunnelStatus.setProblem(it) }
+                        // A successful (re)connect means the failure described by
+                        // the previous hint is over; the core prints this line on
+                        // every handshake, including the ones it retries by
+                        // itself after the network came back.
+                        if (CoreDiagnosis.connectionEstablished(safe)) {
+                            TunnelStatus.setProblem(null)
+                        } else {
+                            // Say what went wrong while it is happening, not only
+                            // in an exported log after the fact.
+                            CoreDiagnosis.classify(safe)?.let { TunnelStatus.setProblem(it) }
+                        }
                     }
                 }
             } catch (_: Exception) {
@@ -834,6 +860,11 @@ class Hysteria2VpnService : VpnService() {
         monitorJob?.cancelAndJoin()
         monitorJob = null
 
+        // The hint belongs to the process that just died, and this restart is
+        // usually the network returning. The new core re-reports anything that
+        // is still wrong; keeping the old line would claim a timeout under a
+        // connection that is being rebuilt.
+        TunnelStatus.setProblem(null)
         val fresh = launchCore(configFile)
         if (fresh == null) {
             fail(getString(R.string.error_core_launch))
