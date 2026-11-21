@@ -1,6 +1,6 @@
 # Hy2droid documentation
 
-> Applies to `main`. Older versions keep their documentation on the project site
+> Applies to release `v0.9.0`. Older versions keep their documentation on the project site
 > under `versions/<tag>/`.
 
 The README is the short version. This file has the details: every feature and

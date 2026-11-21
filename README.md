@@ -1,6 +1,6 @@
 # Hy2droid — a native Hysteria 2 client for Android
 
-> Applies to `main`. Older versions keep their documentation on the project site
+> Applies to release `v0.9.0`. Older versions keep their documentation on the project site
 > under `versions/<tag>/`, for example
 > [`versions/v0.9.0/settings.md`](https://noelbennettz.github.io/Hy2droid/versions/v0.9.0/settings.md).
 
