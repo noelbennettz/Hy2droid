@@ -34,7 +34,7 @@ Run the same gates CI runs:
 ./scripts/check-style.sh                 # whitespace, import order, line width
 ./scripts/check-locales.sh               # identical key sets in every translation
 ./scripts/check-docs.sh                  # links, anchors, undocumented scripts
-./scripts/check-version-consistency.sh   # README/DOCS vs the newest pushed tag
+./scripts/check-version-consistency.sh   # README/DOCS stay version-neutral
 ./gradlew testDebugUnitTest lintDebug    # lint errors fail the build
 ```
 
@@ -47,16 +47,17 @@ If a change touches a screen or anything that needs an Android runtime, run
 — CI runs it on every pull request, but a failure there costs a round trip.
 Bumping the app version is not a Gradle change: `scripts/version.sh` derives it
 from the git tag (see DOCS > Release procedure). `scripts/check-version-consistency.sh`
-fails a pull request whose documentation still names an older release.
+fails a pull request whose documentation pins the tree to one release, links a
+tag that does not exist, or lets the core badge drift.
 
 Keep a change small and explained: what it changes, why, and what you tested. If
 it changes behaviour a user can see, update `DOCS.md` and both language versions
 of the site — they live in the
 [`noelbennettz.github.io`](https://github.com/noelbennettz/noelbennettz.github.io)
 repository under `docs/Hy2droid/` (`index.html` and `zh.html`), so a site change
-is a pull request against that repository, not this one. A change that affects an
-existing release's behaviour is documented under `versions/<tag>/` on the project
-site, as the README says.
+is a pull request against that repository, not this one. A change that affects
+behaviour users see updates `DOCS.md`; an older release keeps the documentation
+it shipped with at its tag, and that copy is not rewritten.
 
 ## Commit sign-off (DCO)
 

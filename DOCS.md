@@ -1,7 +1,7 @@
 # Hy2droid documentation
 
-> Applies to release `v0.9.0`. Older versions keep their documentation on the project site
-> under `versions/<tag>/`.
+> This tree documents the current `main`. A release keeps the documentation it
+> shipped with at its own tag (`git show <tag>:DOCS.md`).
 
 The README is the short version. This file has the details: every feature and
 setting, the profile fields, blocked-port rules, split tunnelling, how the tunnel
@@ -190,9 +190,8 @@ without opening it.
 Everything here is stored in the app's private DataStore and survives a restart; the
 app sends none of it anywhere. Android Auto Backup can include the DataStore in a
 device backup (see [Security notes](#security-notes)). The order above is the order
-on screen. Older 0.9.0 builds had the advanced items inline in *Network*, as the
-[`versions/v0.9.0/settings.md`](https://noelbennettz.github.io/Hy2droid/versions/v0.9.0/settings.md)
-page shows.
+on screen. Earlier releases had the advanced items inline in *Network*; the
+documentation at those tags describes the older layout.
 
 ## Profile fields
 
@@ -514,7 +513,7 @@ binary with `-c <config>`; if a release changes the YAML schema,
 | `scripts/check-native-licences.sh` | Verify `native/LICENSES.tsv` against the licence assets the app shows, `NOTICE`, and the pinned versions |
 | `scripts/sbom.sh <apk>` | Write the SPDX 2.3 SBOM for a built APK (syft + Licensee's report); deterministic for a commit |
 | `scripts/version.sh` | The single source of `versionName`/`versionCode`; `app/build.gradle` calls it |
-| `scripts/check-version-consistency.sh` | Fail when README/DOCS name a release other than the newest pushed tag, or the core badge drifts from `core/core.properties` |
+| `scripts/check-version-consistency.sh` | Fail when README/DOCS pin the tree to a release, a versioned link names no tag, or the core badge drifts from `core/core.properties` |
 | `scripts/check-release-version.sh` | Fail when `version.sh release` accepts a suffixed version, or `release.yml` stops validating before the build |
 | `scripts/prune-runs.sh [keep]` | Delete all but the newest runs of the workflow that is running it (default `keep=3`) |
 
@@ -744,13 +743,12 @@ published; `scripts/check-release-version.sh` asserts both halves of that rule.
 
 A release is then four steps:
 
-1. Update the documentation in the same commit as the version: change the
-   `Applies to` line in `README.md` and `DOCS.md` to `release vX.Y.Z`, and make
-   every `versions/<tag>/` link name a tag that exists.
-2. Run `scripts/check-version-consistency.sh`; it compares those lines, the
-   versioned links and the core badge with the newest *pushed* tag. A local tag
-   that was never pushed does not count: a release is what a user can download.
-   If no tag is published at all, the script warns and skips the comparison.
+1. Update the documentation in the same commit as the version, and keep it
+   version-neutral: the header describes `main`, not the release being cut,
+   because the tag itself keeps the documentation that shipped with it.
+2. Run `scripts/check-version-consistency.sh`; it fails when `README.md` or
+   `DOCS.md` pins the tree to a release, when a versioned link names a tag that
+   does not exist, or when the core badge drifts from `core/core.properties`.
    `build.yml` runs the same script on every pull request and push.
 3. Push the commit to `main`, wait for the checks, then `git tag vX.Y.Z` and
    `git push origin vX.Y.Z`. The tag is the version — there is no second place to
