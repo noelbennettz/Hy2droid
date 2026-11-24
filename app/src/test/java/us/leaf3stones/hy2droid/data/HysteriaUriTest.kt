@@ -211,4 +211,30 @@ class HysteriaUriTest {
         val legacy = requireNotNull(HysteriaUri.parse("hysteria2://pw@example.com/?obfs-password=x"))
         assertEquals("x", legacy.obfsPassword)
     }
+
+    @Test
+    fun `extracts a link from surrounding clipboard text`() {
+        // Chat apps put the link in a sentence, sometimes with a line break and
+        // a trailing quote; the link itself never contains a raw space.
+        val text = "Here you go:\n   hysteria2://pw@example.com:8443/?sni=a.example#Node \nthanks!"
+        assertEquals(
+            "hysteria2://pw@example.com:8443/?sni=a.example#Node",
+            HysteriaUri.extractLink(text),
+        )
+    }
+
+    @Test
+    fun `extracts the short hy2 alias`() {
+        assertEquals("hy2://pw@example.com", HysteriaUri.extractLink("hy2://pw@example.com"))
+        assertEquals("HY2://pw@example.com", HysteriaUri.extractLink("HY2://pw@example.com"))
+    }
+
+    @Test
+    fun `extractLink returns null when there is no share link`() {
+        assertNull(HysteriaUri.extractLink(null))
+        assertNull(HysteriaUri.extractLink(""))
+        assertNull(HysteriaUri.extractLink("   \n\t "))
+        assertNull(HysteriaUri.extractLink("https://example.com/?x=hysteria2://a@b"))
+        assertNull(HysteriaUri.extractLink("plain text with no link"))
+    }
 }

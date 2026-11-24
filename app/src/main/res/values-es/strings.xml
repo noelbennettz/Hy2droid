@@ -16,6 +16,14 @@
     <string name="action_disconnect">Desconectar</string>
     <string name="action_connect">Conectar</string>
     <string name="action_scan_import">Escanear</string>
+    <string name="add_title">Añadir un servidor</string>
+    <string name="add_from_link">Importar desde un enlace</string>
+    <string name="add_from_link_summary">Lee un enlace hysteria2 del portapapeles</string>
+    <string name="add_scan_qr">Escanear código QR</string>
+    <string name="add_scan_qr_summary">Usa la cámara con el código que te enviaron</string>
+    <string name="add_manual">Introducir manualmente</string>
+    <string name="add_manual_summary">Escribe el servidor, el puerto y la contraseña</string>
+    <string name="clipboard_no_link">No hay ningún enlace hysteria2 en el portapapeles</string>
     <string name="import_success">Perfil importado</string>
     <string name="import_invalid">El enlace hysteria2 no es válido</string>
     <string name="scan_hint">Apunta la cámara a un código QR de Hysteria</string>
@@ -45,8 +53,6 @@
     <string name="edit_title_edit">Editar perfil</string>
     <string name="action_save">Guardar</string>
     <string name="action_back">Atrás</string>
-    <string name="action_import">Importar</string>
-    <string name="field_import_link">Pega un enlace hysteria2://</string>
     <string name="field_name">Nombre</string>
     <string name="field_server">Servidor (host)</string>
     <string name="field_port">Puerto</string>

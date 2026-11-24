@@ -16,6 +16,14 @@
     <string name="action_disconnect">قطع الاتصال</string>
     <string name="action_connect">اتصال</string>
     <string name="action_scan_import">مسح</string>
+    <string name="add_title">إضافة خادم</string>
+    <string name="add_from_link">استيراد من رابط</string>
+    <string name="add_from_link_summary">قراءة رابط hysteria2 من الحافظة</string>
+    <string name="add_scan_qr">مسح رمز QR</string>
+    <string name="add_scan_qr_summary">وجّه الكاميرا إلى الرمز الذي أرسله المزوّد</string>
+    <string name="add_manual">الإدخال يدويًا</string>
+    <string name="add_manual_summary">اكتب الخادم والمنفذ وكلمة المرور بنفسك</string>
+    <string name="clipboard_no_link">لا يوجد رابط hysteria2 في الحافظة</string>
     <string name="import_success">تم استيراد الملف</string>
     <string name="import_invalid">رابط hysteria2 غير صالح</string>
     <string name="scan_hint">وجّه الكاميرا نحو رمز QR الخاص بمشاركة Hysteria</string>
@@ -45,8 +53,6 @@
     <string name="edit_title_edit">تعديل الملف</string>
     <string name="action_save">حفظ</string>
     <string name="action_back">رجوع</string>
-    <string name="action_import">استيراد</string>
-    <string name="field_import_link">الصق رابط hysteria2://</string>
     <string name="field_name">الاسم</string>
     <string name="field_server">الخادم (المضيف)</string>
     <string name="field_port">المنفذ</string>

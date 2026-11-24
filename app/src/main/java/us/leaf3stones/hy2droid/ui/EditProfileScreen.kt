@@ -5,10 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -18,7 +16,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -28,16 +25,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import us.leaf3stones.hy2droid.R
-import us.leaf3stones.hy2droid.data.HysteriaUri
 import us.leaf3stones.hy2droid.data.Profile
 import java.util.UUID
 
@@ -61,10 +55,7 @@ fun EditProfileScreen(
     var rx by remember { mutableStateOf(initial?.rxMbps?.takeIf { it > 0 }?.toString().orEmpty()) }
     var insecure by remember { mutableStateOf(initial?.insecure ?: false) }
     var fastOpen by remember { mutableStateOf(initial?.fastOpen ?: true) }
-    var importLink by remember { mutableStateOf("") }
-    var importFailed by remember { mutableStateOf(false) }
     val scroll = rememberScrollState()
-    val scope = rememberCoroutineScope()
 
     // A port outside 1–65535 would only surface as a core error after Connect.
     val portValue = port.toIntOrNull()
@@ -99,55 +90,6 @@ fun EditProfileScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // A placeholder (not a label) is used here on purpose: a floating
-                // label reserves 8dp above the outline, which would shift this box
-                // down relative to the Import button next to it.
-                OutlinedTextField(
-                    value = importLink,
-                    onValueChange = { importLink = it },
-                    placeholder = { Text(stringResource(R.string.field_import_link)) },
-                    singleLine = true,
-                    modifier = Modifier.weight(1f),
-                )
-                OutlinedButton(
-                    onClick = {
-                        val parsed = HysteriaUri.parse(importLink)
-                        importFailed = importLink.isNotBlank() && parsed == null
-                        if (parsed != null) {
-                            name = parsed.name
-                            server = parsed.server
-                            port = parsed.port.toString()
-                            auth = parsed.auth
-                            sni = parsed.sni
-                            obfs = parsed.obfsPassword
-                            insecure = parsed.insecure
-                            brutal = parsed.brutal
-                            tx = parsed.txMbps.takeIf { it > 0 }?.toString().orEmpty()
-                            rx = parsed.rxMbps.takeIf { it > 0 }?.toString().orEmpty()
-                            // The link carried rates: jump to the Brutal block so
-                            // the values are not applied invisibly below the fold.
-                            if (parsed.hasBandwidth) {
-                                scope.launch { scroll.animateScrollTo(scroll.maxValue) }
-                            }
-                        }
-                    },
-                    shape = RoundedCornerShape(4.dp),
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .height(56.dp),
-                ) {
-                    Text(stringResource(R.string.action_import))
-                }
-            }
-            if (importFailed) {
-                Text(
-                    text = stringResource(R.string.import_invalid),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },

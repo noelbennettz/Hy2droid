@@ -55,11 +55,12 @@ prints it.
 
 Open the APK and allow the browser or file manager to install unknown apps when
 Android asks; that permission is per app and can be revoked afterwards. Add a
-profile with *Add profile → From link*, by scanning its QR code, or by opening the
-link on the device and letting the browser hand it to the app. Then press the
-power button and accept the VPN consent dialog, which appears once per app. The
-query parameters of a share link (`sni`, `obfs`, …) are optional; the server and
-password are not:
+server with the `+` button: *Import from link* reads a `hysteria2://` link from
+the clipboard, *Scan QR code* opens the camera, and *Enter manually* opens the
+editor. Opening the link on the device also works: the browser hands it to the
+app, which imports it without a form. Then press the power button and accept the
+VPN consent dialog, which appears once per app. The query parameters of a share
+link (`sni`, `obfs`, …) are optional; the server and password are not:
 
 ```
 hysteria2://password@server.example.com:443/?sni=server.example.com&obfs=salamander&obfs-password=secret&insecure=1#My%20node

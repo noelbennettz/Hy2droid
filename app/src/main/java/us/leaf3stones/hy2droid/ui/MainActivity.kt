@@ -160,6 +160,7 @@ private fun AppRoot(
         var aboutOpen by rememberSaveable { mutableStateOf(false) }
         var licensesOpen by rememberSaveable { mutableStateOf(false) }
         var scannerOpen by rememberSaveable { mutableStateOf(false) }
+        var addMenuOpen by rememberSaveable { mutableStateOf(false) }
 
         // The editor works on the stored profile: the ViewModel survives a
         // rotation, so this resolves on the first frame after one.
@@ -301,10 +302,7 @@ private fun AppRoot(
             )
             else -> HomeScreen(
                 viewModel = vm,
-                onAdd = {
-                    editingId = null
-                    editorOpen = true
-                },
+                onAdd = { addMenuOpen = true },
                 onEdit = { profile ->
                     editingId = profile.id
                     editorOpen = true
@@ -313,6 +311,32 @@ private fun AppRoot(
                 onDisconnect = vm::disconnect,
                 onOpenSettings = { settingsOpen = true },
                 onScan = { scannerOpen = true },
+            )
+        }
+
+        // The `+` menu: adding a profile no longer starts in the editor, so a
+        // link from the clipboard is one tap and never passes through a form.
+        if (addMenuOpen) {
+            AddProfileDialog(
+                onDismiss = { addMenuOpen = false },
+                onImportLink = {
+                    addMenuOpen = false
+                    val link = HysteriaUri.extractLink(context.readClipboardText())
+                    if (link == null) {
+                        Toast.makeText(context, R.string.clipboard_no_link, Toast.LENGTH_SHORT).show()
+                    } else {
+                        importLink(link)
+                    }
+                },
+                onScan = {
+                    addMenuOpen = false
+                    scannerOpen = true
+                },
+                onManual = {
+                    addMenuOpen = false
+                    editingId = null
+                    editorOpen = true
+                },
             )
         }
 

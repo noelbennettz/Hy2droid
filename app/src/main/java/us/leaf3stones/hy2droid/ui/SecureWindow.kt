@@ -49,6 +49,19 @@ internal fun Context.findActivity(): Activity? {
 }
 
 /**
+ * The first clipboard item as text, or `null` when the clip is empty or cannot
+ * be read.
+ *
+ * Android 10+ only hands the clip to an app that is in the foreground; every
+ * caller here is a button tap, so the app always is. Nothing is read in the
+ * background and nothing leaves the app.
+ */
+internal fun Context.readClipboardText(): String? = runCatching {
+    val clip = (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).primaryClip
+    if (clip == null || clip.itemCount == 0) null else clip.getItemAt(0).coerceToText(this).toString()
+}.getOrNull()
+
+/**
  * Put [text] on the system clipboard, marked sensitive where the platform
  * supports it (Android 13+): the system hides the preview, keeps it out of
  * clipboard-history UIs and clears it sooner. Share links carry the secret.

@@ -16,6 +16,14 @@
     <string name="action_disconnect">Отключить</string>
     <string name="action_connect">Подключить</string>
     <string name="action_scan_import">Сканировать</string>
+    <string name="add_title">Добавить сервер</string>
+    <string name="add_from_link">Импорт из ссылки</string>
+    <string name="add_from_link_summary">Прочитать ссылку hysteria2 из буфера обмена</string>
+    <string name="add_scan_qr">Сканировать QR-код</string>
+    <string name="add_scan_qr_summary">Наведите камеру на код, который прислал провайдер</string>
+    <string name="add_manual">Ввести вручную</string>
+    <string name="add_manual_summary">Введите сервер, порт и пароль самостоятельно</string>
+    <string name="clipboard_no_link">В буфере обмена нет ссылки hysteria2</string>
     <string name="import_success">Профиль импортирован</string>
     <string name="import_invalid">Недопустимая ссылка hysteria2</string>
     <string name="scan_hint">Наведите камеру на QR-код Hysteria</string>
@@ -45,8 +53,6 @@
     <string name="edit_title_edit">Изменение профиля</string>
     <string name="action_save">Сохранить</string>
     <string name="action_back">Назад</string>
-    <string name="action_import">Импорт</string>
-    <string name="field_import_link">Вставьте ссылку hysteria2://</string>
     <string name="field_name">Название</string>
     <string name="field_server">Сервер (хост)</string>
     <string name="field_port">Порт</string>

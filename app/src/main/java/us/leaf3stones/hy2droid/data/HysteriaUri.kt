@@ -76,6 +76,19 @@ object HysteriaUri {
         )
     }
 
+    /**
+     * The first share link inside [text], or `null`.
+     *
+     * Clipboard content often holds more than the link itself: a chat message, a
+     * quoted paragraph, a trailing line break. A share link cannot contain a raw
+     * space, so splitting on whitespace is enough to find it, and the `hy2://`
+     * alias other clients emit is accepted too.
+     */
+    fun extractLink(text: String?): String? =
+        text.orEmpty()
+            .split(' ', '\t', '\n', '\r', '\u000B', '\u000C')
+            .firstOrNull { token -> token.substringBefore("://", "").lowercase() in SCHEMES }
+
     /** `20`, `20Mbps` and `20 mbps` all mean the same thing in the wild. */
     private val BANDWIDTH = Regex("""^(\d+)\s*(?:mbps)?$""", RegexOption.IGNORE_CASE)
 

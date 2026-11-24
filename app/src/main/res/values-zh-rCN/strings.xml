@@ -16,6 +16,14 @@
     <string name="action_disconnect">断开连接</string>
     <string name="action_connect">连接</string>
     <string name="action_scan_import">扫码</string>
+    <string name="add_title">添加服务器</string>
+    <string name="add_from_link">从链接导入</string>
+    <string name="add_from_link_summary">从剪贴板读取 hysteria2 链接</string>
+    <string name="add_scan_qr">扫描二维码</string>
+    <string name="add_scan_qr_summary">用相机扫描服务商给你的二维码</string>
+    <string name="add_manual">手动输入</string>
+    <string name="add_manual_summary">自己填写服务器、端口和密码</string>
+    <string name="clipboard_no_link">剪贴板里没有 hysteria2 链接</string>
     <string name="import_success">已导入配置</string>
     <string name="import_invalid">无效的 hysteria2 链接</string>
     <string name="scan_hint">将摄像头对准 Hysteria 分享二维码</string>
@@ -45,8 +53,6 @@
     <string name="edit_title_edit">编辑配置</string>
     <string name="action_save">保存</string>
     <string name="action_back">返回</string>
-    <string name="action_import">导入</string>
-    <string name="field_import_link">粘贴 hysteria2:// 链接</string>
     <string name="field_name">名称</string>
     <string name="field_server">服务器（主机）</string>
     <string name="field_port">端口</string>

@@ -16,6 +16,14 @@
     <string name="action_disconnect">中斷連線</string>
     <string name="action_connect">連線</string>
     <string name="action_scan_import">掃描</string>
+    <string name="add_title">新增伺服器</string>
+    <string name="add_from_link">從連結匯入</string>
+    <string name="add_from_link_summary">從剪貼簿讀取 hysteria2 連結</string>
+    <string name="add_scan_qr">掃描 QR 碼</string>
+    <string name="add_scan_qr_summary">用相機掃描服務商給你的 QR 碼</string>
+    <string name="add_manual">手動輸入</string>
+    <string name="add_manual_summary">自己填寫伺服器、連接埠與密碼</string>
+    <string name="clipboard_no_link">剪貼簿裡沒有 hysteria2 連結</string>
     <string name="import_success">已匯入節點</string>
     <string name="import_invalid">不是有效的 hysteria2 連結</string>
     <string name="scan_hint">將鏡頭對準 Hysteria 分享 QR 碼</string>
@@ -45,8 +53,6 @@
     <string name="edit_title_edit">編輯節點</string>
     <string name="action_save">儲存</string>
     <string name="action_back">返回</string>
-    <string name="action_import">匯入</string>
-    <string name="field_import_link">貼上 hysteria2:// 連結</string>
     <string name="field_name">名稱</string>
     <string name="field_server">伺服器（主機）</string>
     <string name="field_port">連接埠</string>

@@ -37,12 +37,15 @@ repository.
 ## Features in detail
 
 - Full-tunnel `VpnService` backed by Hysteria 2, dual-stack (IPv4 + IPv6).
-- Multiple saved profiles. Import by pasting a `hysteria2://` link or by scanning
-  a QR code (an offline scanner, no Play Services needed). Tapping a profile
-  while connected switches to it: the service tears the old tunnel down and
-  rebuilds it, so no manual disconnect is needed. Re-importing the same account
-  updates that profile in place; a different password on the same host and port
-  is a separate account and becomes a new profile.
+- Multiple saved profiles. The `+` button offers the three ways one arrives:
+  *Import from link* reads a `hysteria2://` (or `hy2://`) link from the
+  clipboard and puts the profile straight into the list, *Scan QR code* opens the
+  offline camera scanner (no Play Services needed), and *Enter manually* opens
+  the editor. Tapping a profile while connected switches to it: the service tears
+  the old tunnel down and rebuilds it, so no manual disconnect is needed.
+  Re-importing the same account updates that profile in place; a different
+  password on the same host and port is a separate account and becomes a new
+  profile.
 - Share a profile as a QR code.
 - Salamander obfuscation, custom SNI, optional "allow insecure certificate".
 - Brutal congestion control as an explicit switch with an upload/download hint.
@@ -837,7 +840,8 @@ Nothing else on the device is written to.
   `FLAG_SECURE` while they are open, so the QR, the link and the passwords cannot
   be captured by screenshots, screen recordings or the recents thumbnail; copying
   the link marks the clip `EXTRA_IS_SENSITIVE` (Android 13+), which hides previews
-  and shortens its life.
+  and shortens its life. The clipboard is only read when *Import from link* is
+  tapped, and the text it returns stays in the app: nothing is logged or sent.
 - **What this does not cover, on purpose**: a rooted device or `adb` on a
   debuggable build can read the private directory, and Android's own backup can
   carry the file (Auto Backup is end-to-end encrypted with the device lock on
