@@ -194,7 +194,6 @@ dependencies {
     implementation platform(libs.androidx.compose.bom)
     implementation libs.androidx.ui
     implementation libs.androidx.ui.graphics
-    implementation libs.androidx.ui.tooling.preview
     implementation libs.androidx.material3
     implementation libs.androidx.material.icons.extended
     implementation libs.zxing.core
@@ -203,8 +202,6 @@ dependencies {
     implementation libs.androidx.camera.lifecycle
     implementation libs.androidx.camera.view
     testImplementation libs.junit
-    // Only previews need the tooling artefact, and only in debug builds.
-    debugImplementation libs.androidx.ui.tooling
 
     // Instrumentation tests: Compose UI on a device/emulator plus the AndroidX
     // test runner. ui-test-manifest supplies the empty ComponentActivity that

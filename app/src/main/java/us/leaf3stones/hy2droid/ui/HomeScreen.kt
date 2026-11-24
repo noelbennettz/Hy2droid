@@ -13,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.QrCode
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -51,7 +50,6 @@ fun HomeScreen(
     onConnect: (Profile) -> Unit,
     onDisconnect: () -> Unit,
     onOpenSettings: () -> Unit,
-    onScan: () -> Unit,
 ) {
     val profiles by viewModel.profiles.collectAsState()
     val selectedId by viewModel.selectedId.collectAsState()
@@ -95,12 +93,6 @@ fun HomeScreen(
                         Icon(
                             imageVector = Icons.Filled.Settings,
                             contentDescription = stringResource(R.string.settings_title),
-                        )
-                    }
-                    IconButton(onClick = onScan) {
-                        Icon(
-                            imageVector = Icons.Outlined.QrCode,
-                            contentDescription = stringResource(R.string.action_scan_import),
                         )
                     }
                 },

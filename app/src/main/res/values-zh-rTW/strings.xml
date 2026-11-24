@@ -15,7 +15,6 @@
     <string name="profile_in_use">使用中</string>
     <string name="action_disconnect">中斷連線</string>
     <string name="action_connect">連線</string>
-    <string name="action_scan_import">掃描</string>
     <string name="add_title">新增伺服器</string>
     <string name="add_from_link">從連結匯入</string>
     <string name="add_from_link_summary">從剪貼簿讀取 hysteria2 連結</string>

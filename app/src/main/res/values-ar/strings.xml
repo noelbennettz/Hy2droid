@@ -15,7 +15,6 @@
     <string name="profile_in_use">قيد الاستخدام</string>
     <string name="action_disconnect">قطع الاتصال</string>
     <string name="action_connect">اتصال</string>
-    <string name="action_scan_import">مسح</string>
     <string name="add_title">إضافة خادم</string>
     <string name="add_from_link">استيراد من رابط</string>
     <string name="add_from_link_summary">قراءة رابط hysteria2 من الحافظة</string>

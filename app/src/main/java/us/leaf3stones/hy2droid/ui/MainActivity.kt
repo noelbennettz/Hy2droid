@@ -310,7 +310,6 @@ private fun AppRoot(
                 onConnect = ::requestConnect,
                 onDisconnect = vm::disconnect,
                 onOpenSettings = { settingsOpen = true },
-                onScan = { scannerOpen = true },
             )
         }
 

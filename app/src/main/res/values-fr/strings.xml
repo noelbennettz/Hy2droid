@@ -15,7 +15,6 @@
     <string name="profile_in_use">En cours</string>
     <string name="action_disconnect">Déconnecter</string>
     <string name="action_connect">Connecter</string>
-    <string name="action_scan_import">Scanner</string>
     <string name="add_title">Ajouter un serveur</string>
     <string name="add_from_link">Importer depuis un lien</string>
     <string name="add_from_link_summary">Lire un lien hysteria2 depuis le presse-papiers</string>

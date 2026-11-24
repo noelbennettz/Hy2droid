@@ -17,7 +17,6 @@
     <string name="profile_in_use">In use</string>
     <string name="action_disconnect">Disconnect</string>
     <string name="action_connect">Connect</string>
-    <string name="action_scan_import">Scan</string>
     <string name="add_title">Add a server</string>
     <string name="add_from_link">Import from link</string>
     <string name="add_from_link_summary">Read a hysteria2 link from the clipboard</string>

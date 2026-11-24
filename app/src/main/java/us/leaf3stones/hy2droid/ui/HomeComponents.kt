@@ -91,8 +91,8 @@ fun ConnectionCard(
     }
 }
 
-@Composable
 /** The one-line explanation shown for a [CoreProblem]. */
+@Composable
 @StringRes
 private fun problemHint(problem: CoreProblem): Int = when (problem) {
     CoreProblem.HostNotFound -> R.string.core_hint_host

@@ -116,7 +116,7 @@ fun LicensesScreen(onBack: () -> Unit) {
                     expanded = open,
                     onClick = { expanded = if (open) null else asset },
                 )
-                if (open && asset != null) {
+                if (open) {
                     Text(
                         text = texts[asset].orEmpty(),
                         style = MaterialTheme.typography.bodySmall,
