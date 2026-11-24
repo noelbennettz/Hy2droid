@@ -24,7 +24,7 @@ under AGPL-3.0. You need an Android 11+ device and a Hysteria 2 server that you
 supply yourself.
 
 <p>
-  <img src="screenshots/s1.png" width="32%" alt="Hy2droid home screen: a Connected status card naming the profile Home, above a Profiles list where Home is marked In use with a 1242 ms latency reading, and the power and add-profile buttons at the bottom right.">
+  <img src="screenshots/s1.png" width="32%" alt="Hy2droid home screen: a Connected status card naming the profile Home, above a Profiles list where Home is marked In use with a 1100 ms latency reading, and the power and add-profile buttons at the bottom right.">
   <img src="screenshots/s2.png" width="32%" alt="Hy2droid settings screen: an Appearance section with Dynamic color, Show server address and Live traffic, then a Network section with Split tunneling, Blocked traffic, Bypass local network and Tunnel MTU, under the note that changes apply the next time you connect.">
 </p>
 
