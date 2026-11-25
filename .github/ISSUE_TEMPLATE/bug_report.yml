@@ -1,0 +1,117 @@
+name: Bug report
+description: The app does something other than what the documentation says
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read [Troubleshooting and diagnostics](https://github.com/noelbennettz/Hy2droid/blob/main/DOCS.md#troubleshooting-and-diagnostics)
+        and the [FAQ](https://github.com/noelbennettz/Hy2droid/blob/main/DOCS.md#faq)
+        first — "connected but nothing loads" usually ends there.
+
+        Never put a password, a share link or a server address in this issue, and
+        never paste a core log line that carries a URI. A vulnerability belongs
+        in [private reporting](https://github.com/noelbennettz/Hy2droid/security/advisories/new),
+        not here.
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before submitting
+      options:
+        - label: The newest release (or `main`) still has this problem.
+          required: true
+        - label: This is not a bug in the Hysteria core or in my own server —
+            those belong to [apernet/hysteria](https://github.com/apernet/hysteria).
+          required: true
+        - label: This issue and the zip I attach contain no share link, password,
+            server address or obfuscation password.
+          required: true
+  - type: input
+    id: app-version
+    attributes:
+      label: App version
+      description: Settings → About. Include the versionCode if it is shown.
+      placeholder: 0.9.0 (9000), core v2.14.0
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and Android version
+      description: Model, Android release, API level and ABI.
+      placeholder: Pixel 6, Android 17 (API 37), arm64-v8a
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How it was installed
+      options:
+        - Release APK from GitHub (arm64-v8a)
+        - Release APK from GitHub (armeabi-v7a)
+        - Release APK from GitHub (x86 / x86_64)
+        - Release APK from GitHub (universal)
+        - Built from source
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: network
+    attributes:
+      label: Where it happens
+      multiple: true
+      options:
+        - Wi-Fi
+        - Mobile data
+        - One network only
+        - Every network I tried
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: What you did, what you expected, what happened
+      description: Name the state the card shows (Connecting, Connected, an
+        error), and what you changed before it started.
+      placeholder: |
+        1. Imported a share link (do not paste the link itself)
+        2. Pressed connect; the card stayed on Connecting
+        3. Chrome reported ERR_CONNECTION_TIMED_OUT
+    validations:
+      required: true
+  - type: dropdown
+    id: test-tunnel
+    attributes:
+      label: Settings → Diagnostics → Test tunnel
+      description: If the tunnel came up, run it and report the first step that failed.
+      options:
+        - All three steps passed, but apps still fail
+        - Name lookup failed
+        - Connect failed
+        - Download failed
+        - Not run — the tunnel never comes up
+        - Not run — another reason
+    validations:
+      required: true
+  - type: dropdown
+    id: logs
+    attributes:
+      label: Exported logs
+      description: Settings → Diagnostics → Export logs writes a zip; drag it into
+        this issue. The export masks the password and share links.
+      options:
+        - Attached the zip from Export logs
+        - No zip — the app crashes before it can export one
+        - No zip — another reason
+    validations:
+      required: true
+  - type: textarea
+    id: server
+    attributes:
+      label: Server side (optional)
+      description: Only what you are willing to share — is the node yours, does
+        the same link work from the hysteria CLI on a desktop, which core version
+        does it run? No address, no password.
+    validations:
+      required: false

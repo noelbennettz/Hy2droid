@@ -1,0 +1,55 @@
+name: Feature request
+description: Propose a change to the app, its documentation or its build
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hy2droid is deliberately narrow: Hysteria 2 only, no Play Services, no
+        analytics, no crash reporting, no ads, no update check, no account and no
+        subscription URLs. A proposal that needs one of those is out of scope,
+        not a detail to negotiate.
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: The proposal works without Google Play Services, analytics,
+            crash reporting, ads, an update check or an account.
+          required: true
+        - label: The proposal is about Hysteria 2. Hysteria 1, TUIC, VLESS,
+            Shadowsocks and subscription URLs are separate products.
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does it solve?
+      description: The situation where the app gets in your way, rather than the
+        feature you already have in mind.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What should happen instead?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What did you try or consider?
+      description: Workarounds, another client, or a reason the current behaviour
+        exists.
+    validations:
+      required: false
+  - type: dropdown
+    id: implement
+    attributes:
+      label: Would you write it?
+      options:
+        - Yes, with guidance
+        - Yes, I have already started
+        - No, I am only proposing the idea
+    validations:
+      required: true

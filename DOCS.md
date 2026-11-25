@@ -369,6 +369,7 @@ files are what a release ships; review the patches there.
 | `scripts/tun2socks.sh` | Rebuild `libtun2socks.so` from the pinned upstream tag + patches |
 | `scripts/prune-runs.sh` | Delete all but the newest three runs of the workflow calling it |
 | `.github/workflows` | `build.yml` (debug + unit tests + lint), `connected.yml` (instrumentation tests on an emulator), `release.yml` (signed release), `native.yml` (rebuild `libtun2socks.so`) |
+| `.github/ISSUE_TEMPLATE` | Issue forms: `bug_report.yml` (version, device, Test tunnel result, exported logs), `feature_request.yml` (scope checkboxes), and `config.yml` (contact links; blank issues are off) |
 | `app/src/androidTest` | Instrumentation tests: settings screen, licences data, share-link parsing |
 
 ## Building and tooling
@@ -886,8 +887,9 @@ Nothing else on the device is written to.
   use `fetch --pinned` and ignore it.
 - Report bugs at
   [noelbennettz/Hy2droid/issues](https://github.com/noelbennettz/Hy2droid/issues)
-  with the *Export logs* zip attached — the config inside is redacted. Never paste
-  a share link: it contains the password.
+  — the *Bug report* form asks for the version, device, Test tunnel result and the
+  *Export logs* zip, whose config is redacted. Never paste a share link: it
+  contains the password.
 
 ## FAQ
 

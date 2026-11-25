@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Troubleshooting and diagnostics
+    url: https://github.com/noelbennettz/Hy2droid/blob/main/DOCS.md#troubleshooting-and-diagnostics
+    about: Test tunnel, Export logs, and what a core log line means.
+  - name: FAQ
+    url: https://github.com/noelbennettz/Hy2droid/blob/main/DOCS.md#faq
+    about: Supported Android versions, QUIC blocking, ping, subscriptions, root and Play Services.
+  - name: Report a vulnerability
+    url: https://github.com/noelbennettz/Hy2droid/security/advisories/new
+    about: Private advisory only. Never open a public issue with technical detail.
