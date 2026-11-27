@@ -6,7 +6,7 @@ coreKtx = "1.19.1"
 junit = "4.13.2"
 lifecycleRuntimeKtx = "2.11.0"
 activityCompose = "1.13.0"
-composeBom = "2026.09.00"
+composeBom = "2026.11.01"
 camera = "1.6.2"
 zxing = "3.5.4"
 # Instrumentation. The Compose test artifacts come from the BOM above.
