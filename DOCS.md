@@ -29,6 +29,7 @@ repository.
 - [Licences and the SBOM](#licences-and-the-sbom)
 - [Setting up signing](#setting-up-signing)
 - [Updating](#updating)
+- [Removing it](#removing-it)
 - [Security notes](#security-notes)
 - [Troubleshooting and diagnostics](#troubleshooting-and-diagnostics)
 - [FAQ](#faq)
@@ -811,20 +812,31 @@ to change it — see [Bundled core](#bundled-core). A core bump needs no app
 change unless upstream changes the YAML schema.
 
 Restoring on a new phone is Android Auto Backup's job (see
-[Security notes](#security-notes)).
+[Security notes](#security-notes)). Removing the app, its data and the backup
+copy is in [Removing it](#removing-it).
 
-### Uninstalling
+## Removing it
 
-Uninstall the app like any other (`adb uninstall us.leaf3stones.hy2droid`, or
-long-press the icon → App info → Uninstall). That deletes the app's private
-storage: every saved profile including its password, the settings and the
-exported diagnostics. If Android's backup is on, a copy may still exist under
-Settings → Google → Backup; restore it on a new phone and the old profiles come
-back.
+The app owns one directory — its private storage — and one system registration,
+the VPN entry Android keeps for it. What each action removes:
 
-Uninstalling also removes the VPN entry Android registered for the app. The
-Hysteria 2 server is untouched, and so is any `.conf` or QR code you exported.
-Nothing else on the device is written to.
+| Action | Removes | Keeps |
+| --- | --- | --- |
+| Long-press the icon → App info → Uninstall, or `adb uninstall us.leaf3stones.hy2droid` | the app, its private storage (every profile with its password, the settings, the exported diagnostics) and the VPN entry Android registered for it | the server and the share link, any `.conf` or QR code you saved, and the copy Android Auto Backup may hold |
+| Android Settings → Network → VPN → the Hy2droid entry → Forget | the VPN permission and the registered entry | the app and its profiles; the tunnel stops until the permission is granted again |
+| Settings → Google → Backup → App data | the backed-up copy of that app | the installed app and the data it holds now |
+
+Nothing outside `us.leaf3stones.hy2droid`'s private storage is written, so an
+uninstall leaves no directory behind: no cache, no log file, no profile file
+unless you chose a location for it in *Export logs*. A file you exported stays
+where you saved it.
+
+Deleting the app does not revoke anything on the server: the node is still in the
+Hysteria 2 configuration and the handshake keeps working for whoever holds that
+share link. Remove the credential on the server if the device is gone for good.
+
+Uninstalling is the one step that cannot be undone — the profile passwords exist
+only in the app's storage. Copy the share links out first if you might come back.
 
 ## Security notes
 
